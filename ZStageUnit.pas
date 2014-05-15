@@ -4,6 +4,7 @@ unit ZStageUnit;
 // (c) J.Dempster, Strathclyde Institute for Pharmacy & Biomedical Sciences
 // ========================================================================
 // 7/6/12 Supports Prior OptiScan II controller
+// 14.5.14 Supports voltage-controlled lens positioner
 
 interface
 
@@ -16,10 +17,11 @@ type
     procedure DataModuleDestroy(Sender: TObject);
   private
     { Private declarations }
+    FStageType : Integer ;    // Type of stage
     FEnabled : Boolean ;      // Z stage Enabled/disabled flag
     ComHandle : THandle ;     // Com port handle
     ComPortOpen : Boolean ;   // Com port open flag
-    FComPort : DWord ;      // Com port number
+    FControlPort : DWord ;    // Control port number
     FBaudRate : DWord ;       // Com port baud rate
     ControlState : Integer ;  // Z stage control state
     Status : String ;         // Z stage status report
@@ -29,24 +31,37 @@ type
 
     procedure OpenCOMPort ;
     procedure CloseCOMPort ;
+    procedure ResetCOMPort ;
     procedure SendCommand( const Line : string ) ;
     function ReceiveBytes( var EndOfLine : Boolean ) : string ;
-    procedure SetComPort( Value : DWord ) ;
+    procedure SetControlPort( Value : DWord ) ;
     procedure SetBaudRate( Value : DWord ) ;
     procedure SetEnabled( Value : Boolean ) ;
+    procedure SetStageType( Value : Integer ) ;
+
+    procedure UpdateZPositionOSII ;
+    procedure UpdateZPositionPZ ;
+    procedure MoveToOSII( Position : Double ) ;
+    procedure MoveToPZ( Position : Double ) ;
+    function GetZScaleFactorUnits : string ;
   public
     { Public declarations }
-    ZPosition : Double ;
-    StepsPerMicron : Double ;
+    ZPosition : Double ;     // Z position (um)
+    ZScaleFactor : Double ;  // Z step scaling factor
+    ZStepTime : Double ;     // Time to perform Z step (s)
     procedure Open ;
     procedure Close ;
     procedure UpdateZPosition ;
     procedure MoveTo( Position : Double ) ;
+    procedure GetZStageTypes( List : TStrings ) ;
+    procedure GetControlPorts( List : TStrings ) ;
 
   published
-    Property ComPort : DWORD read FComPort write SetComPort ;
+    Property ControlPort : DWORD read FControlPort write SetControlPort ;
     Property BaudRate : DWORD read FBaudRate write SetBaudRate ;
     Property Enabled : Boolean read FEnabled write SetEnabled ;
+    Property StageType : Integer read FStageType write SetStageType ;
+    Property ZScaleFactorUnits : string read GetZScaleFactorUnits ;
   end;
 
 var
@@ -56,6 +71,8 @@ implementation
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 
+uses LabIOUnit;
+
 {$R *.dfm}
 
 const
@@ -63,22 +80,27 @@ const
     csWaitingForPosition = 1 ;
     csWaitingForCompletion = 2 ;
 
+    stNone = 0 ;
+    stOptiscanII = 1 ;
+    stPiezo = 2 ;
+
 procedure TZStage.DataModuleCreate(Sender: TObject);
 // ---------------------------------------
 // Initialisations when module is created
 // ---------------------------------------
 begin
+    FStageType := stNone ;
     FEnabled := False ;
     ComPortOpen := False ;
-    FComPort := 1 ;
+    FControlPort := 0 ;
     FBaudRate := 9600 ;
     Status := '' ;
     ControlState := csIdle ;
     ZPosition := 0.0 ;
-    StepsPerMicron := 1.0 ;
+    ZscaleFactor := 1.0 ;
     MoveToRequest := False ;
     MoveToPosition := 0.0 ;
-end;
+    end;
 
 procedure TZStage.DataModuleDestroy(Sender: TObject);
 // --------------------------------
@@ -88,15 +110,75 @@ begin
     if ComPortOpen then CloseComPort ;
 end;
 
+procedure TZStage.GetZStageTypes( List : TStrings ) ;
+// -----------------------------------
+// Get list of supported Z stage types
+// -----------------------------------
+begin
+      List.Clear ;
+      List.Add('None') ;
+      List.Add('Prior Optiscan II') ;
+      List.Add('Piezo (Voltage Controlled)');
+      end;
+
+procedure TZStage.GetControlPorts( List : TStrings ) ;
+// -----------------------------------
+// Get list of available control ports
+// -----------------------------------
+var
+    i : Integer ;
+  iDev: Integer;
+begin
+     List.Clear ;
+     case FStageType of
+        stOptiscanII : begin
+          // COM ports
+          for i := 1 to 16 do List.Add(format('COM%d',[i]));
+          end ;
+        stPiezo : begin
+          // Analog outputs
+          for iDev := 1 to LabIO.NumDevices do
+              for i := 0 to LabIO.NumDACs[iDev]-1 do begin
+                List.Add(Format('Dev%d:AO%d',[iDev,i])) ;
+                end;
+          end;
+        else begin
+          List.Add('None');
+          end ;
+        end;
+     end;
+
 
 procedure TZStage.Open ;
 // ---------------------------
 // Open Z stage for operation
 // ---------------------------
 begin
+
+    // Close COM port (if open)
     if ComPortOpen then CloseComPort ;
-    OpenComPort ;
-end;
+
+    case FStageType of
+        stOptiscanII : begin
+          OpenComPort ;
+          end ;
+        stPiezo : begin
+
+          end;
+        end;
+    end;
+
+function TZStage.GetZScaleFactorUnits : string ;
+// -------------------------------
+// Return units for Z scale factor
+// -------------------------------
+begin
+    case FStageType of
+        stOptiscanII : Result := 'steps/um' ;
+        stPiezo : Result := 'V/um' ;
+        else Result := '' ;
+        end;
+    end;
 
 
 procedure TZStage.Close ;
@@ -105,7 +187,30 @@ procedure TZStage.Close ;
 // ---------------------------
 begin
     if ComPortOpen then CloseComPort ;
-end;
+    end;
+
+
+procedure TZStage.UpdateZPosition ;
+// ---------------------------
+// Update position of Z stage
+// ---------------------------
+begin
+    case FStageType of
+        stOptiscanII : UpdateZPositionOSII ;
+        stPiezo : UpdateZPositionPZ ;
+        end;
+    end;
+
+procedure TZStage.MoveTo( Position : Double ) ;
+// -----------------
+// Go to Z position
+// -----------------
+begin
+    case FStageType of
+        stOptiscanII : MoveToOSII(  Position ) ;
+        stPiezo : MoveToPZ(  Position ) ;
+        end;
+    end;
 
 
 procedure TZStage.OpenCOMPort ;
@@ -119,7 +224,7 @@ begin
      if ComPortOpen then Exit ;
 
      { Open com port  }
-     ComHandle :=  CreateFile( PCHar(format('COM%d',[COMPort])),
+     ComHandle :=  CreateFile( PCHar(format('COM%d',[ControlPort+1])),
                      GENERIC_READ or GENERIC_WRITE,
                      0,
                      Nil,
@@ -156,7 +261,7 @@ begin
       Status := '' ;
     ControlState := csIdle ;
 
-end ;
+    end ;
 
 
 procedure TZStage.CloseCOMPort ;
@@ -241,10 +346,10 @@ begin
      end ;
 
 
-procedure TZStage.UpdateZPosition ;
-// --------------------------
-// Update position of Z stage
-// --------------------------
+procedure TZStage.UpdateZPositionOSII ;
+// ----------------------------------------
+// Update position of Z stage (Optoscan II)
+// ----------------------------------------
 var
     EndOfLine : Boolean ;
 begin
@@ -254,7 +359,7 @@ begin
         csIdle : begin
           if MoveToRequest then begin
              // Go to required position
-             SendCommand(format('U %d',[Round((MoveToPosition-ZPosition)*StepsPerMicron)])) ;
+             SendCommand(format('U %d',[Round((MoveToPosition-ZPosition)*ZScaleFactor)])) ;
              ControlState := csWaitingForCompletion ;
              MoveToRequest := False ;
           end
@@ -268,8 +373,8 @@ begin
         csWaitingForPosition : begin
           Status := Status + ReceiveBytes( EndOfLine ) ;
           if EndOfLine then begin
-             StepsPerMicron := Max(StepsPerMicron,1E-3) ;
-             ZPosition := StrToInt64(Status)/StepsPerMicron ;
+             ZScaleFactor := Max(ZScaleFactor,1E-3) ;
+             ZPosition := StrToInt64(Status)/ZScaleFactor ;
              Status := '' ;
              ControlState := csIdle ;
           end;
@@ -287,27 +392,24 @@ begin
 end;
 
 
-procedure TZStage.MoveTo( Position : Double ) ;
-// ----------------
-// Go to Z position
-// ----------------
+procedure TZStage.MoveToOSII( Position : Double ) ;
+// ------------------------------
+// Go to Z position (Optoscan II)
+// ------------------------------
 begin
     MoveToPosition := Position ;
     MoveToRequest := True ;
-end;
-
-procedure TZStage.SetComPort( Value : DWord ) ;
-// ------------
-// Set Com Port
-//-------------
-begin
-    if Value <= 0 then Exit ;
-    FComPort := Value ;
-    if ComPortOpen then begin
-       CloseComPort ;
-       OpenComPort ;
     end;
-end;
+
+
+procedure TZStage.SetControlPort( Value : DWord ) ;
+// ----------------
+// Set Control Port
+//-----------------
+begin
+    FControlPort := Max(Value,0) ;
+    ResetCOMPort ;
+    end;
 
 
 procedure TZStage.SetBaudRate( Value : DWord ) ;
@@ -317,11 +419,24 @@ procedure TZStage.SetBaudRate( Value : DWord ) ;
 begin
     if Value <= 0 then Exit ;
     FBaudRate := Value ;
-    if ComPortOpen then begin
-       CloseComPort ;
-       OpenComPort ;
+    ResetCOMPort ;
     end;
-end;
+
+
+procedure TZStage.ResetCOMPort ;
+// --------------------------
+// Reset COM port (if in use)
+// --------------------------
+begin
+    case FStageType of
+        stOptiscanII : begin
+          if ComPortOpen then begin
+             CloseComPort ;
+             OpenComPort ;
+             end;
+          end;
+        end;
+    end;
 
 
 procedure TZStage.SetEnabled( Value : Boolean ) ;
@@ -331,10 +446,53 @@ procedure TZStage.SetEnabled( Value : Boolean ) ;
 begin
 
     FEnabled := Value ;
-    if FEnabled and (not ComPortOpen) then OpenComPort
-    else if (not FEnabled) and ComPortOpen then CloseComPort ;
+    case FStageType of
+        stOptiscanII : begin
+          if FEnabled and (not ComPortOpen) then OpenComPort
+          else if (not FEnabled) and ComPortOpen then CloseComPort ;
+          end;
+        end ;
 
-end;
+    end;
 
+procedure TZStage.SetStageType( Value : Integer ) ;
+// ------------------------------
+// Set type of Z stage controller
+// ------------------------------
+begin
+      // Close existing stage
+      Close ;
+      FStageType := Value ;
+      // Reopen new stage
+      Open ;
+      end;
+
+procedure TZStage.UpdateZPositionPZ ;
+// ----------------------------------
+// Update position of Z stage (Piezo)
+// ----------------------------------
+begin
+     end;
+
+
+procedure TZStage.MoveToPZ( Position : Double ) ;
+// -------------------------
+// Go to Z position (Piezo)
+// -------------------------
+var
+    iPort,iChan,iDev : Integer ;
+begin
+
+    ZPosition := Position ;
+
+    iPort := 0 ;
+    for iDev := 1 to LabIO.NumDevices do
+        for iChan := 0 to LabIO.NumDACs[iDev]-1 do begin
+            if iPort = FControlPort then begin
+                LabIO.WriteDAC(iDev,Position*ZScaleFactor,iChan);
+                end;
+            inc(iPort) ;
+            end;
+    end ;
 
 end.

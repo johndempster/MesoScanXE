@@ -237,31 +237,39 @@ object SettingsFrm: TSettingsFrm
     end
   end
   object GroupBox2: TGroupBox
-    Left = 244
+    Left = 248
     Top = 67
     Width = 230
-    Height = 74
+    Height = 161
     Caption = ' Z position Control'
     TabOrder = 4
     object Label8: TLabel
-      Left = 100
-      Top = 15
-      Width = 46
+      Left = 56
+      Top = 43
+      Width = 58
       Height = 13
       Alignment = taRightJustify
-      Caption = 'COM Port'
+      Caption = 'Control Port'
     end
     object Label10: TLabel
-      Left = 19
-      Top = 46
+      Left = 49
+      Top = 68
       Width = 65
       Height = 13
       Alignment = taRightJustify
       Caption = 'Z scale factor'
     end
+    object Label13: TLabel
+      Left = 61
+      Top = 95
+      Width = 53
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Z step time'
+    end
     object ckZControlEnabled: TCheckBox
-      Left = 19
-      Top = 15
+      Left = 147
+      Top = 127
       Width = 65
       Height = 15
       Alignment = taLeftJustify
@@ -270,25 +278,46 @@ object SettingsFrm: TSettingsFrm
       State = cbChecked
       TabOrder = 0
     end
-    object cbZControlCOMPort: TComboBox
-      Left = 152
-      Top = 15
-      Width = 65
+    object cbZStagePort: TComboBox
+      Left = 120
+      Top = 43
+      Width = 97
       Height = 21
       TabOrder = 1
       Text = 'cbLaserControlComPort'
     end
-    object edZStepsPerMicron: TValidatedEdit
-      Left = 100
-      Top = 42
-      Width = 117
+    object edZScaleFactor: TValidatedEdit
+      Left = 120
+      Top = 68
+      Width = 97
       Height = 21
       Text = ' 1 steps/um'
       Value = 1.000000000000000000
       Scale = 1.000000000000000000
       Units = 'steps/um'
       NumberFormat = '%.4g'
-      LoLimit = 1.000000000000000000
+      HiLimit = 1000000.000000000000000000
+    end
+    object cbZStageType: TComboBox
+      Left = 8
+      Top = 16
+      Width = 209
+      Height = 21
+      TabOrder = 3
+      Text = 'cbZStageType'
+      OnChange = cbZStageTypeChange
+    end
+    object edZStepTime: TValidatedEdit
+      Left = 120
+      Top = 95
+      Width = 97
+      Height = 21
+      Text = ' 100 ms'
+      Value = 0.100000001490116100
+      Scale = 1000.000000000000000000
+      Units = 'ms'
+      NumberFormat = '%.4g'
+      LoLimit = -1.000000015047466E30
       HiLimit = 1000000.000000000000000000
     end
   end

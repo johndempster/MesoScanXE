@@ -32,11 +32,11 @@ type
     GroupBox2: TGroupBox;
     Label8: TLabel;
     ckZControlEnabled: TCheckBox;
-    cbZControlCOMPort: TComboBox;
+    cbZStagePort: TComboBox;
     edMinPixelDwellTime: TValidatedEdit;
     Label9: TLabel;
     Label10: TLabel;
-    edZStepsPerMicron: TValidatedEdit;
+    edZScaleFactor: TValidatedEdit;
     Label11: TLabel;
     edFullFieldWidthMicrons: TValidatedEdit;
     PMTgrp: TGroupBox;
@@ -53,9 +53,13 @@ type
     edFastFrameHeight: TValidatedEdit;
     Label4: TLabel;
     edFastFrameWidth: TValidatedEdit;
+    cbZStageType: TComboBox;
+    edZStepTime: TValidatedEdit;
+    Label13: TLabel;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
+    procedure cbZStageTypeChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -106,12 +110,28 @@ begin
     MainFrm.LaserControlEnabled := ckLaserControlEnabled.Checked ;
 
     ZStage.Enabled := ckZControlEnabled.Checked ;
-    ZStage.ComPort := cbZControlComPort.ItemIndex + 1 ;
-    ZStage.StepsPerMicron := edZStepsPerMicron.Value ;
+    ZStage.ControlPort := cbZStagePort.ItemIndex ;
+    ZStage.ZScaleFactor := edZScaleFactor.Value ;
+    ZStage.ZStepTime := edZStepTime.Value ;
 
     MainFrm.SetScanZoomToFullField ;
 
     Close ;
+    end;
+
+procedure TSettingsFrm.cbZStageTypeChange(Sender: TObject);
+//
+// Zstage type changed
+//
+begin
+    ZStage.StageType := cbZStageType.ItemIndex ;
+    ZStage.GetControlPorts(cbZStagePort.Items);
+    cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
+
+    ckZControlEnabled.Checked := ZStage.Enabled ;
+    edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;
+    edZScaleFactor.Value := ZStage.ZScaleFactor ;
+
     end;
 
 procedure TSettingsFrm.FormShow(Sender: TObject);
@@ -143,12 +163,17 @@ begin
     cbLaserControlComPort.ItemIndex := Min(Max(MainFrm.LaserControlComPort-1,0),cbLaserControlComPort.Items.Count-1);
     ckLaserControlEnabled.Checked := MainFrm.LaserControlEnabled ;
 
-    // Z stage  control
-    cbZControlComPort.Clear ;
-    for i := 1 to 16 do cbZControlComPort.Items.Add(format('COM%d',[i]));
-    cbZControlComPort.ItemIndex := Min(Max(ZStage.ComPort-1,0),cbZControlComPort.Items.Count-1);
+    // Z stage control
+    ZStage.GetZStageTypes(cbZStageType.Items);
+    cbZStageType.ItemIndex := Min(Max(ZStage.StageType,0),cbZStageType.Items.Count-1) ;
+
+    ZStage.GetControlPorts(cbZStagePort.Items);
+    cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
+
     ckZControlEnabled.Checked := ZStage.Enabled ;
-    edZStepsPerMicron.Value := ZStage.StepsPerMicron ;
+    edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;
+    edZScaleFactor.Value := ZStage.ZScaleFactor ;
+    edZStepTime.Value := ZStage.ZStepTime ;
 
     end;
 

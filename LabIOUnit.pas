@@ -265,6 +265,7 @@ type
     DACMinValue : Array[1..MaxDevices] of Integer ;
     DACResolution : Array[1..MaxDevices] of Integer ;
     DACMaxVolts  : Array[1..MaxDevices] of Single ;
+    DACMinVolts  : Array[1..MaxDevices] of Single ;
     DACScale : Array[1..MaxDevices] of Single ;
     DACNumSamplesToWrite : DWord ;
     DACNumSamplesWRitten : DWord ;
@@ -486,6 +487,7 @@ begin
     for i := 1 to MaxDevices do NumADCs[i] := 0 ;
     for i := 1 to MaxDevices do ADCMaxValue[i] := 0 ;
     for i := 1 to MaxDevices do DACMaxVolts[i] := 0. ;
+    for i := 1 to MaxDevices do DACMinVolts[i] := 0. ;
     for i := 1 to MaxDevices do NumADCVoltageRanges[i] := 0 ;
     for i := 1 to MaxDevices do ADCVoltageRangeAtX1Gain[i] := 1.0 ;
     for i := 1 to MaxDevices do for j := 0 to MaxDACs-1 do DACOutState[i,j] := 0.0 ;
@@ -1012,8 +1014,10 @@ begin
               end ;
           end ;
 
-        if DACMaxVolts[DeviceNum] > 0.0 then begin
-           DACScale[DeviceNum] := DACMaxValue[DeviceNum] / DACMaxVolts[DeviceNum] ;
+        // Volts -> binary scaling factor
+        if (DACMaxVolts[DeviceNum]- DACMinVolts[DeviceNum]) > 0.0 then begin
+           DACScale[DeviceNum] := (DACMaxValue[DeviceNum] - DACMinValue[DeviceNum])/
+                                  (DACMaxVolts[DeviceNum] - DACMinVolts[DeviceNum]) ;
            end
         else DACScale[DeviceNum] := 1.0 ;
 
@@ -1126,8 +1130,10 @@ begin
               end ;
           end ;
 
-        if DACMaxVolts[DeviceNum] > 0.0 then begin
-           DACScale[DeviceNum] := DACMaxValue[DeviceNum] / DACMaxVolts[DeviceNum] ;
+        // Volts -> binary scaling factor
+        if (DACMaxVolts[DeviceNum]- DACMinVolts[DeviceNum]) > 0.0 then begin
+           DACScale[DeviceNum] := (DACMaxValue[DeviceNum] - DACMinValue[DeviceNum])/
+                                  (DACMaxVolts[DeviceNum] - DACMinVolts[DeviceNum]) ;
            end
         else DACScale[DeviceNum] := 1.0 ;
 
@@ -1267,7 +1273,7 @@ procedure TLabIO.NIDAQMX_GetDeviceDACChannelProperties(
 // Get number of device D/A channels and properties
 // ------------------------------------------------
 var
-    DValue : Double ;
+    DValue,VMin,VMax : Double ;
     Err : Integer ;
     ChannelName : ANSIString ;
     NumChannels : Integer ;
@@ -1283,13 +1289,23 @@ begin
         CheckError( DAQmxCreateTask( '', DACTask[DeviceNum] ) ) ;
         ChannelName := format('%s/ao%d',[DeviceName[DeviceNum],NumChannels]) ;
 
+        if AnsiContainsText(DeviceBoardName[DeviceNum],'600') then begin
+           VMin := 0.0 ;
+           VMax := 5.0 ;
+           end
+        else begin
+           VMin := -10.0 ;
+           VMax := 10.0 ;
+           end;
+
         Err := DAQmxCreateAOVoltageChan( DACTask[DeviceNum],
                                       PANSIChar(ChannelName),
-                                      nil ,
-                                      -10,
-                                      10,
+                                      nil,
+                                      VMin,
+                                      VMax,
                                       DAQmx_Val_Volts,
                                       nil);
+
         if (Err = 0) then begin
 
            // D/A output range
@@ -1298,19 +1314,33 @@ begin
                                             DValue ));
            DACMaxVolts[DeviceNum] := DValue ;
 
+           // D/A output range
+           CheckError(DAQmxGetAODACRngLow( DACTask[DeviceNum],
+                                           PANSIChar(ChannelName),
+                                           DValue ));
+           DACMinVolts[DeviceNum] := DValue ;
+
            // Get D/A converter resolution
            CheckError( DAQmxGetAOResolution( DACTask[DeviceNum],
-                                                  PANSIChar(ChannelName),
-                                                  DValue)) ;
+                                             PANSIChar(ChannelName),
+                                             DValue)) ;
            DACResolution[DeviceNum] := Round(DValue) ;
-           DACMaxValue[DeviceNum] := Round(Power(2.0,DValue-1.0)) - 1 ;
-           DACMinValue[DeviceNum] := -DACMaxValue[DeviceNum] - 1 ;
 
-           end ;
+           if DACMinVolts[DeviceNum] = 0.0 then begin
+              // Unipolar DACs
+              DACMaxValue[DeviceNum] := Round(Power(2.0,DValue)) - 1 ;
+              DACMinValue[DeviceNum] := 0 ;
+              end
+           else begin
+              // Bipolar DACs
+              DACMaxValue[DeviceNum] := Round(Power(2.0,DValue-1.0)) - 1 ;
+              DACMinValue[DeviceNum] := -DACMaxValue[DeviceNum] - 1 ;
+              end ;
 
-        Inc(NumChannels) ;
-        CheckError( DAQmxClearTask( DACTask[DeviceNum] ) ) ;
-        end ;
+          Inc(NumChannels) ;
+          CheckError( DAQmxClearTask( DACTask[DeviceNum] ) ) ;
+          end ;
+      end;
 
     NumDACs[DeviceNum] := NumChannels - 1 ;
 
@@ -1748,7 +1778,7 @@ begin
      CheckError( DAQmxCreateAOVoltageChan( DACTask[Device],
                                            PANSIChar(ChannelList),
                                            nil ,
-                                           -DACMaxVolts[Device],
+                                           DACMinVolts[Device],
                                            DACMaxVolts[Device],
                                            DAQmx_Val_Volts,
                                            nil));
@@ -1844,7 +1874,6 @@ begin
      VScale := DACMaxVolts[Device] / (DACMaxValue[Device]+1.0) ;
      for i := 0 to nChannels*nPoints-1 do DBuf^[i] := DACBuf[i]*VScale ;
 
-
      CheckError( DAQmxSetWriteRelativeTo( DACTask[Device], DAQmx_Val_FirstSample )) ;
      CheckError( DAQmxSetWriteOffset( DACTask[Device], 0 )) ;
 
@@ -1929,7 +1958,7 @@ begin
      CheckError( DAQmxCreateAOVoltageChan( DACTask[Device],
                                            PANSIChar(ChannelList),
                                            nil ,
-                                           -DACMaxVolts[Device],
+                                           DACMinVolts[Device],
                                            DACMaxVolts[Device],
                                            DAQmx_Val_Volts,
                                            nil)) ;
@@ -1938,7 +1967,7 @@ begin
 
      // Copy into double array
      for i := 0 to nChannels-1 do begin
-          DBuf[i] := Max(Min(DACVolts[i],DACMaxVolts[Device]),-DACMaxVolts[Device]) ;
+          DBuf[i] := Max(Min(DACVolts[i],DACMaxVolts[Device]),DACMinVolts[Device]) ;
           end ;
 
      // Write data to buffer
@@ -1991,13 +2020,13 @@ begin
      CheckError( DAQmxCreateAOVoltageChan( DACTask[Device],
                                            PANSIChar(ChannelList),
                                            nil ,
-                                           -DACMaxVolts[Device],
+                                           DACMinVolts[Device],
                                            DACMaxVolts[Device],
                                            DAQmx_Val_Volts,
                                            nil)) ;
 
      // Copy into double array
-      DBuf[0] := Max(Min(DACVolts,DACMaxVolts[Device]),-DACMaxVolts[Device]) ;
+      DBuf[0] := Max(Min(DACVolts,DACMaxVolts[Device]),DACMinVolts[Device]) ;
 
      // Write data to buffer
      DAQmxWriteAnalogF64 ( DACTask[Device],
