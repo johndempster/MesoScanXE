@@ -12,6 +12,7 @@ unit MainUnit;
 // V1.5.1 15.5.14 XZ imaging mode now works
 //                Voltage controlled lens positioner now supported
 //                Region of interest can now be set by double-clicking and dragging
+// V1.5.2 15.07.14 Laser shutter control added
 
 interface
 
@@ -102,7 +103,7 @@ type
     cbADCVoltageRange: TComboBox;
     LaserGrp: TGroupBox;
     edLaserIntensity: TValidatedEdit;
-    LaserIntensityTrackBar: TTrackBar;
+    tbLaserIntensity: TTrackBar;
     rbLaserOn: TRadioButton;
     rbLaserOff: TRadioButton;
     DisplayGrp: TGroupBox;
@@ -150,7 +151,7 @@ type
     procedure edYPixelsKeyPress(Sender: TObject; var Key: Char);
     procedure mnScanSettingsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure LaserIntensityTrackBarChange(Sender: TObject);
+    procedure tbLaserIntensityChange(Sender: TObject);
     procedure Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure ckLineScanClick(Sender: TObject);
@@ -175,6 +176,7 @@ type
     procedure sbContrastChange(Sender: TObject);
     procedure bScanFullClick(Sender: TObject);
     procedure mnSaveImageClick(Sender: TObject);
+    procedure edLaserIntensityKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
         BitMap : TBitMap ;  // Image internal bitmaps
@@ -308,7 +310,7 @@ type
     ClearAverage : Boolean ;
 
     SnapNum : Integer ;
-    ScanRequested : Boolean ;
+    ScanRequested : Integer ;
     ScanningInProgress : Boolean ;
 
     INIFileName : String ;
@@ -433,7 +435,7 @@ implementation
 //uses LogUnit;
 
 
-uses SettingsUnit, ZStageUnit;
+uses SettingsUnit, ZStageUnit, LaserUnit;
 
 {$R *.dfm}
 
@@ -463,13 +465,13 @@ var
     i : Integer ;
     NumPix : Cardinal ;
 begin
-     Caption := 'MesoScan V1.5.1 ';
+     Caption := 'MesoScan V1.5.2 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 15/5/14';
+    Caption := Caption + ' 08/7/14';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -478,7 +480,8 @@ begin
      LabIO.Open ;
 
      meStatus.Clear ;
-     meStatus.Lines.Add(LabIO.DeviceName[1] + ': ' + LabIO.DeviceBoardName[1] ) ;
+     for i := 1 to LabIO.NumDevices do
+         meStatus.Lines.Add(LabIO.DeviceName[i] + ': ' + LabIO.DeviceBoardName[i] ) ;
 
      LabIO.ADCInputMode := imDifferential ;
      EmptyFlag := -32766 ;
@@ -595,9 +598,11 @@ begin
         //LaserControlOpen := OpenComPort( LaserControlCOMHandle, LaserControlCOMPort, CBR_9600 ) ;
         end
      else LaserControlOpen := False ;
+     // Ensure laser shutter is closed
+     Laser.SetShutterOpen(False);
 
      UpdateDisplay := False ;
-     ScanRequested := False ;
+     ScanRequested := 0 ;
      ScanningInProgress := False ;
 
      // Initialise full field image
@@ -947,6 +952,9 @@ procedure TMainFrm.FormClose(Sender: TObject; var Action: TCloseAction);
 // Stop program
 // ------------
 begin
+
+     // Close laser shutter
+     Laser.ShutterOpen := False ;
 
      LabIO.Close ;
 
@@ -1501,8 +1509,9 @@ begin
     end;
 
     NumAverages := 1 ;
-    ScanRequested := True ;
+    ScanRequested := 1 ;
     ClearAverage := True ;
+
     //bStopScan.Enabled := True ;
     bScanImage.Enabled := False ;
     bScanZoomIn.Enabled := False ;
@@ -1606,6 +1615,12 @@ begin
     edMicronsPerZStep.Value := ZStep ;
     NumZSections := Round(edNumZSections.Value) ;
 
+    // Save current position of Z stage
+    ZStartingPosition := ZStage.ZPosition ;
+
+    // Create scan waveform
+    CreateScanWaveform ;
+
     end ;
 
 
@@ -1614,7 +1629,7 @@ procedure TMainFrm.StartScan ;
 // Scan image scan
 // ---------------
 var
-    i : Integer ;
+    i,nSamples : Integer ;
 begin
 
     // Stop A/D & D/A
@@ -1625,10 +1640,7 @@ begin
     if LabIO.ADCActive[DeviceNum] then LabIO.StopADC(DeviceNum) ;
     if LabIO.DACActive[DeviceNum] then LabIO.StopDAC(DeviceNum) ;
 
-    // Save current positoion of Z stage
-    ZStartingPosition := ZStage.ZPosition ;
-
-    CreateScanWaveform ;
+    //CreateScanWaveform ;
 
     if ClearAverage then begin
        // Dispose of existing display buffers and create new ones
@@ -1667,11 +1679,11 @@ begin
 //    TempBuf := AllocMem( NumYPixels*NumXPixels*2 ) ;
 
 
+    nSamples := Max(Round(10.0/PixelDwellTime) div NumXPixels,1)*NumXPixels ;
     LabIO.ADCToMemoryExtScan( DeviceNum,
-                              ADCBuf^,
                               ADCInput,
                               1,
-                              NumXPixels*Min(NumYPixels,100),
+                              NumXPixels*Min(NumYPixels,500),
                               LabIO.ADCVoltageRanges[DeviceNum,cbADCVoltageRange.ItemIndex],
                               True,
                               DeviceNum ) ;
@@ -1684,10 +1696,11 @@ begin
                        PixelDwellTime,
                        False,
                        False,
-                      DeviceNum ) ;
+                       DeviceNum ) ;
 
     bStopScan.Enabled := True ;
     bScanImage.Enabled := False ;
+   ScanningInProgress := True ;
 
     end;
 
@@ -1742,6 +1755,14 @@ begin
     if Key = #13 then begin
         ZStage.MoveTo( edGoToZPosition.Value ) ;
         end;
+    end;
+
+procedure TMainFrm.edLaserIntensityKeyPress(Sender: TObject; var Key: Char);
+begin
+    if Key = #13 then begin
+       Laser.Intensity := edLaserIntensity.Value ;
+       tbLaserIntensity.Position := Round(10.0*edLaserIntensity.Value) ;
+       end;
     end;
 
 procedure TMainFrm.edMicronsPerZStepKeyPress(Sender: TObject; var Key: Char);
@@ -1871,18 +1892,24 @@ procedure TMainFrm.TimerTimer(Sender: TObject);
 begin
     //if pImageBuf = Nil then Exit ;
 
-    if ScanRequested then begin
-       ScanRequested := False ;
-       StartScan ;
-       UpdateImage ;
-    end ;
-
     if UpdateDisplay then begin ;
        UpdateImage ;
        UpdateDisplay := False ;
        end ;
 
-    //LabIO.GetADCSamples(DeviceNum, ADCBuf^ );
+    if ScanRequested > 0 then begin
+       if not Laser.ShutterOpen then begin
+          Laser.ShutterOpen := True ;
+          Laser.Intensity := edLaserIntensity.Value ;
+          ScanRequested := Round(Laser.ShutterChangeTime/(Timer.Interval*0.001)) ;
+          end ;
+       ScanRequested := Max(ScanRequested - 1,0) ;
+       if ScanRequested <= 0 then begin
+          StartScan ;
+          UpdateImage ;
+          end ;
+       end ;
+
     GetImageFromPMT ;
 
     if ZStage.Enabled then begin
@@ -1890,7 +1917,7 @@ begin
        edZTop.Text := format('%.2f um',[ZStage.ZPosition]) ;
        end;
 
-end;
+    end;
 
 
 procedure TMainFrm.GetImageFromPMT ;
@@ -1903,7 +1930,7 @@ var
 begin
 
     if not LabIO.DACActive[DeviceNum] then exit ;
-    ScanningInProgress := True ;
+    if not ScanningInProgress then exit ;
 
     // Read new A/D converter samples
     LabIO.GetADCSamples( DeviceNum, ADCBuf^,ADCNumNewSamples,
@@ -1982,19 +2009,26 @@ begin
 
        end
     else begin
-       LinesAvailableForDisplay := iLine + 1 ;
+       LinesAvailableForDisplay := FrameHeight ;
        end;
 
     meStatus.Clear ;
-    meStatus.Lines[0] := format('Line %d/%d (%.2f MB)',
-                         [LinesAvailableForDisplay,FrameHeight,ADCPointer/1048576.0]);
     case cbImageMode.ItemIndex of
        XYMode,XTMode : begin
+         meStatus.Lines[0] := format('Line %d/%d (%.2f MB)',
+                              [iLine,FrameHeight,ADCPointer/1048576.0]);
          meStatus.Lines.Add(format('Average %d/%d',[NumAverages,Round(edNumAverages.Value)])) ;
          end;
        XYZMode : begin
+         meStatus.Lines[0] := format('Line %d/%d (%.2f MB)',
+                              [iLine,FrameHeight,ADCPointer/1048576.0]);
          meStatus.Lines.Add(format('Average %d/%d',[NumAverages,Round(edNumAverages.Value)])) ;
          meStatus.Lines.Add(format('Section %d/%d',[ZSection+1,NumZSections])) ;
+         end;
+       XZMode : begin
+         meStatus.Lines[0] := format('Line %d/%d (%.2f MB)',
+                              [NewZSection,NumZSections,
+                               ADCPointer/(NumLinesPerZStep*1048576.0)]);
          end;
        end;
 
@@ -2005,7 +2039,6 @@ begin
        if cbImageMode.ItemIndex = XZMode then begin
           NumAverages := Round(edNumAverages.Value) + 1 ;
           SaveRawImage( RawImagesFileName, 0 ) ;
-          ZStage.MoveTo( ZStartingPosition );
           end
        else begin
           Inc(NumAverages) ;
@@ -2013,21 +2046,22 @@ begin
           end;
 
        if NumAverages <= Round(edNumAverages.Value) then begin
-          ScanRequested := True ;
-
+          ScanRequested := 1 ;
          end
        else begin
+          ScanningInProgress := False ;
           if ckRepeat.Checked and (not bScanImage.Enabled) then begin
-             ScanRequested := True ;
+             ScanRequested := 1 ;
              NumAverages := 1 ;
              ClearAverage := True ;
+             if cbImageMode.ItemIndex = XZMode then ZStage.MoveTo( ZStartingPosition );
              end
           else if cbImageMode.ItemIndex = XYZMode then begin
              // Increment Z position to next Section
              Inc(ZSection) ;
              if ZSection < NumZSections then begin
                 ZStage.MoveTo( ZStage.ZPosition + ZStep );
-                ScanRequested := True ;
+                ScanRequested := Max(Round(ZStage.ZStepTime/(Timer.Interval*0.001)),1) ;
                 NumAverages := 1 ;
                 ClearAverage := True ;
                 end
@@ -2079,9 +2113,12 @@ begin
     bScanZoomOut.Enabled := True ;
     bScanFull.Enabled := True ;
 
-    ScanRequested := False ;
+    ScanRequested := 0 ;
     ScanningInProgress := False ;
     LinesAvailableForDisplay := 0 ;
+
+    // Close laser shutter
+    Laser.ShutterOpen := False ;
 
     // Move Z stage back to starting position
 
@@ -2450,13 +2487,14 @@ begin
      end;
 
 
-procedure TMainFrm.LaserIntensityTrackBarChange(Sender: TObject);
+procedure TMainFrm.tbLaserIntensityChange(Sender: TObject);
 // --------------------------------------------
 // Laser intensity track bar position changed
 // --------------------------------------------
 begin
-     edLaserIntensity.Value := LaserIntensityTrackBar.Position*0.001 ;
-     LaserIntensityTrackBar.Position := Round(1000*edLaserIntensity.Value) ;
+     edLaserIntensity.Value := tbLaserIntensity.Position*0.1 ;
+     tbLaserIntensity.Position := Round(10.*edLaserIntensity.Value) ;
+     Laser.Intensity := edLaserIntensity.Value ;
      UpdateDisplay := True ;
      end;
 
@@ -2621,8 +2659,11 @@ begin
 
     // Laser control
     iNode := ProtNode.AddChild( 'LASER' ) ;
-//    AddElementBool( iNode, 'ENABLED', ZStage.Enabled ) ;
-//    AddElementInt( iNode, 'COMPORT', LaserControlComPort ) ;
+    AddElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
+    AddElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
+    AddElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
+    AddElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
+    AddElementInt( iNode, 'COMPORT', Laser.ComPort ) ;
 
     // Z stage
     iNode := ProtNode.AddChild( 'ZSTAGE' ) ;
@@ -2669,6 +2710,7 @@ procedure TMainFrm.LoadSettingsFromXMLFile1(
 var
    iNode,ProtNode : IXMLNode;
    iValue : Integer ;
+   dValue : Double ;
 
    NodeIndex : Integer ;
    XMLDoc : IXMLDocument ;
@@ -2729,10 +2771,28 @@ begin
     // Laser control
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'LASER',iNode,NodeIndex) do begin
+        iValue := Laser.ShutterControlLine ;
+        GetElementInt( iNode, 'SHUTTERCONTROLLINE', iValue ) ;
+        Laser.ShutterControlLine := iValue ;
+
+        dValue := Laser.ShutterChangeTime ;
+        GetElementDouble( iNode, 'SHUTTERCHANGETIME', dValue ) ;
+        Laser.ShutterChangeTime := dValue ;
+
+        iValue := Laser.IntensityControlLine ;
+        GetElementInt( iNode, 'INTENSITYCONTROLLINE', iValue ) ;
+        Laser.IntensityControlLine := iValue ;
+
+        dValue := Laser.VMaxIntensity ;
+        GetElementDouble( iNode, 'VMAXINTENSITY', dValue ) ;
+        Laser.VMaxIntensity := dValue ;
+
+        iValue := Laser.ComPort ;
+        GetElementInt( iNode, 'COMPORT', iValue ) ;
+        Laser.ComPort := iValue ;
+
         //GetElementBool( iNode, 'ENABLED', bValue ) ;
         //ZStage.Enabled := bValue ;
-        //GetElementInt( iNode, 'COMPORT', iValue ) ;
-        //ZStage.ComPort := iValue ;
         Inc(NodeIndex) ;
         end ;
 

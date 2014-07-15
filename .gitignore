@@ -5,6 +5,7 @@
 *.zip
 *.dcu
 *.tmp
+*.raw
 *.~*~
 *~
 *.local

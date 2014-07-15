@@ -1,7 +1,7 @@
 object MainFrm: TMainFrm
   Left = 794
   Top = 357
-  Caption = 'MesoScan V1.5.1 32 bit 8/07/13'
+  Caption = 'MesoScan V1.5.2 32 bit 15/07/13'
   ClientHeight = 773
   ClientWidth = 768
   Color = clBtnFace
@@ -551,6 +551,7 @@ object MainFrm: TMainFrm
       Top = 16
       Width = 44
       Height = 21
+      OnKeyPress = edLaserIntensityKeyPress
       Text = ' 2 %'
       Value = 2.000000000000000000
       Scale = 1.000000000000000000
@@ -559,17 +560,17 @@ object MainFrm: TMainFrm
       LoLimit = 0.000000999999997475
       HiLimit = 100.000000000000000000
     end
-    object LaserIntensityTrackBar: TTrackBar
+    object tbLaserIntensity: TTrackBar
       Left = 48
       Top = 16
       Width = 114
       Height = 25
-      Max = 100
+      Max = 1000
       Position = 100
       TabOrder = 1
       ThumbLength = 14
       TickStyle = tsManual
-      OnChange = LaserIntensityTrackBarChange
+      OnChange = tbLaserIntensityChange
     end
     object rbLaserOn: TRadioButton
       Left = 12

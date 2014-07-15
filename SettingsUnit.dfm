@@ -205,20 +205,52 @@ object SettingsFrm: TSettingsFrm
     Left = 244
     Top = 8
     Width = 230
-    Height = 53
+    Height = 177
     Caption = ' Laser Control '
     TabOrder = 3
     object Label7: TLabel
-      Left = 100
+      Left = 4
       Top = 18
-      Width = 46
+      Width = 130
       Height = 13
       Alignment = taRightJustify
       Caption = 'COM Port'
     end
+    object Label14: TLabel
+      Left = 4
+      Top = 96
+      Width = 130
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Shutter Control Output '
+    end
+    object Label15: TLabel
+      Left = 4
+      Top = 122
+      Width = 130
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Shutter Change Time'
+    end
+    object Label17: TLabel
+      Left = 4
+      Top = 41
+      Width = 130
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Intensity Control Output'
+    end
+    object Label16: TLabel
+      Left = 4
+      Top = 69
+      Width = 130
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Voltage at 100% Intensity'
+    end
     object ckLaserControlEnabled: TCheckBox
-      Left = 19
-      Top = 18
+      Left = 147
+      Top = 149
       Width = 65
       Height = 15
       Alignment = taLeftJustify
@@ -228,17 +260,59 @@ object SettingsFrm: TSettingsFrm
       TabOrder = 0
     end
     object cbLaserControlComPort: TComboBox
-      Left = 152
-      Top = 18
-      Width = 65
+      Left = 140
+      Top = 14
+      Width = 81
       Height = 21
+      Style = csDropDownList
       TabOrder = 1
-      Text = 'cbLaserControlComPort'
+    end
+    object cbLaserShutterControlLine: TComboBox
+      Left = 140
+      Top = 96
+      Width = 81
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 2
+    end
+    object edLaserShutterChangeTime: TValidatedEdit
+      Left = 140
+      Top = 122
+      Width = 81
+      Height = 21
+      Text = ' 500 ms'
+      Value = 0.500000000000000000
+      Scale = 1000.000000000000000000
+      Units = 'ms'
+      NumberFormat = '%.4g'
+      LoLimit = -1.000000015047466E30
+      HiLimit = 1000000.000000000000000000
+    end
+    object cbLaserIntensityControlLine: TComboBox
+      Left = 140
+      Top = 41
+      Width = 81
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 4
+    end
+    object edLaserVMaxIntensity: TValidatedEdit
+      Left = 140
+      Top = 69
+      Width = 81
+      Height = 21
+      Text = ' 5 V'
+      Value = 5.000000000000000000
+      Scale = 1.000000000000000000
+      Units = 'V'
+      NumberFormat = '%.4g'
+      LoLimit = 0.000000000000000000
+      HiLimit = 10.000000000000000000
     end
   end
   object GroupBox2: TGroupBox
-    Left = 248
-    Top = 67
+    Left = 244
+    Top = 191
     Width = 230
     Height = 161
     Caption = ' Z position Control'
@@ -283,8 +357,8 @@ object SettingsFrm: TSettingsFrm
       Top = 43
       Width = 97
       Height = 21
+      Style = csDropDownList
       TabOrder = 1
-      Text = 'cbLaserControlComPort'
     end
     object edZScaleFactor: TValidatedEdit
       Left = 120
@@ -296,6 +370,7 @@ object SettingsFrm: TSettingsFrm
       Scale = 1.000000000000000000
       Units = 'steps/um'
       NumberFormat = '%.4g'
+      LoLimit = -1.000000015047466E30
       HiLimit = 1000000.000000000000000000
     end
     object cbZStageType: TComboBox

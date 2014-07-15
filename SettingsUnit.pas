@@ -56,6 +56,14 @@ type
     cbZStageType: TComboBox;
     edZStepTime: TValidatedEdit;
     Label13: TLabel;
+    cbLaserShutterControlLine: TComboBox;
+    Label14: TLabel;
+    Label15: TLabel;
+    edLaserShutterChangeTime: TValidatedEdit;
+    cbLaserIntensityControlLine: TComboBox;
+    Label17: TLabel;
+    Label16: TLabel;
+    edLaserVMaxIntensity: TValidatedEdit;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -73,7 +81,7 @@ implementation
 
 {$R *.dfm}
 
-uses MainUnit, ZStageUnit;
+uses MainUnit, ZStageUnit, LaserUnit;
 
 procedure TSettingsFrm.bCancelClick(Sender: TObject);
 // ---------------------
@@ -106,8 +114,12 @@ begin
 
     MainFrm.InvertPMTSignal := ckInvertPMTSignal.Checked ;
 
-    MainFrm.LaserControlComPort := cbLaserControlComPort.ItemIndex + 1 ;
-    MainFrm.LaserControlEnabled := ckLaserControlEnabled.Checked ;
+    Laser.ComPort := cbLaserControlComPort.ItemIndex ;
+    Laser.ShutterControlLine := cbLaserShutterControlLine.ItemIndex ;
+    Laser.ShutterChangeTime := edLaserShutterChangeTime.Value ;
+
+    Laser.IntensityControlLine := cbLaserIntensityControlLine.ItemIndex ;
+    Laser.VMaxIntensity := edLaserVMaxIntensity.Value ;
 
     ZStage.Enabled := ckZControlEnabled.Checked ;
     ZStage.ControlPort := cbZStagePort.ItemIndex ;
@@ -158,10 +170,18 @@ begin
     edFullFieldWidthMicrons.Value := MainFrm.FullFieldWidthMicrons ;
     ckInvertPMTSignal.Checked := MainFrm.InvertPMTSignal ;
 
-    cbLaserControlComPort.Clear ;
-    for i := 1 to 16 do cbLaserControlComPort.Items.Add(format('COM%d',[i]));
-    cbLaserControlComPort.ItemIndex := Min(Max(MainFrm.LaserControlComPort-1,0),cbLaserControlComPort.Items.Count-1);
+    // Laser control
+    Laser.GetCOMPorts( cbLaserControlComPort.Items ) ;
+    cbLaserControlComPort.ItemIndex := Laser.ComPort ;
     ckLaserControlEnabled.Checked := MainFrm.LaserControlEnabled ;
+
+    Laser.GetShutterControlLines( cbLaserShutterControlLine.Items ) ;
+    cbLaserShutterControlLine.ItemIndex := Laser.ShutterControlLine ;
+    edLaserShutterChangeTime.Value := Laser.ShutterChangeTime ;
+
+    Laser.GetIntensityControlLines( cbLaserIntensityControlLine.Items ) ;
+    cbLaserIntensityControlLine.ItemIndex := Laser.IntensityControlLine ;
+    edLaserVMaxIntensity.Value := Laser.VMaxIntensity ;
 
     // Z stage control
     ZStage.GetZStageTypes(cbZStageType.Items);
@@ -169,6 +189,7 @@ begin
 
     ZStage.GetControlPorts(cbZStagePort.Items);
     cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
+
 
     ckZControlEnabled.Checked := ZStage.Enabled ;
     edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;

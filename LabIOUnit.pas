@@ -129,7 +129,6 @@ type
     procedure NIDAQMX_GetDeviceDACChannelProperties( DeviceNum : Integer ) ;
     function NIDAQMX_ADCToMemoryExtScan(
              Device : SmallInt ;
-             var ADCBuf : Array of SmallInt  ;
              FirstChannel : Integer ;
              nChannels : Integer ;
              nSamples : Integer ;
@@ -318,7 +317,6 @@ type
 
     function ADCToMemoryExtScan(
              Device : SmallInt ;
-             var ADCBuf : Array of SmallInt  ;
              FirstChannel : Integer ;
              nChannels : Integer ;
              nSamples : Integer ;
@@ -628,7 +626,6 @@ begin
 
 function TLabIO.ADCToMemoryExtScan(
          Device : SmallInt ;
-         var ADCBuf : Array of SmallInt  ;
          FirstChannel : Integer ;
          nChannels : Integer ;
          nSamples : Integer ;
@@ -643,16 +640,6 @@ begin
     case FNIDAQAPI of
         NIDAQMX : Result := NIDAQMX_ADCToMemoryExtScan(
                             Device,
-                            ADCBuf,
-                            FirstChannel,
-                            nChannels,
-                            nSamples,
-                            ADCVoltageRange,
-                            CircularBuffer,
-                            TimingDevice ) ;
-        NIDAQ : Result := NIDAQ_ADCToMemoryExtScan(
-                            Device,
-                            ADCBuf,
                             FirstChannel,
                             nChannels,
                             nSamples,
@@ -1342,7 +1329,7 @@ begin
           end ;
       end;
 
-    NumDACs[DeviceNum] := NumChannels - 1 ;
+    NumDACs[DeviceNum] := NumChannels ;
 
     EnableFPUExceptions ;
 
@@ -1434,7 +1421,6 @@ begin
 
 function TLabIO.NIDAQMX_ADCToMemoryExtScan(
           Device : SmallInt ;
-          var ADCBuf : Array of SmallInt  ;  { A/D sample buffer (OUT) }
           FirstChannel : Integer ;           // First A/D channel to acquire
           nChannels : Integer ;              { Number of A/D channels (IN) }
           nSamples : Integer ;               { Number of A/D samples ( per channel) (IN) }
@@ -1598,13 +1584,13 @@ begin
 
     // Read data from A/D converter
     DAQmxReadBinaryI16( ADCTask[Device],
-                                  -1,
-                                  DefaultTimeOut,
-                                  DAQmx_Val_GroupByScanNumber,
-                                  InBuf,
-                                  ADCBufNumSamples,
-                                  NumSamplesRead,
-                                  Nil) ;
+                        -1,
+                        DefaultTimeOut,
+                        DAQmx_Val_GroupByScanNumber,
+                        InBuf,
+                        ADCBufNumSamples,
+                        NumSamplesRead,
+                        Nil) ;
 
     // Apply calibration factors and copy to output buffer
     VUnScale := ADCMaxValue[Device]/10.0 ;
