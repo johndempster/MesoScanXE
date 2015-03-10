@@ -17,6 +17,7 @@ unit MainUnit;
 //                 XZ imaging checked Y position now matches horizontal cursor
 // V1.5.4 10.03.15 Now supports up to 4 PMT channels
 //                 PMT voltage control added
+// V1.5.5 10.03.15 Access violations on startup with no settings file fixed
 
 interface
 
@@ -545,7 +546,7 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.5.4 ';
+     Caption := 'MesoScan V1.5.5 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
@@ -1034,14 +1035,12 @@ begin
          XScaleToBM := (BitMap[ch].Width*Magnification) / FrameWidth ;
          YScaleToBM := (BitMap[ch].Width*Magnification*FrameHeightScale) / FrameWidth ;
 
+         SetImageSize( Image[ch] ) ;
+
          end;
 
-     SetImageSize( Image0 ) ;
-     SetImageSize( Image1 ) ;
-     SetImageSize( Image2 ) ;
-     SetImageSize( Image3 ) ;
-
      end ;
+
 
 procedure TMainFrm.SetImageSize(
           Image : TImage ) ;
@@ -1492,22 +1491,22 @@ begin
        Image[ch].Picture.Assign(BitMap[ch]) ;
        Image[ch].Width := BitMap[ch].Width ;
        Image[ch].Height := BitMap[ch].Height ;
+
+       FreeMem(XMap) ;
+       FreeMem(YMap) ;
+
        end ;
 
-     lbZoom.Caption := format('Zoom (X%d)',[Magnification]) ;
+    lbZoom.Caption := format('Zoom (X%d)',[Magnification]) ;
 
-     if (NumZSectionsAvailable > 1) and
-        (not bStopScan.Enabled)  then begin
-        ZSectionPanel.Visible := True ;
-        lbZSection.Caption := format('Section %d/%d',[ZSection+1,NumZSectionsAvailable]) ;
-     end
-     else begin
+    if (NumZSectionsAvailable > 1) and
+       (not bStopScan.Enabled)  then begin
+       ZSectionPanel.Visible := True ;
+       lbZSection.Caption := format('Section %d/%d',[ZSection+1,NumZSectionsAvailable]) ;
+       end
+    else begin
         ZSectionPanel.Visible := False ;
-
-     FreeMem(XMap) ;
-     FreeMem(YMap) ;
-
-     end;
+        end;
 
     end ;
 
@@ -3072,6 +3071,10 @@ procedure TMainFrm.UpdatePMTSettings ;
 var
   ch : Integer ;
 begin
+
+  // Ensure at least one PMT is selected
+  if (not ckEnablePMT0.Checked) and (not ckEnablePMT1.Checked) and
+     (not ckEnablePMT2.Checked) and (not ckEnablePMT3.Checked) then ckEnablePMT0.Checked := True ;
 
   if NumPMTs <= 3 then PanelPMT3.Visible := false
                   else PanelPMT3.Visible := true ;
