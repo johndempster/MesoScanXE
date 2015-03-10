@@ -1,6 +1,6 @@
 unit MainUnit;
 // =======================================================================
-// Mesoscan: Mesolens confocal LSM software
+// Mesoscan: Mesolens confocal LSM software                                                        e
 // =======================================================================
 // (c) John Dempster, University of Strathclyde 2011-12
 // V1.0 1-5-12
@@ -13,6 +13,10 @@ unit MainUnit;
 //                Voltage controlled lens positioner now supported
 //                Region of interest can now be set by double-clicking and dragging
 // V1.5.2 15.07.14 Laser shutter control added
+// V1.5.3 19.01.15 Y scan now working correctly again (after V1.5.x)
+//                 XZ imaging checked Y position now matches horizontal cursor
+// V1.5.4 10.03.15 Now supports up to 4 PMT channels
+//                 PMT voltage control added
 
 interface
 
@@ -38,7 +42,7 @@ const
     XYZMode = 1 ;
     XTMode = 2 ;
     XZMode = 3 ;
-
+    MaxPMT = 3 ;
 
 type
 
@@ -58,7 +62,6 @@ type
     ControlGrp: TGroupBox;
     bScanImage: TButton;
     ImageGrp: TGroupBox;
-    Image1: TImage;
     ZSectionPanel: TPanel;
     Timer: TTimer;
     bStopScan: TButton;
@@ -76,8 +79,6 @@ type
     lbReadout: TLabel;
     rbFastScan: TRadioButton;
     rbHRScan: TRadioButton;
-    lbTopLeft: TLabel;
-    lbBottomRight: TLabel;
     bScanZoomOut: TButton;
     bScanZoomIn: TButton;
     ImageSizeGrp: TGroupBox;
@@ -99,8 +100,6 @@ type
     edGotoZPosition: TValidatedEdit;
     bGotoZPosition: TButton;
     GroupBox2: TGroupBox;
-    Label15: TLabel;
-    cbADCVoltageRange: TComboBox;
     LaserGrp: TGroupBox;
     edLaserIntensity: TValidatedEdit;
     tbLaserIntensity: TTrackBar;
@@ -133,6 +132,37 @@ type
     lbZoom: TLabel;
     bZoomIn: TButton;
     bZoomOut: TButton;
+    PanelPMT0: TPanel;
+    cbPMTGain0: TComboBox;
+    edPMTVolts0: TValidatedEdit;
+    Label15: TLabel;
+    Label3: TLabel;
+    ckEnablePMT0: TCheckBox;
+    udPMTVolts0: TUpDown;
+    PanelPMT1: TPanel;
+    cbPMTGain1: TComboBox;
+    edPMTVolts1: TValidatedEdit;
+    ckEnablePMT1: TCheckBox;
+    udPMTVolts1: TUpDown;
+    PanelPMT2: TPanel;
+    cbPMTGain2: TComboBox;
+    edPMTVolts2: TValidatedEdit;
+    ckEnablePMT2: TCheckBox;
+    udPMTVolts2: TUpDown;
+    PanelPMT3: TPanel;
+    cbPMTGain3: TComboBox;
+    edPMTVolts3: TValidatedEdit;
+    ckEnablePMT3: TCheckBox;
+    udPMTVolts3: TUpDown;
+    ImagePage: TPageControl;
+    TabImage0: TTabSheet;
+    Image0: TImage;
+    TabImage1: TTabSheet;
+    TabImage2: TTabSheet;
+    TabImage3: TTabSheet;
+    Image1: TImage;
+    Image2: TImage;
+    Image3: TImage;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -143,7 +173,6 @@ type
     procedure bMaxContrastClick(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
     procedure bStopScanClick(Sender: TObject);
-    procedure bSnapImageClick(Sender: TObject);
     procedure cbPaletteChange(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure mnExitClick(Sender: TObject);
@@ -152,16 +181,16 @@ type
     procedure mnScanSettingsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure tbLaserIntensityChange(Sender: TObject);
-    procedure Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
+    procedure Image0MouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure ckLineScanClick(Sender: TObject);
     procedure bGotoZPositionClick(Sender: TObject);
 
     procedure bZoomInClick(Sender: TObject);
     procedure bZoomOutClick(Sender: TObject);
-    procedure Image1MouseUp(Sender: TObject; Button: TMouseButton;
+    procedure Image0MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure Image1MouseDown(Sender: TObject; Button: TMouseButton;
+    procedure Image0MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure scZSectionChange(Sender: TObject);
     procedure rbFastScanClick(Sender: TObject);
@@ -172,31 +201,46 @@ type
     procedure edNumPixelsPerZStepKeyPress(Sender: TObject; var Key: Char);
     procedure edMicronsPerZStepKeyPress(Sender: TObject; var Key: Char);
     procedure edGotoZPositionKeyPress(Sender: TObject; var Key: Char);
-    procedure Image1DblClick(Sender: TObject);
+    procedure Image0DblClick(Sender: TObject);
     procedure sbContrastChange(Sender: TObject);
     procedure bScanFullClick(Sender: TObject);
     procedure mnSaveImageClick(Sender: TObject);
     procedure edLaserIntensityKeyPress(Sender: TObject; var Key: Char);
+    procedure ckEnablePMT0Click(Sender: TObject);
+    procedure edPMTVolts0KeyPress(Sender: TObject; var Key: Char);
+    procedure udPMTVolts0ChangingEx(Sender: TObject; var AllowChange: Boolean;
+      NewValue: Integer; Direction: TUpDownDirection);
+    procedure udPMTVolts1ChangingEx(Sender: TObject; var AllowChange: Boolean;
+      NewValue: Integer; Direction: TUpDownDirection);
+    procedure udPMTVolts2ChangingEx(Sender: TObject; var AllowChange: Boolean;
+      NewValue: Integer; Direction: TUpDownDirection);
+    procedure udPMTVolts3ChangingEx(Sender: TObject; var AllowChange: Boolean;
+      NewValue: Integer; Direction: TUpDownDirection);
   private
     { Private declarations }
-        BitMap : TBitMap ;  // Image internal bitmaps
+        BitMap : Array[0..MaxPMT] of TBitMap ;  // Image internal bitmaps
+        Image : Array[0..MaxPMT] of TImage ;  // Image internal bitmaps
         procedure DisplayROI( BitMap : TBitmap ) ;
         procedure DisplaySquare(
+                  BitMap : TBitMap ;
                   X : Integer ;
                   Y : Integer ) ;
 
         procedure FixRectangle( var Rect : TRect ) ;
+        procedure SetImageSize(
+                  Image : TImage ) ;
+
 
   public
     { Public declarations }
     DeviceNum : Integer ;
-    ADCVoltageRange : Double ;
+    //ADCVoltageRange : Double ;
     ADCMaxValue : Integer ;
     DACMaxValue : Integer ;
     TempBuf : PBig16bitArray ;
     DACBuf : PBig16bitArray ;
     ADCBuf : PBig16bitArray ;
-    AvgBuf : PBig16bitArray ;
+    AvgBuf : PBig32bitArray ;
     ADCMap : PBig32bitArray ;
     XZLineAverage : PBig32bitArray ;
 
@@ -249,6 +293,16 @@ type
     FrameHeightScale : Double ;    // Fast imaging: Frame height scaling factor
     ScanInfo : String ;
 
+    // PMT setting
+    NumPMTs : Integer ;
+    PMTGain : Array[0..MaxPMT] of Double ;
+    PMTVolts : Array[0..MaxPMT] of Double ;
+    PMTControls : Array[0..MaxPMT] of Integer ;
+    PMTMaxVolts : double ;
+    PMTList : Array[0..MaxPMT] of Integer ;
+    NumPMTChannels : Integer ;
+    ImageNames : Array[0..MaxPMT] of string ;
+
     //NumPixelsPerFrame : Integer ;
     NumADCChannels : Integer ;
     PixelDwellTime : Double ;
@@ -299,11 +353,11 @@ type
     Magnification : Integer ;
 
         // Display look-up tables
-    GreyLo : Integer ; // Lower limit of display grey scale
-    GreyHi : Integer ; // Upper limit of display grey scale
-    LUT : Array[0..LUTSize-1] of Word ;    // Display look-up tables
+    GreyLo : Array[0..MaxPMT] of Integer ; // Lower limit of display grey scale
+    GreyHi : Array[0..MaxPMT] of Integer ; // Upper limit of display grey scale
+    LUT : Array[0..MaxPMT,0..LUTSize-1] of Word ;    // Display look-up tables
     PaletteType : TPaletteType ;  // Display colour palette
-    pImageBuf : PIntArray ; // Pointer to image buffers
+    pImageBuf : Array[0..MaxPMT] of PSmallIntArray ; // Pointer to image buffers
 
     //PAverageBuf : PIntArray ; // Pointer to displayed image buffers
     NumAverages : Integer ;
@@ -333,14 +387,26 @@ type
           HiValue : Integer
           ) ;
 
-    procedure UpdateLUT( GreyMax : Integer ) ;
+    procedure UpdateLUT(
+              ch : Integer ;
+              GreyMax : Integer ) ;
 
     procedure SetPalette( BitMap : TBitMap ; PaletteType : TPaletteType ) ;
 
     procedure UpdateImage ;
+    procedure UpdatePMTSettings ;
+    procedure SetPMTVoltage(
+              PMTNum : Integer ;
+              PercentMax : Double ) ;
+
     procedure CalculateMaxContrast ;
 
     procedure SetScanZoomToFullField ;
+    procedure PercentDone(
+          var PCDone : Double ;
+          var n : Integer ;
+          var NumPixels : Integer ) ;
+
 
 procedure SaveRawImage(
           FileName : String ;    // File to save to
@@ -374,8 +440,8 @@ procedure LoadRawImage(
     function GetElementDouble(
               ParentNode : IXMLNode ;
               NodeName : String ;
-              var Value : Double
-              ) : Boolean ;
+              Value : Double
+              ) : Double ;
     procedure AddElementInt(
               ParentNode : IXMLNode ;
               NodeName : String ;
@@ -384,8 +450,8 @@ procedure LoadRawImage(
     function GetElementInt(
               ParentNode : IXMLNode ;
               NodeName : String ;
-              var Value : Integer
-              ) : Boolean ;
+              Value : Integer
+              ) : Integer ;
     procedure AddElementBool(
               ParentNode : IXMLNode ;
               NodeName : String ;
@@ -394,7 +460,7 @@ procedure LoadRawImage(
     function GetElementBool(
               ParentNode : IXMLNode ;
               NodeName : String ;
-              var Value : Boolean
+              Value : Boolean
               ) : Boolean ;
 
     procedure AddElementText(
@@ -405,8 +471,8 @@ procedure LoadRawImage(
     function GetElementText(
               ParentNode : IXMLNode ;
               NodeName : String ;
-              var Value : String
-              ) : Boolean ;
+              Value : String
+              ) : String ;
 
     function FindXMLNode(
          const ParentNode : IXMLNode ;  // Node to be searched
@@ -446,13 +512,26 @@ procedure TMainFrm.FormCreate(Sender: TObject);
 // --------------------------------------
 // Initalisations when program is created
 // --------------------------------------
+var
+   ch : Integer ;
 begin
      ADCMap := Nil ;
      ADCBuf := Nil ;
      AvgBuf := Nil ;
      DACBuf := Nil ;
      XZLineAverage := Nil ;
-     BitMap := Nil ;
+     for ch := 0 to High(BitMap) do BitMap[ch] := Nil ;
+
+     // Create array of image controls
+     Image0.Tag := 0 ;
+     Image1.Tag := 1 ;
+     Image2.Tag := 2 ;
+     Image3.Tag := 3 ;
+
+     Image[0] := Image0 ;
+     Image[1] := Image1 ;
+     Image[2] := Image2 ;
+     Image[3] := Image3 ;
 
      end;
 
@@ -462,16 +541,17 @@ procedure TMainFrm.FormShow(Sender: TObject);
 // Initialisations when form is displayed
 // --------------------------------------
 var
-    i : Integer ;
+    i,ch : Integer ;
     NumPix : Cardinal ;
+    Gain : Double ;
 begin
-     Caption := 'MesoScan V1.5.2 ';
+     Caption := 'MesoScan V1.5.4 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 08/7/14';
+    Caption := Caption + ' 10/3/15';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -498,10 +578,9 @@ begin
      XZAverageLine := 0 ;
 
      DeviceNum := 1 ;
-     GreyLo := 0 ;
-     GreyHi := LabIO.ADCMaxValue[DeviceNum] ;
+     for ch  := 0 to High(GreyLo) do GreyLo[ch] := 0 ;
+     for ch  := 0 to High(GreyLo) do GreyHi[ch] := LabIO.ADCMaxValue[DeviceNum] ;
      LabIO.WriteDACs( 1,[0.0,0.0],2);
-     ADCVoltageRange := 10.0 ;
      SnapNum := 0 ;
 
      //StatusBar.SimpleText := LabIO.DeviceName[1] ;
@@ -525,14 +604,28 @@ begin
      cbPalette.Items.AddObject(' Blue scale', TObject(palBlue)) ;
      cbPalette.ItemIndex := cbPalette.Items.IndexOfObject(TObject(MainFrm.PaletteType)) ;
 
-     cbADCVoltageRange.clear ;
+     // PMT controls
+     cbPMTGain0.Clear ;
      for i := 0 to LabIO.NumADCVoltageRanges[DeviceNum]-1 do begin
-         cbADCVoltageRange.items.add(
-           format(' +/-%.3g V ',[LabIO.ADCVoltageRanges[1,i]] )) ;
+         Gain := LabIO.ADCVoltageRanges[DeviceNum,0] /
+                 LabIO.ADCVoltageRanges[DeviceNum,i] ;
+         cbPMTGain0.Items.Add(format('X%.4g',[Gain]));
          end ;
-     //SESLabIO.ADCVoltageRangeIndex := 2 ;
-     cbADCVoltageRange.ItemIndex := 0 ;
-     InvertPMTSignal := True ;
+     cbPMTGain1.Items.Assign(cbPMTGain0.Items);
+     cbPMTGain2.Items.Assign(cbPMTGain0.Items);
+     cbPMTGain3.Items.Assign(cbPMTGain0.Items);
+     cbPMTGain0.ItemIndex := 0 ;
+     cbPMTGain1.ItemIndex := 0 ;
+     cbPMTGain2.ItemIndex := 0 ;
+     cbPMTGain3.ItemIndex := 0 ;
+     for i := 0 to High(PMTControls) do PMTControls[i] := -1 ;
+
+     edPMTVolts0.Value := 1.0 ;
+     edPMTVolts1.Value := 1.0 ;
+     edPMTVolts2.Value := 1.0 ;
+     edPMTVolts3.Value := 1.0 ;
+
+     PMTMaxVolts := 5.0 ;
 
      edDisplayIntensityRange.LoLimit := 0 ;
      edDisplayIntensityRange.HiLimit := ADCMaxValue ;
@@ -555,10 +648,12 @@ begin
      FrameWidth := FullFieldWidth ;
      FrameHeight := FullFieldWidth ;
      Magnification := 1;
-     if BitMap <> Nil then BitMap.Free ;
-     BitMap := TBitMap.Create ;
-     BitMap.Width := FullFieldWidth ;
-     BitMap.Height := FullFieldWidth ;
+     for ch := 0 to High(BitMap) do begin
+         if BitMap[ch] <> Nil then BitMap[ch].Free ;
+         BitMap[ch] := TBitMap.Create ;
+         BitMap[ch].Width := FullFieldWidth ;
+         BitMap[ch].Height := FullFieldWidth ;
+         end;
      LinesAvailableForDisplay := 0 ;
 
      // Default normal scan settings
@@ -568,7 +663,7 @@ begin
      MinPixelDwellTime := 5E-7 ;
      XVoltsPerMicron := 1E-3 ;
      YVoltsPerMicron := 1E-3 ;
-     ADCVoltageRange := 0 ;
+     //ADCVoltageRange := 0 ;
      PhaseShift := 0 ;
      CorrectSineWaveDistortion := True ;
      BlackLevel := 10 ;
@@ -611,10 +706,16 @@ begin
      FrameWidth := FastFrameWidth ;
      FrameHeight := FastFrameWidth ;
     // (re)allocate image buffer
-    if PImageBuf <> Nil then FreeMem(PImageBuf) ;
     NumPix := FrameWidth*FrameHeight*NumLinesPerZStep ;
-    PImageBuf := AllocMem( Int64(NumPix)*SizeOf(Integer)) ;
-    for i := 0 to NumPix-1 do pImageBuf^[i] := 0 ;
+    UpdatePMTSettings ;
+    for ch := 0 to High(PImageBuf) do begin
+        if PImageBuf[ch] <> Nil then FreeMem(PImageBuf[ch]) ;
+        PImageBuf[ch] := Nil ;
+        if ch < NumPMTChannels then begin
+           PImageBuf[ch] := AllocMem( Int64(NumPix)*SizeOf(SmallInt)) ;
+           for i := 0 to NumPix-1 do pImageBuf[ch]^[i] := 0 ;
+           end;
+        end;
     SetImagePanels ;
     InitialiseImage ;
     MouseUpCursor := crCross ;
@@ -624,7 +725,10 @@ begin
      Timer.Enabled := True ;
      UpdateDisplay := True ;
      bStopScan.Enabled := False ;
+     image0.ControlStyle := image0.ControlStyle + [csOpaque] ;
      image1.ControlStyle := image1.ControlStyle + [csOpaque] ;
+     image2.ControlStyle := image2.ControlStyle + [csOpaque] ;
+     image3.ControlStyle := image3.ControlStyle + [csOpaque] ;
      imagegrp.ControlStyle := imagegrp.ControlStyle + [csOpaque] ;
      lbreadout.ControlStyle := lbreadout.ControlStyle + [csOpaque] ;
 
@@ -653,10 +757,12 @@ begin
      SelectedRect.Right := FrameWidth-1 ;
      SelectedRect.Bottom := FrameHeight-1 ;
 
+     edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
+
      end ;
 
 
-procedure TMainFrm.Image1DblClick(Sender: TObject);
+procedure TMainFrm.Image0DblClick(Sender: TObject);
 // -----------------------------
 // Mouse double clicked on image
 // -----------------------------
@@ -670,11 +776,14 @@ begin
       UpdateDisplay := True ;
     end;
 
-procedure TMainFrm.Image1MouseDown(Sender: TObject; Button: TMouseButton;
+
+procedure TMainFrm.Image0MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 // -------------------
 // Mouse down on image
 // -------------------
+var
+    ch : Integer ;
 begin
 
      // Save mouse position when button pressed
@@ -690,13 +799,15 @@ begin
      TopLeftDown.X := XLeft ;
      TopLeftDown.Y := YTop ;
 
-     MouseUpCursor := Image1.Cursor ;
-     if (Image1.Cursor = crCross) and (not ROIMode) then Screen.Cursor := crHandPoint ;
+     for ch := 0 to NumPMTCHannels-1 do begin
+        MouseUpCursor := Image[ch].Cursor ;
+       if (Image[ch].Cursor = crCross) and (not ROIMode) then Screen.Cursor := crHandPoint ;
+       end;
 
      end;
 
 
-procedure TMainFrm.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
+procedure TMainFrm.Image0MouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 // ----------------------
 // Mouse moved over image
@@ -704,12 +815,12 @@ procedure TMainFrm.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
 const
     EdgeSize = 3 ;
 var
-    i : Integer ;
+    i,ch : Integer ;
     XRight,YBottom,XShift,YShift : Integer ;
     XImage,YImage : Integer ;
 begin
 
-     if pImageBuf = Nil then Exit ;
+     if pImageBuf[TImage(Sender).tag] = Nil then Exit ;
 
      XImage := Round(X/XScaleToBM) + XLeft ;
      YImage := Round(Y/YScaleToBM) + YTop ;
@@ -719,10 +830,10 @@ begin
      PixelsToMicronsY := FrameHeightScale*PixelsToMicronsX ;
 
      if (i > 0) and (i < FrameWidth*FrameHeight) then begin
-        lbReadout.Caption := format('X=%.6g um, Y=%.6g um, I=%d',
+        lbReadout.Caption := format('X=%.2f um, Y=%.2f um, I=%d',
                            [XImage*PixelsToMicronsX + ScanArea[iScanZoom].Left,
                             YImage*PixelsToMicronsY + ScanArea[iScanZoom].Top,
-                            pImageBuf[i]]) ;
+                            pImageBuf[TImage(Sender).tag][i]]) ;
          end ;
 
      if not MouseDown then begin
@@ -764,26 +875,26 @@ begin
         if SelectedEdge.Left = 1 then begin
            // Move left edge
            SelectedRectBM.Left := Max(SelectedRectBM.Left + XShift,0);
-           SelectedRectBM.Left := Min(SelectedRectBM.Left,Min(BitMap.Width-1,SelectedRectBM.Right-1)) ;
+           SelectedRectBM.Left := Min(SelectedRectBM.Left,Min(BitMap[0].Width-1,SelectedRectBM.Right-1)) ;
            SelectedRect.Left := Round(SelectedRectBM.Left/XScaleToBM) + XLeft ;
            end ;
         if SelectedEdge.Right = 1 then begin
            // Move right edge
            SelectedRectBM.Right := Max(SelectedRectBM.Right + XShift,Max(0,SelectedRectBM.Left));
-           SelectedRectBM.Right := Min(SelectedRectBM.Right,BitMap.Width-1) ;
+           SelectedRectBM.Right := Min(SelectedRectBM.Right,BitMap[0].Width-1) ;
            SelectedRect.Right := Round(SelectedRectBM.Right/XScaleToBM) + XLeft ;
            end;
         if SelectedEdge.Top = 1 then begin
            // Move top edge
            SelectedRectBM.Top := Max(SelectedRectBM.Top + YShift,0);
-           SelectedRectBM.Top := Min(SelectedRectBM.Top,Min(BitMap.Height-1,SelectedRectBM.Bottom-1)) ;
+           SelectedRectBM.Top := Min(SelectedRectBM.Top,Min(BitMap[0].Height-1,SelectedRectBM.Bottom-1)) ;
            SelectedRect.Top := Round(SelectedRectBM.Top/YScaleToBM) + YTop ;
            end;
 
         if SelectedEdge.Bottom = 1 then begin
            // Move bottom edge
            SelectedRectBM.Bottom := Max(SelectedRectBM.Bottom + YShift,SelectedRectBM.Top+1);
-           SelectedRectBM.Bottom := Min(SelectedRectBM.Bottom,BitMap.Height-1) ;
+           SelectedRectBM.Bottom := Min(SelectedRectBM.Bottom,BitMap[0].Height-1) ;
            SelectedRect.Bottom := Round(SelectedRectBM.Bottom/YScaleToBM) + YTop ;
            end;
 
@@ -798,16 +909,19 @@ begin
             SelectedEdge.Top or SelectedEdge.Bottom) = 0 then begin
             // Move display window
             XLeft := TopLeftDown.X - Round((X - MouseDownAt.X)/XScaleToBM) ;
-            XRight := Min(XLeft + Round(Bitmap.Width/XScaleToBM),FrameWidth) ;
-            XLeft := Max( XRight - Round(Bitmap.Width/XScaleToBM), 0 ) ;
+            XRight := Min(XLeft + Round(Bitmap[0].Width/XScaleToBM),FrameWidth) ;
+            XLeft := Max( XRight - Round(Bitmap[0].Width/XScaleToBM), 0 ) ;
             YTop := TopLeftDown.Y - Round((Y - MouseDownAt.Y)/YScaleToBM) ;
-            YBottom := Min(YTop + Round(Bitmap.Height/YScaleToBM),FrameHeight) ;
-            YTop := Max( YBottom - Round(Bitmap.Height/YScaleToBM),0) ;
+            YBottom := Min(YTop + Round(Bitmap[0].Height/YScaleToBM),FrameHeight) ;
+            YTop := Max( YBottom - Round(Bitmap[0].Height/YScaleToBM),0) ;
             end;
          end ;
 
-       UpdateDisplay := True ;
+     for ch := 0 to NumPMTChannels-1 do Image[ch].Cursor := Image1.Cursor ;
+
+     UpdateDisplay := True ;
      end ;
+
 
 procedure TMainFrm.FixRectangle( var Rect : TRect ) ;
 // -----------------------------------------------------
@@ -825,14 +939,17 @@ begin
 
     end;
 
-procedure TMainFrm.Image1MouseUp(Sender: TObject; Button: TMouseButton;
+procedure TMainFrm.Image0MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 // -------------------
 // Mouse up on image
 // -------------------
+var
+    ch : Integer ;
 begin
      MouseDown := False ;
-     Image1.Cursor := MouseUpCursor ;
+
+     for ch := 0 to NumPMTChannels-1 do Image[ch].Cursor := MouseUpCursor ;
      Screen.Cursor :=crDefault ;
      ROIMode := False ;                   // Turn ROI mode off
      FixRectangle(SelectedRectBM);
@@ -845,12 +962,9 @@ procedure TMainFrm.InitialiseImage ;
 // ------------------------------------------------------
 // Re-initialise size of memory buffers and image bitmaps
 // ------------------------------------------------------
+var
+    ch : Integer ;
 begin
-
-    // No. of pixels per frame
-    //NumPixelsPerFrame := FrameWidth*FrameHeight ;
-
-     // Create work buffer
 
      // Set size and location of image display panels
      SetImagePanels ;
@@ -859,13 +973,14 @@ begin
      DisplayGrp.Caption := ' Contrast ' ;
 
      // Set intensity range and sliders
-     SetDisplayIntensityRange( MainFrm.GreyLo,MainFrm.GreyHi ) ;
+     SetDisplayIntensityRange( MainFrm.GreyLo[ImagePage.ActivePageIndex],
+                               MainFrm.GreyHi[ImagePage.ActivePageIndex] ) ;
 
-     if BitMap <> Nil then SetPalette( BitMap, PaletteType ) ;
-
-     // Update display look up tables
-     UpdateLUT( ADCMaxValue );
-
+     for ch := 0 to NumPMTChannels-1 do begin
+        if BitMap[ch] <> Nil then SetPalette( BitMap[ch], PaletteType ) ;
+        // Update display look up tables
+        UpdateLUT( ch, ADCMaxValue );
+        end;
 
      end ;
 
@@ -878,54 +993,74 @@ const
     MarginPixels = 16 ;
 var
     HeightWidthRatio : Double ;
+    ch : Integer ;
 begin
 
      ImageGrp.ClientWidth :=  Max( ClientWidth - ImageGrp.Left - 5, 2) ;
      ImageGrp.ClientHeight :=  Max( ClientHeight - ImageGrp.Top - 5, 2) ;
-     //ControlGrp.ClientHeight := ImageGrp.ClientHeight ;
+     ZoomPanel.Top := ImageGrp.ClientHeight - ZoomPanel.Height - 1 ;
+     ZoomPanel.Left := 5 ;
+     ZSectionPanel.Top := ZoomPanel.Top ;
+     lbReadout.Top := ZSectionPanel.Top ;
+     lbReadout.Left :=  ZoomPanel.Left + ZoomPanel.Width + 5 ;
 
-     DisplayMaxWidth := ImageGrp.ClientWidth - Image1.Left - 5 ;
-     DisplayMaxHeight := ImageGrp.ClientHeight
-                         - Image1.Top - 5 - ZSectionPanel.Height ;
+     ImagePage.Width := ImageGrp.ClientWidth - ImagePage.Left - 5 ;
+     ImagePage.Height := ZSectionPanel.Top - ImagePage.Top - 2 ;
+     ZSectionPanel.Left := ImagePage.Width + ImagePage.Left - ZSectionPanel.Width ;
 
-     if BitMap <> Nil then BitMap.Free ;
-     BitMap := TBitMap.Create ;
-     SetPalette( BitMap, PaletteType ) ;
+     DisplayMaxWidth := TabImage0.ClientWidth {- TabImage0.Left} - 1 ;
+     DisplayMaxHeight := TabImage0.ClientHeight {- TabImage0.Top} - 1 ;
 
-     // Scale bitmap to fit into window
-     BitMap.Width := DisplayMaxWidth ;
-     HeightWidthRatio := (FrameHeight*FrameHeightScale)/FrameWidth ;
-     BitMap.Height := Round(BitMap.Width*HeightWidthRatio) ;
-     if BitMap.Height > DisplayMaxHeight then begin
-        BitMap.Height := DisplayMaxHeight ;
-        BitMap.Width := Round(BitMap.Height/HeightWidthRatio) ;
-        BitMap.Width := Min(BitMap.Width,DisplayMaxWidth) ;
-        end;
-     LinesAvailableForDisplay := 0;//FrameHeight ;
+     for ch := 0 to NumPMTChannels-1 do begin
 
-     // Add magnification and limit bitmap to window
-     XScaleToBM := (BitMap.Width*Magnification) / FrameWidth ;
-     YScaleToBM := (BitMap.Width*Magnification*FrameHeightScale) / FrameWidth ;
-     BitMap.Width := Min(BitMap.Width*Magnification,DisplayMaxWidth) ;
-     BitMap.Height := Min(BitMap.Height*Magnification,DisplayMaxHeight) ;
+         if BitMap[ch] <> Nil then BitMap[ch].Free ;
+         BitMap[ch] := TBitMap.Create ;
+         SetPalette( BitMap[ch], PaletteType ) ;
 
-     Image1.Width := BitMap.Width ;
-     Image1.Height := BitMap.Height ;
-     lbBottomRight.Top := Image1.Top + Image1.Height + 2 ;
-     lbBottomRight.Left := Image1.Left + Image1.Width - lbBottomRight.Width ;
-     ZSectionPanel.Top := lbBottomRight.Top ;
-     ZSectionPanel.Left := lbBottomRight.Left - ZSectionPanel.Width ;
-     lbReadout.Top :=  lbBottomRight.Top ;
-     ZoomPanel.Left := Image1.Left + Image1.Width - ZoomPanel.Width ;
+         // Scale bitmap to fit into window
+         BitMap[ch].Width := DisplayMaxWidth ;
+         HeightWidthRatio := (FrameHeight*FrameHeightScale)/FrameWidth ;
+         BitMap[ch].Height := Round(BitMap[ch].Width*HeightWidthRatio) ;
+         if BitMap[ch].Height > DisplayMaxHeight then begin
+            BitMap[ch].Height := DisplayMaxHeight ;
+            BitMap[ch].Width := Round(BitMap[ch].Height/HeightWidthRatio) ;
+            BitMap[ch].Width := Min(BitMap[ch].Width,DisplayMaxWidth) ;
+            LinesAvailableForDisplay := 0;//FrameHeight ;
+            // Add magnification and limit BitMap[ch] to window
+            BitMap[ch].Width := Min(BitMap[ch].Width*Magnification,DisplayMaxWidth) ;
+            BitMap[ch].Height := Min(BitMap[ch].Height*Magnification,DisplayMaxHeight) ;
+            end;
 
-     Image1.Canvas.Pen.Color := clWhite ;
-     Image1.Canvas.Brush.Style := bsClear ;
-     Image1.Canvas.Font.Color := clWhite ;
-     Image1.Canvas.TextFlags := 0 ;
-     Image1.Canvas.Pen.Mode := pmXOR ;
-     Image1.Canvas.Font.Name := 'Arial' ;
-     Image1.Canvas.Font.Size := 8 ;
-     Image1.Canvas.Font.Color := clBlue ;
+         XScaleToBM := (BitMap[ch].Width*Magnification) / FrameWidth ;
+         YScaleToBM := (BitMap[ch].Width*Magnification*FrameHeightScale) / FrameWidth ;
+
+         end;
+
+     SetImageSize( Image0 ) ;
+     SetImageSize( Image1 ) ;
+     SetImageSize( Image2 ) ;
+     SetImageSize( Image3 ) ;
+
+     end ;
+
+procedure TMainFrm.SetImageSize(
+          Image : TImage ) ;
+// -------------------------
+// Set size of image control
+// -------------------------
+begin
+
+     Image.Width := BitMap[0].Width ;
+     Image.Height := BitMap[0].Height ;
+
+     Image.Canvas.Pen.Color := clWhite ;
+     Image.Canvas.Brush.Style := bsClear ;
+     Image.Canvas.Font.Color := clWhite ;
+     Image.Canvas.TextFlags := 0 ;
+     Image.Canvas.Pen.Mode := pmXOR ;
+     Image.Canvas.Font.Name := 'Arial' ;
+     Image.Canvas.Font.Size := 8 ;
+     Image.Canvas.Font.Color := clBlue ;
 
      end ;
 
@@ -973,13 +1108,14 @@ procedure TMainFrm.CreateScanWaveform ;
 // Create X/Y galvo scan waveform
 // ------------------------------
 var
-    XPeriod,YVolts,HalfPi,ScanSpeed : Double ;
-    XCentre,YCentre,XAmplitude,YHeight : Double ;
-    iX,iY,i,j,k,iShift,kStart,kShift : Integer ;
+    XPeriod,HalfPi,ScanSpeed : Double ;
+    XCentre,YCentre,XAmplitude,YHeight,PCDOne : Double ;
+    n,ch,iX,iY,i,j,k,iShift,kStart,kShift : Integer ;
     SineWaveForwardScan,SineWaveReverseScan,SineWaveCorrection : PBig16BitArray ;
     NumBytes : NativeInt ;
     NumPix : Cardinal ;
     NumLinesInDACBuf : Cardinal ;
+    YDAC : SmallInt ;
 begin
 
     meStatus.Clear ;
@@ -988,9 +1124,9 @@ begin
     NumXPixels := FrameWidth ;
 
     // Determine line scan time
-    PixelDwellTime := Max( 1.0/(MaxScanRate*NumXPixels), MinPixelDwellTime ) ;
+    PixelDwellTime := Max( 1.0/(MaxScanRate*NumXPixels*2), MinPixelDwellTime ) ;
     LabIO.CheckSamplingInterval(DeviceNum,PixelDwellTime,1) ;
-    ScanSpeed := 0.5/(PixelDwellTime*NumXPixels) ;
+    ScanSpeed := 1.0/(PixelDwellTime*NumXPixels*2) ;
     if BidirectionalScan then ScanSpeed := ScanSpeed*0.5 ;
     ScanInfo := format('%.3g lines/s Tdwell=%.3g us',
                               [ScanSpeed,1E6*PixelDwellTime]);
@@ -1003,9 +1139,14 @@ begin
        end
     else NumLinesPerZStep := 1 ;
 
-    if PImageBuf <> Nil then FreeMem(PImageBuf) ;
     NumPix := FrameWidth*FrameHeight*NumLinesPerZStep ;
-    PImageBuf := AllocMem( Int64(NumPix)*SizeOf(Integer)) ;
+    for ch := 0 to High(PImageBuf) do begin
+        if PImageBuf[ch] <> Nil then FreeMem(PImageBuf[ch]) ;
+        PImageBuf[ch] := Nil ;
+        if ch < NumPMTChannels then begin
+           PImageBuf[ch] := AllocMem( Int64(NumPix)*SizeOf(SmallInt)) ;
+           end;
+        end;
 
     NumYPixels := FrameHeight*NumLinesPerZStep ;
     if not BidirectionalScan then NumYPixels := NumYPixels*2 ;
@@ -1016,12 +1157,12 @@ begin
 
     // Allocate A/D buffer
     if ADCBuf <> Nil then FreeMem( ADCBuf ) ;
-    NumBytes := Int64(NumPixels)*SizeOf(SmallInt) ;
+    NumBytes := Int64(NumPixels)*Int64(NumPMTChannels)*SizeOf(SmallInt) ;
     ADCBuf := AllocMem( NumBytes ) ;
 
     // Allocate D/A waveform databuffer
     if DACBuf <> Nil then FreeMem( DACBuf ) ;
-    NumPixelsInDACBuf := Min(NumPixels,OutBufMaxSamples) ;
+    NumPixelsInDACBuf := NumPixels ;//Min(NumPixels,OutBufMaxSamples) ;
     NumLinesinDACBuf := NumPixelsInDACBuf div NumXPixels ;
     NumPixelsInDACBuf := NumLinesinDACBuf*NumXPixels ;
     NumBytes := Int64(NumPixels)*Int64(SizeOf(SmallInt)*2) ;
@@ -1066,31 +1207,45 @@ begin
         end ;
 
     // Create initial DAC buffer
+    PCDone := 0.0 ;
     j := 0 ;
+    n := 0 ;
     for iY := 0 to NumLinesinDACBuf-1 do begin
-        YVolts := iY*YLineSpacingMicrons + YStartMicrons ;
 
         if (iY mod 2) = 0 then begin
+           YDAC := Round(YScale*(iY*YLineSpacingMicrons + YStartMicrons)) ;
            // Forward scan
            for iX := 0 to NumXPixels-1 do begin
                DACBuf^[j] := SineWaveForwardScan^[iX] ;
-               DACBuf^[j+1] := Round(YScale*YVolts) ;
+               DACBuf^[j+1] := YDAC ;
                j := j + 2 ;
                end ;
            end
         else begin
            // Reverse scan
+           if BidirectionalScan then begin
+              YDAC := Round(YScale*(iY*YLineSpacingMicrons + YStartMicrons)) ;
+              end
+           else begin
+              YDAC := Round(YScale*((iY+1)*YLineSpacingMicrons + YStartMicrons)) ;
+              end;
+
            for iX := 0 to NumXPixels-1 do begin
                DACBuf^[j] := SineWaveReverseScan^[iX] ;
-               DACBuf^[j+1] := Round(YScale*YVolts) ;
+               DACBuf^[j+1] := YDAC ;
                j := j + 2 ;
                end ;
             end ;
+
+        if n = 1000 then PercentDone(PCDone,n,NumYPixels)
+                    else Inc(n) ;
+
         end ;
 
     // Create sine wave correction mapping buffer
 
     k := 0 ;
+    n := 0 ;
     for iY := 0 to NumYPixels-1 do begin
         kStart := k ;
 
@@ -1115,13 +1270,15 @@ begin
                end ;
            end ;
 
-        if (iY mod 1000) = 0 then Application.ProcessMessages ;
+        if n = 1000 then PercentDone(PCDone,n,NumYPixels)
+                    else Inc(n) ;
 
         end ;
 
     // Discard reverse scans when in unidirectional scan mode
 
     if not BidirectionalScan then begin
+       n := 0 ;
        for iY := 0 to NumYPixels-1 do begin
            kStart := iY*NumXPixels ;
            kShift := (iY*NumXPixels) div 2 ;
@@ -1132,29 +1289,51 @@ begin
               end
            else begin
               for iX := 0 to NumXPixels-1 do ADCMap^[kStart+iX] := 0 ;
-              end
+              end ;
+
+           if n = 1000 then PercentDone(PCDone,n,NumYPixels)
+                         else Inc(n) ;
+
            end ;
        end ;
 
     iShift := Round(PhaseShift/PixelDwellTime) ;
     if iShift >= 0 then begin
+       n := 0 ;
        for i := 0 to NumPixels-1 do begin
            ADCMap^[i] := ADCMap^[Max(Min(i+iShift,NumPixels-1),0)] ;
+           if n = 1000000 then PercentDone(PCDone,n,NumPixels)
+                          else Inc(n) ;
            end ;
        end
     else begin
+       n := 0 ;
        for i := (NumPixels-1) downto 0 do begin
            ADCMap^[i] := ADCMap^[Max(Min(i+iShift,NumPixels-1),0)] ;
+           if n = 1000000 then PercentDone(PCDone,n,NumPixels)
+                          else Inc(n) ;
            end ;
        end ;
 
-    for i := 0 to NumPixels-1 do ADCMap^[i] := Min(Max(ADCMap^[i],0),NumPixels-1) ;
+    //for i := 0 to NumPixels-1 do ADCMap^[i] := Min(Max(ADCMap^[i],0),NumPixels-1) ;
 
     FreeMem( SineWaveCorrection ) ;
     FreeMem( SineWaveForwardScan ) ;
     FreeMem( SineWaveReverseScan ) ;
 
     end ;
+
+
+procedure TMainFrm.PercentDone(
+          var PCDone : Double ;
+          var n : Integer ;
+          var NumPixels : Integer ) ;
+begin
+     PCDone := PCDone + (n/NumPixels)*25.0 ;
+     n := 0 ;
+     meStatus.Lines[0] := format('Wait: Creating XY scan waveform %.0f%%',[PCDone]) ;
+     Application.ProcessMessages ;
+     end;
 
 
 procedure TMainFrm.DisplayROI(
@@ -1167,6 +1346,7 @@ var
   PaletteType : TPaletteType ;
   PenColor : Integer ;
   Y : Integer ;
+  s : string ;
 begin
 
      // Set ROI colour
@@ -1190,26 +1370,44 @@ begin
      Bitmap.Canvas.Rectangle(SelectedRectBM);
 
      // Display square corner and mid-point tags
-     DisplaySquare( SelectedRectBM.Left, SelectedRectBM.Top ) ;
-     DisplaySquare( (SelectedRectBM.Left + SelectedRectBM.Right) div 2, SelectedRectBM.Top ) ;
-     DisplaySquare( SelectedRectBM.Right, SelectedRectBM.Top ) ;
-     DisplaySquare( SelectedRectBM.Left, (SelectedRectBM.Top + SelectedRectBM.Bottom) div 2) ;
-     DisplaySquare( SelectedRectBM.Right, (SelectedRectBM.Top + SelectedRectBM.Bottom) div 2) ;
-     DisplaySquare( SelectedRectBM.Left, SelectedRectBM.Bottom ) ;
-     DisplaySquare( (SelectedRectBM.Left + SelectedRectBM.Right) div 2, SelectedRectBM.Bottom ) ;
-     DisplaySquare( SelectedRectBM.Right, SelectedRectBM.Bottom ) ;
+     DisplaySquare( Bitmap, SelectedRectBM.Left, SelectedRectBM.Top ) ;
+     DisplaySquare( Bitmap, (SelectedRectBM.Left + SelectedRectBM.Right) div 2, SelectedRectBM.Top ) ;
+     DisplaySquare( Bitmap, SelectedRectBM.Right, SelectedRectBM.Top ) ;
+     DisplaySquare( Bitmap, SelectedRectBM.Left, (SelectedRectBM.Top + SelectedRectBM.Bottom) div 2) ;
+     DisplaySquare( Bitmap, SelectedRectBM.Right, (SelectedRectBM.Top + SelectedRectBM.Bottom) div 2) ;
+     DisplaySquare( Bitmap, SelectedRectBM.Left, SelectedRectBM.Bottom ) ;
+     DisplaySquare( Bitmap, (SelectedRectBM.Left + SelectedRectBM.Right) div 2, SelectedRectBM.Bottom ) ;
+     DisplaySquare( Bitmap, SelectedRectBM.Right, SelectedRectBM.Bottom ) ;
 
      if (cbImageMode.ItemIndex = XYMode) or (cbImageMode.ItemIndex = XYZMode) then begin
         Bitmap.Canvas.Pen.Color := clRed ;
-        Y := (SelectedRectBM.Top + SelectedRectBM.Bottom) div 2 ;
+        //Y := ((SelectedRectBM.Top + SelectedRectBM.Bottom) div 2) ;
+        Y := Round(((SelectedRect.Top + SelectedRect.Bottom)*0.5 - YTop + 1)*YScaletoBM) ;
         Bitmap.Canvas.Polyline( [Point(0,Y),Point(Bitmap.Width-1,Y)]);
         Bitmap.Canvas.Pen.Color := clWhite ;
         end;
 
+     Bitmap.Canvas.Pen.Color := clWhite ;
+     Bitmap.Canvas.Brush.Style := bsSolid ;
+     Bitmap.Canvas.Font.Color := clRed ;
+     s := format( '%.2f,%.2f um',
+                  [(XLeft*PixelsToMicronsX) + ScanArea[iScanZoom].Left,
+                   YTop*PixelsToMicronsY + ScanArea[iScanZoom].Top]);
+     Bitmap.Canvas.TextOut( 0,0, s) ;
+
+     s := format( '%.2f,%.2f um',
+                  [(XLeft +(BitMap.Width/XScaleToBM))*PixelsToMicronsX
+                   + ScanArea[iScanZoom].Left,
+                   (YTop + (BitMap.Height/YScaleToBM))*PixelsToMicronsY
+                   + ScanArea[iScanZoom].Top]);
+     Bitmap.Canvas.TextOut( BitMap.Width - Bitmap.Canvas.TextWidth(s) -1,
+                            BitMap.Height - Bitmap.Canvas.TextHeight(s) -1,
+                            s ) ;
      end ;
 
 
 procedure TMainFrm.DisplaySquare(
+          Bitmap : TBitmap ;
           X : Integer ;
           Y : Integer ) ;
 var
@@ -1231,70 +1429,70 @@ procedure TMainFrm.UpdateImage ;
 // Display image
 // --------------
 var
-    Ybm,Xbm,i,iLine : Integer ;
+    ch,Ybm,Xbm,i,iLine : Integer ;
     PScanLine : PByteArray ;    // Bitmap line buffer pointer
     X,Y,dX,dY : Double ;
     XMap,YMap : PIntArray ;
     YBottom,XRight,MaxLine : Integer ;
 begin
 
-    if pImageBuf = Nil then Exit ;
-
-    // Copy reduced image to bitmap
-
     //SetImagePanels ;
-     Image1.Width := BitMap.Width ;
-     Image1.Height := BitMap.Height ;
 
-     DisplayMaxWidth := ImageGrp.ClientWidth - Image1.Left - 5 ;
-     DisplayMaxHeight := ImageGrp.ClientHeight
-                         - Image1.Top - 5 - ZSectionPanel.Height ;
+    for ch  := 0 to NumPMTChannels-1 do if pImageBuf[ch] <> Nil then begin
 
-     // Adjust left,top edge of displayed region of image when bottom,right is off image
-     XRight := Min(XLeft + Round(Bitmap.Width/XScaleToBM),FrameWidth) ;
-     XLeft := Max( XRight - Round(Bitmap.Width/XScaleToBM), 0 ) ;
-     YBottom := Min(YTop + Round(Bitmap.Height/YScaleToBM),FrameHeight) ;
-     YTop := Max( YBottom - Round(Bitmap.Height/YScaleToBM),0) ;
+       Image[ch].Width := BitMap[ch].Width ;
+       Image[ch].Height := BitMap[ch].Height ;
 
-     //  X axis pixel mapping
-     X := XLeft ;
-     dX := 1.0/XScaleToBM ;
-     GetMem( XMap, BitMap.Width*4 ) ;
-     for i := 0 to BitMap.Width-1 do begin
-         XMap^[i] := Min(Max(Round(X),0),FrameWidth-1) ;
-         X := X + dX ;
-         end;
+       DisplayMaxWidth := TabImage0.ClientWidth - TabImage0.Left - 1 ;
+       DisplayMaxHeight := TabImage0.ClientHeight - TabImage0.Top - 1 ;
 
-     // Y axis line mapping
-     //YScaleToBM := (BitMap.Width*Magnification*FrameHeightScale) / FrameWidth ;
-     GetMem( YMap, BitMap.Height*4 ) ;
-     Y := YTop ;
-     dY := 1.0/YScaleToBM ;
-     for i := 0 to BitMap.Height-1 do begin
-         YMap^[i] := Min(Max(Round(Y),0),FrameHeight-1) ;
-         Y := Y + dY ;
-         end;
+       // Adjust left,top edge of displayed region of image when bottom,right is off image
+       XRight := Min(XLeft + Round(BitMap[ch].Width/XScaleToBM),FrameWidth) ;
+       XLeft := Max( XRight - Round(BitMap[ch].Width/XScaleToBM), 0 ) ;
+       YBottom := Min(YTop + Round(BitMap[ch].Height/YScaleToBM),FrameHeight) ;
+       YTop := Max( YBottom - Round(BitMap[ch].Height/YScaleToBM),0) ;
 
-    if ScanningInProgress then MaxLine := LinesAvailableForDisplay
-                          else MaxLine := FrameHeight ;
-    for Ybm := 0 to BitMap.Height-1 do begin
-        // Copy line to bitmap
-        if YMap^[Ybm] < MaxLine then begin
-           PScanLine := BitMap.ScanLine[Ybm] ;
-           iLine := YMap^[Ybm]*FrameWidth ;
-           for xBm := 0 to BitMap.Width-1 do begin
-               PScanLine[Xbm] := LUT[Word(pImageBuf^[XMap^[xBm]+iLine])] ;
-               end ;
-           end ;
-        end ;
+       //  X axis pixel mapping
+       X := XLeft ;
+       dX := 1.0/XScaleToBM ;
+       GetMem( XMap, BitMap[ch].Width*4 ) ;
+       for i := 0 to BitMap[ch].Width-1 do begin
+           XMap^[i] := Min(Max(Round(X),0),FrameWidth-1) ;
+           X := X + dX ;
+           end;
 
-     // Display ROI in XY and XYZ modde
-     if (cbImageMode.ItemIndex <> XZMode) and
-        (cbImageMode.ItemIndex <> XTMode) then DisplayROI(BitMap) ;
+       // Y axis line mapping
+       GetMem( YMap, BitMap[ch].Height*4 ) ;
+       Y := YTop ;
+       dY := 1.0/YScaleToBM ;
+       for i := 0 to BitMap[ch].Height-1 do begin
+           YMap^[i] := Min(Max(Round(Y),0),FrameHeight-1) ;
+           Y := Y + dY ;
+           end;
 
-     Image1.Picture.Assign(BitMap) ;
-     Image1.Width := BitMap.Width ;
-     Image1.Height := BitMap.Height ;
+       if ScanningInProgress then MaxLine := LinesAvailableForDisplay
+                             else MaxLine := FrameHeight ;
+
+       // Copy image to BitMap[ch]
+       for Ybm := 0 to BitMap[ch].Height-1 do begin
+          // Copy line to BitMap[ch]
+          if YMap^[Ybm] < MaxLine then begin
+             PScanLine := BitMap[ch].ScanLine[Ybm] ;
+             iLine := YMap^[Ybm]*FrameWidth ;
+             for xBm := 0 to BitMap[ch].Width-1 do begin
+                 PScanLine[Xbm] := LUT[ch,pImageBuf[ch]^[XMap^[xBm]+iLine]] ;
+                 end ;
+             end ;
+          end ;
+
+       // Display ROI in XY and XYZ modde
+       if (cbImageMode.ItemIndex <> XZMode) and
+          (cbImageMode.ItemIndex <> XTMode) then DisplayROI(BitMap[ch]) ;
+
+       Image[ch].Picture.Assign(BitMap[ch]) ;
+       Image[ch].Width := BitMap[ch].Width ;
+       Image[ch].Height := BitMap[ch].Height ;
+       end ;
 
      lbZoom.Caption := format('Zoom (X%d)',[Magnification]) ;
 
@@ -1306,15 +1504,6 @@ begin
      else begin
         ZSectionPanel.Visible := False ;
 
-     lbTopLeft.Caption := format('(%.6g,%.6g um)',
-                          [(XLeft*PixelsToMicronsX) + ScanArea[iScanZoom].Left,
-                           YTop*PixelsToMicronsY + ScanArea[iScanZoom].Top]) ;
-     lbBottomRight.Caption := format('(%.6g,%.6g um)',
-                              [(XLeft +(BitMap.Width/XScaleToBM))*PixelsToMicronsX
-                                + ScanArea[iScanZoom].Left,
-                               (YTop + (BitMap.Height/YScaleToBM))*PixelsToMicronsY
-                                + ScanArea[iScanZoom].Top]) ;
-
      FreeMem(XMap) ;
      FreeMem(YMap) ;
 
@@ -1324,6 +1513,7 @@ begin
 
 
 procedure TMainFrm.UpdateLUT(
+          ch : integer ;
           GreyMax : Integer ) ;
 // ----------------------------
 // Create display look-up table
@@ -1334,16 +1524,16 @@ var
     GreyScale : Single ;
 begin
 
-     if GreyHi <> GreyLo then
-        GreyScale := (MaxPaletteColor - MinPaletteColor)/ (GreyHi - GreyLo)
+     if GreyHi[ch] <> GreyLo[ch] then
+        GreyScale := (MaxPaletteColor - MinPaletteColor)/ (GreyHi[ch] - GreyLo[ch])
      else GreyScale := 1.0 ;
 
      j := 0 ;
      for i := 0 to GreyMax do begin
-         y := MinPaletteColor + Round((i-GreyLo)*GreyScale) ;
+         y := MinPaletteColor + Round((i-GreyLo[ch])*GreyScale) ;
          if y < MinPaletteColor then y := MinPaletteColor ;
          if y > MaxPaletteColor then y := MaxPaletteColor ;
-         LUT[j] := y ;
+         LUT[ch,j] := y ;
          Inc(j) ;
          end ;
 
@@ -1509,7 +1699,7 @@ begin
     end;
 
     NumAverages := 1 ;
-    ScanRequested := 1 ;
+
     ClearAverage := True ;
 
     //bStopScan.Enabled := True ;
@@ -1599,7 +1789,6 @@ begin
     PixelsToMicronsY := FrameHeightScale*PixelsToMicronsX ;
 
     meStatus.Clear ;
-    //meStatus.Lines[0] := format('%d',[MemUsed]);
 
     SetImagePanels ;
 
@@ -1611,7 +1800,7 @@ begin
     // Z sections
     ZSection := 0 ;
     NumZSectionsAvailable := 0 ;
-    ZStep := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/FrameWidth) ;
+    ZStep := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
     edMicronsPerZStep.Value := ZStep ;
     NumZSections := Round(edNumZSections.Value) ;
 
@@ -1620,6 +1809,8 @@ begin
 
     // Create scan waveform
     CreateScanWaveform ;
+
+    ScanRequested := 1 ;
 
     end ;
 
@@ -1630,6 +1821,8 @@ procedure TMainFrm.StartScan ;
 // ---------------
 var
     i,nSamples : Integer ;
+    PMTInUse : Array[0..MaxPMT] of Boolean ;
+    PMTGain : Array[0..MaxPMT] of Integer ;
 begin
 
     // Stop A/D & D/A
@@ -1640,12 +1833,10 @@ begin
     if LabIO.ADCActive[DeviceNum] then LabIO.StopADC(DeviceNum) ;
     if LabIO.DACActive[DeviceNum] then LabIO.StopDAC(DeviceNum) ;
 
-    //CreateScanWaveform ;
-
     if ClearAverage then begin
        // Dispose of existing display buffers and create new ones
        if AvgBuf <> Nil then FreeMem( AvgBuf ) ;
-       AvgBuf := AllocMem( Int64(NumPixels)*2 ) ;
+       AvgBuf := AllocMem( Int64(NumPixels)*Int64(NumPMTChannels)*4 ) ;
        for i := 0 to NumPixels-1 do AvgBuf^[i] := 0 ;
        ClearAverage := False ;
        NumAverages := 1 ;
@@ -1659,7 +1850,7 @@ begin
     XZLineAverageStart := NumLinesPerZStep - Round(edNumAverages.Value) ;
     XZLineAverageEnd := NumLinesPerZStep - 1 ;
     if XZLineAverage <> Nil then FreeMem(XZLineAverage) ;
-    XZLineAverage := AllocMem( NativeInt(NumXPixels)*4 ) ;
+    XZLineAverage := AllocMem( NativeInt(NumXPixels)*NativeInt(NumPMTChannels)*4 ) ;
     for i := 0 to NumXPixels-1 do XZLineAverage^[i] := 0 ;
     LinesAvailableForDisplay := 0 ;
 
@@ -1667,29 +1858,33 @@ begin
 
     ADCPointer := 0 ;
 
-  {  iMax := -32767 ;
-    iMin := 32767 ;
-    for i := 0 to NumPixels-1 do begin
-      if DACBuf^[i] < iMin then iMin := DACBuf^[i] ;
-      if DACBuf^[i] > iMax then iMax := DACBuf^[i] ;
-    end;
+    PMTInUse[0] := ckEnablePMT0.Checked and panelPMT0.visible ;
+    PMTInUse[1] := ckEnablePMT1.Checked and panelPMT1.visible ;
+    PMTInUse[2] := ckEnablePMT2.Checked and panelPMT2.visible ;
+    PMTInUse[3] := ckEnablePMT3.Checked and panelPMT3.visible ;
 
-    OutputDebugString(pchar(format('%d %d',[iMin,iMax]))) ;}
-//    if TempBuf <> Nil  then FreeMem(TempBuf) ;
-//    TempBuf := AllocMem( NumYPixels*NumXPixels*2 ) ;
+    PMTGain[0] := cbPMTGain0.ItemIndex ;
+    PMTGain[1] := cbPMTGain1.ItemIndex ;
+    PMTGain[2] := cbPMTGain2.ItemIndex ;
+    PMTGain[3] := cbPMTGain3.ItemIndex ;
 
+    SetPMTVoltage( 0, edPMTVolts0.Value ) ;
+    SetPMTVoltage( 1, edPMTVolts1.Value ) ;
+    SetPMTVoltage( 2, edPMTVolts2.Value ) ;
+    SetPMTVoltage( 3, edPMTVolts3.Value ) ;
 
     nSamples := Max(Round(10.0/PixelDwellTime) div NumXPixels,1)*NumXPixels ;
     LabIO.ADCToMemoryExtScan( DeviceNum,
-                              ADCInput,
-                              1,
-                              NumXPixels*Min(NumYPixels,500),
-                              LabIO.ADCVoltageRanges[DeviceNum,cbADCVoltageRange.ItemIndex],
-                              True,
+                              PMTInUse,
+                              PMTGain,
+                              PMTList,
+                              NumPMTChannels,
+                              NumXPixels*NumYPixels,
+                              False,
                               DeviceNum ) ;
 
     LabIO.MemoryToDAC( DeviceNum,
-                       DACBuf^,
+                       DACBuf,
                        2,
                        NumPixels,
                        NumPixelsinDACBuf,
@@ -1700,7 +1895,31 @@ begin
 
     bStopScan.Enabled := True ;
     bScanImage.Enabled := False ;
-   ScanningInProgress := True ;
+    ScanningInProgress := True ;
+
+    end;
+
+
+procedure TMainFrm.SetPMTVoltage(
+          PMTNum : Integer ;
+          PercentMax : Double ) ;
+// ---------------
+// Set PMT voltage
+// ---------------
+var
+    iPort,iDev,iChan : Integer ;
+    V : single ;
+begin
+
+    V := PercentMax*0.01*PMTMaxVolts ;
+    iPort := 0 ;
+    for iDev := 1 to LabIO.NumDevices do
+        for iChan := 0 to LabIO.NumDACs[iDev]-1 do begin
+            if iPort = PMTControls[PMTNum] then begin
+                LabIO.WriteDAC(iDev,V,iChan);
+                end;
+            inc(iPort) ;
+            end;
 
     end;
 
@@ -1711,18 +1930,21 @@ procedure TMainFrm.bFullScaleClick(Sender: TObject);
 // --------------------------------------------------------
 begin
 
-     edDisplayIntensityRange.LoValue := 0 ;
-    GreyLo := Round(edDisplayIntensityRange.LoValue) ;
-     edDisplayIntensityRange.HiValue := ADCMaxValue ;
-     GreyHi := Round(edDisplayIntensityRange.HiValue) ;
+    edDisplayIntensityRange.LoValue := 0 ;
+    GreyLo[ImagePage.ActivePageIndex] := Round(edDisplayIntensityRange.LoValue) ;
+    edDisplayIntensityRange.HiValue := ADCMaxValue ;
+    GreyHi[ImagePage.ActivePageIndex] := Round(edDisplayIntensityRange.HiValue) ;
 
-     UpdateLUT( ADCMaxValue ) ;
 
-     // Set intensity range and sliders
-     SetDisplayIntensityRange( GreyLo, GreyHi ) ;
+    UpdateLUT( ImagePage.ActivePageIndex, ADCMaxValue ) ;
 
-     UpdateDisplay := True ;
-     end ;
+    // Set intensity range and sliders
+    SetDisplayIntensityRange( GreyLo[ImagePage.ActivePageIndex],
+                              GreyHi[ImagePage.ActivePageIndex] ) ;
+
+    UpdateDisplay := True ;
+
+    end ;
 
 
 procedure TMainFrm.edDisplayIntensityRangeKeyPress(Sender: TObject;
@@ -1739,13 +1961,15 @@ begin
         edDisplayIntensityRange.HiValue := edDisplayIntensityRange.HiValue + 1.0 ;
         end ;
 
-     GreyLo := Round(edDisplayIntensityRange.LoValue) ;
-     GreyHi := Round(edDisplayIntensityRange.HiValue) ;
+     GreyLo[ImagePage.ActivePageIndex] := Round(edDisplayIntensityRange.LoValue) ;
+     GreyHi[ImagePage.ActivePageIndex] := Round(edDisplayIntensityRange.HiValue) ;
 
-     UpdateLUT( ADCMaxValue ) ;
+     UpdateLUT( ImagePage.ActivePageIndex, ADCMaxValue ) ;
 
      // Set intensity range and sliders
-     SetDisplayIntensityRange( GreyLo, GreyHi ) ;
+     SetDisplayIntensityRange( GreyLo[ImagePage.ActivePageIndex],
+                               GreyHi[ImagePage.ActivePageIndex] ) ;
+
      UpdateDisplay := True ;
      end;
 
@@ -1771,8 +1995,8 @@ procedure TMainFrm.edMicronsPerZStepKeyPress(Sender: TObject; var Key: Char);
 // -------------------------
 begin
       if Key = #13 then begin
-         edNumPixelsPerZStep.Value := Max(Round(edMicronsPerZStep.Value / (ScanArea[iScanZoom].Width/FrameWidth)),1) ;
-         edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/FrameWidth) ;
+         edNumPixelsPerZStep.Value := Max(Round(edMicronsPerZStep.Value / (ScanArea[iScanZoom].Width/HRFrameWidth)),1) ;
+         edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
          end;
       end;
 
@@ -1783,10 +2007,20 @@ procedure TMainFrm.edNumPixelsPerZStepKeyPress(Sender: TObject; var Key: Char);
 // -------------------------
 begin
       if Key = #13 then begin
-         edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/FrameWidth) ;
+         edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
          end;
       end;
 
+
+procedure TMainFrm.edPMTVolts0KeyPress(Sender: TObject; var Key: Char);
+begin
+    if Key = #13 then begin
+       udPMTVolts0.Position := Round(edPMTVolts0.Value) ;
+       udPMTVolts1.Position := Round(edPMTVolts1.Value) ;
+       udPMTVolts2.Position := Round(edPMTVolts2.Value) ;
+       udPMTVolts3.Position := Round(edPMTVolts3.Value) ;
+       end;
+    end;
 
 procedure TMainFrm.bGotoZPositionClick(Sender: TObject);
 // -------------------------
@@ -1806,7 +2040,9 @@ begin
      CalculateMaxContrast ;
 
      // Set intensity range and sliders
-     SetDisplayIntensityRange( GreyLo,GreyHi ) ;
+     SetDisplayIntensityRange( GreyLo[ImagePage.ActivePageIndex],
+                               GreyHi[ImagePage.ActivePageIndex] ) ;
+
      UpdateDisplay := True ;
 
      end;
@@ -1819,11 +2055,13 @@ procedure TMainFrm.CalculateMaxContrast ;
 const
     MaxPoints = 10000 ;
 var
-     i,NumPixels,iStep : Integer ;
+     ch,i,NumPixels,iStep : Integer ;
      z,zMean,zSD,zSum : Single ;
      iz,ZMin,ZMax,ZLo,ZHi,ZThreshold : Integer ;
      FrameType : Integer ;
 begin
+
+    ch := ImagePage.ActivePageIndex ;
 
     NumPixels := FrameWidth*FrameHeight - 4 ;
     FrameType := 0 ;
@@ -1834,23 +2072,20 @@ begin
     if ckContrast6SDOnly.Checked then begin
        // Set contrast range to +/- 3 x standard deviation
        ZSum := 0.0 ;
-       for i := 0 to NumPixels - 1 do begin
-          ZSum := ZSum + pImageBuf^[i] ;
-          end ;
+       for i := 0 to NumPixels - 1 do ZSum := ZSum + pImageBuf[ch]^[i] ;
        ZMean := ZSum / NumPixels ;
 
        ZSum := 0.0 ;
        i := 0 ;
        repeat
-          Z :=pImageBuf^[i] ;
-          ZSum := ZSum + (Z - ZMean)*(Z - ZMean) ;
-          i := i + iStep ;
-       until i >= NumPixels ;
+         Z :=pImageBuf[ch]^[i] ;
+         ZSum := ZSum + (Z - ZMean)*(Z - ZMean) ;
+         i := i + iStep ;
+         until i >= NumPixels ;
        ZSD := Sqrt( ZSum / (NumPixels-1) ) ;
 
        ZLo := Max( Round(ZMean - 3*ZSD),0) ;
        ZHi := Min( Round(ZMean + 3*ZSD), ADCMaxValue );
-
        end
     else begin
        // Set contrast range to min-max
@@ -1858,11 +2093,11 @@ begin
        ZMax := 0 ;
        i := 0 ;
        repeat
-          iz := pImageBuf^[i] ;
-          if iz < ZMin then ZMin := iz ;
-          if iz > ZMax then ZMax := iz ;
-          i := i + iStep ;
-       until i >= NumPixels ;
+         iz := pImageBuf[ch]^[i] ;
+         if iz < ZMin then ZMin := iz ;
+         if iz > ZMax then ZMax := iz ;
+         i := i + iStep ;
+         until i >= NumPixels ;
        ZLo := ZMin ;
        ZHi := ZMax ;
        end ;
@@ -1870,17 +2105,17 @@ begin
     // Update contrast
     ZThreshold := Max((ADCMaxValue div 50),2) ;
     if (not ckAutoOptimise.Checked) or
-       (Abs(MainFrm.GreyLo- ZLo) > 10) then MainFrm.GreyLo := ZLo ;
+       (Abs(MainFrm.GreyLo[ch]- ZLo) > 10) then MainFrm.GreyLo[ch] := ZLo ;
     if (not ckAutoOptimise.Checked) or
-       (Abs(MainFrm.GreyHi- ZHi) > 10) then MainFrm.GreyHi := ZHi ;
+       (Abs(MainFrm.GreyHi[ch]- ZHi) > 10) then MainFrm.GreyHi[ch] := ZHi ;
 
     // Ensure a non-zero LUT range
-    if MainFrm.GreyLo = MainFrm.GreyHi then begin
-       MainFrm.GreyLo := MainFrm.GreyLo - 1 ;
-       MainFrm.GreyHi := MainFrm.GreyHi + 1 ;
+    if MainFrm.GreyLo[ch] = MainFrm.GreyHi[ch] then begin
+       MainFrm.GreyLo[ch] := MainFrm.GreyLo[ch] - 1 ;
+       MainFrm.GreyHi[ch] := MainFrm.GreyHi[ch] + 1 ;
        end ;
 
-    UpdateLUT(ADCMaxValue ) ;
+    UpdateLUT(ch, ADCMaxValue ) ;
 
     end ;
 
@@ -1890,7 +2125,6 @@ procedure TMainFrm.TimerTimer(Sender: TObject);
 // Regular timed operations
 // --------------------------
 begin
-    //if pImageBuf = Nil then Exit ;
 
     if UpdateDisplay then begin ;
        UpdateImage ;
@@ -1920,48 +2154,87 @@ begin
     end;
 
 
+procedure TMainFrm.udPMTVolts0ChangingEx(Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+begin
+    if Direction = updUp then edPMTVolts0.Value := edPMTVolts0.Value + 1.0
+                         else edPMTVolts0.Value := edPMTVolts0.Value - 1.0 ;
+    end;
+
+
+procedure TMainFrm.udPMTVolts1ChangingEx(Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+begin
+    if Direction = updUp then edPMTVolts1.Value := edPMTVolts1.Value + 1.0
+                         else  edPMTVolts1.Value := edPMTVolts1.Value - 1.0 ;
+    end;
+
+
+procedure TMainFrm.udPMTVolts2ChangingEx(Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+begin
+    if Direction = updUp then edPMTVolts2.Value := edPMTVolts2.Value + 1.0
+                         else edPMTVolts2.Value := edPMTVolts2.Value - 1.0 ;
+    end;
+
+
+procedure TMainFrm.udPMTVolts3ChangingEx(Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+begin
+    if Direction = updUp then edPMTVolts3.Value := edPMTVolts3.Value + 1.0
+                         else edPMTVolts3.Value := edPMTVolts3.Value - 1.0 ;
+    end;
+
+
+
 procedure TMainFrm.GetImageFromPMT ;
 // ------------------
 // Get image from PMT
 // ------------------
 var
-    i,iPointer,iPointerStep,iScan,iSign,iLine,iStart,nAvg : Integer ;
+    ch,iPix,iPointer,iPointerStep,iSign,iLine,iStart,nAvg : Integer ;
+    i,ADCStart,ADCEnd : NativeInt ;
     NewZSection : Integer ;
+    y : Integer ;
 begin
 
     if not LabIO.DACActive[DeviceNum] then exit ;
     if not ScanningInProgress then exit ;
 
     // Read new A/D converter samples
-    LabIO.GetADCSamples( DeviceNum, ADCBuf^,ADCNumNewSamples,
-                         DACBuf, YStartMicrons,YScale, YLineSpacingMicrons, NumXPixels ) ;
+    if not LabIO.GetADCSamples( DeviceNum, ADCBuf^,ADCStart,ADCEnd ) then Exit ;
 
     // Copy image from circular buffer into 32 bit display buffer
 
     if InvertPMTSignal then iSign := -1
                        else iSign := 1 ;
 
-    for i := 0 to ADCNumNewSamples-1 do begin
-        iPointer := ADCMap^[ADCPointer] ;
-        iPointerStep := ADCMap^[ADCPointer+1] - iPointer ;
-        AvgBuf^[ADCPointer] := AvgBuf^[ADCPointer] + ADCBuf^[i] ;
-        pImageBuf^[iPointer] := iSign*(AvgBuf^[ADCPointer] div NumAverages) + BlackLevel ;
-        if pImageBuf^[iPointer] < 0 then pImageBuf^[iPointer] := 0 ;
-        if pImageBuf^[iPointer] > ADCMaxValue then pImageBuf^[iPointer] := ADCMaxValue ;
+    for i := ADCStart to ADCEnd do begin
+        ADCPointer := i ;
+        AvgBuf^[i] := AvgBuf^[i] + ADCBuf^[i] ;
+        iPix := i div NumPMTChannels ;
+        ch := i mod NumPMTChannels ;
+        iPointer := ADCMap^[iPix] ;
+        iPointerStep := ADCMap^[iPix+1] - iPointer ;
+
+        // Average and add black level
+        y := iSign*(AvgBuf^[i] div NumAverages) + BlackLevel ;
+        // Keep within 16 bit limits
+        if y  < 0 then y := 0 ;
+        if y > ADCMaxValue then y := ADCmaxValue ;
+
+        // Add to 16 bit image (filling in holes)
+        pImageBuf[ch]^[iPointer] := y  ;
         if Abs(iPointerStep) = 2 then begin
            iPointer := iPointer + Sign(iPointerStep) ;
-           pImageBuf^[iPointer] := iSign*(AvgBuf^[ADCPointer] div NumAverages) + BlackLevel ;
-           if pImageBuf^[iPointer] < 0 then pImageBuf^[iPointer] := 0 ;
-           if pImageBuf^[iPointer] > ADCMaxValue then pImageBuf^[iPointer] := ADCMaxValue ;
+           pImageBuf[ch]^[iPointer] := y ;
            end ;
-        Inc(ADCPointer) ;
+
         end ;
 
-    ADCNumNewSamples := 0 ;
-
     // Copy image to display bitmap
-    iScan := ADCPointer div NumXPixels ;
-    iLine := iScan ;
+    iLine := ADCPointer div (NumXPixels*NumPMTChannels) ;
+
     if not BiDirectionalScan then iLine := iLine div 2 ;
 
     // Increment Z stage in XZ mode
@@ -1973,8 +2246,11 @@ begin
          if XZLine >= XZLineAverageStart then begin
             iStart := XZLine*NumXPixels ;
 
-            for i := 0 to NumXPixels-1 do begin
-                XZLineAverage^[i] := XZLineAverage^[i] + pImageBuf^[i+iStart] ;
+            for iPix := 0 to NumXPixels-1 do begin
+                for ch := 0 to NumPMTChannels-1 do begin
+                    i := iPix*NumPMTChannels + ch ;
+                    XZLineAverage^[i] := XZLineAverage^[i] + pImageBuf[ch]^[iPix+iStart] ;
+                    end;
                 end;
             end;
 
@@ -1984,9 +2260,12 @@ begin
             iStart := (XZLine div NumLinesPerZStep)*NumXPixels ;
             LinesAvailableForDisplay := (iStart div NumXPixels) + 1 ;
 
-            for i := 0 to NumXPixels-1 do begin
-                pImageBuf^[i+iStart] := XZLineAverage^[i] div nAvg ;
-                XZLineAverage^[i] := 0 ;
+            for iPix := 0 to NumXPixels-1 do begin
+                for ch := 0 to NumPMTChannels-1 do begin
+                    i := iPix*NumPMTChannels + ch ;
+                    pImageBuf[ch]^[iPix+iStart] := XZLineAverage^[i] div nAvg ;
+                    XZLineAverage^[i] := 0 ;
+                    end;
                 end;
             XZLineAverageStart := XZLineAverageStart + NumLinesPerZStep ;
             XZLineAverageEnd := XZLineAverageEnd + NumLinesPerZStep ;
@@ -1994,7 +2273,8 @@ begin
 
          // Clear line
          iStart := XZLine*NumXPixels ;
-         for i := 0 to NumXPixels-1 do pImageBuf^[i+iStart] := 0 ;
+         for ch := 0 to NumPMTChannels-1 do
+             for iPix := 0 to NumXPixels-1 do pImageBuf[ch]^[iPix+iStart] := 0 ;
 
          Inc(XZLine) ;
 
@@ -2010,31 +2290,33 @@ begin
        end
     else begin
        LinesAvailableForDisplay := FrameHeight ;
+       NewZSection := 0 ;
        end;
 
     meStatus.Clear ;
     case cbImageMode.ItemIndex of
        XYMode,XTMode : begin
-         meStatus.Lines[0] := format('Line %d/%d (%.2f MB)',
+         meStatus.Lines[0] := format('Line %5d/%d (%.3f MB)',
                               [iLine,FrameHeight,ADCPointer/1048576.0]);
          meStatus.Lines.Add(format('Average %d/%d',[NumAverages,Round(edNumAverages.Value)])) ;
          end;
        XYZMode : begin
-         meStatus.Lines[0] := format('Line %d/%d (%.2f MB)',
+         meStatus.Lines[0] := format('Line %5d/%d (%.2f MB)',
                               [iLine,FrameHeight,ADCPointer/1048576.0]);
          meStatus.Lines.Add(format('Average %d/%d',[NumAverages,Round(edNumAverages.Value)])) ;
          meStatus.Lines.Add(format('Section %d/%d',[ZSection+1,NumZSections])) ;
          end;
        XZMode : begin
-         meStatus.Lines[0] := format('Line %d/%d (%.2f MB)',
+         meStatus.Lines[0] := format('Line %5d/%d (%.2f MB)',
                               [NewZSection,NumZSections,
                                ADCPointer/(NumLinesPerZStep*1048576.0)]);
          end;
        end;
 
     meStatus.Lines.Add( ScanInfo ) ;
+    ADCNumNewSamples := 0 ;
 
-    if ADCPointer >= (NumPixels-4) then begin
+    if ADCPointer >= (NumPixels*NumPMTChannels-4) then begin
 
        if cbImageMode.ItemIndex = XZMode then begin
           NumAverages := Round(edNumAverages.Value) + 1 ;
@@ -2097,6 +2379,12 @@ begin
     if LabIO.DACActive[DeviceNum] then LabIO.StopDAC(DeviceNum) ;
     LabIO.WriteDACs( DeviceNum,[0.0,0.0],2);
 
+    // Turn off voltage to PMTs
+    SetPMTVoltage( 0, 0.0 ) ;
+    SetPMTVoltage( 1, 0.0 ) ;
+    SetPMTVoltage( 2, 0.0 ) ;
+    SetPMTVoltage( 3, 0.0 ) ;
+
     if AvgBuf <> Nil then begin
       FreeMem(AvgBuf) ;
       AvgBuf := Nil ;
@@ -2158,97 +2446,6 @@ begin
      end;
 
 
-procedure TMainFrm.bSnapImageClick(Sender: TObject);
-// --------------------------
-// Save current image to file
-// --------------------------
-var
-    SectionFileName,FileName : String ;
-    iSection : Integer ;
-    iNum : Integer ;
-begin
-
-     SaveDialog.InitialDir := SaveDirectory ;
-
-     // Create a file name
-     iNum := 0 ;
-     repeat
-        Inc(iNum) ;
-        if NumZSectionsAvailable > 1 then begin
-           FileName := SaveDialog.InitialDir + '\'
-                       + FormatDateTime('yyyy-mm-dd',Now)
-                       + format(' %d-1',[iNum]) ;
-        end
-        else begin
-           FileName := SaveDialog.InitialDir
-                       + FormatDateTime('yyyy-mm-dd',Now)
-                       + format(' %d',[iNum]) ;
-        end;
-     until not FileExists(FileName + '.ome.tif' ) ;
-
-     FileName := SaveDialog.InitialDir + '\'
-                       + FormatDateTime('yyyy-mm-dd',Now)
-                       + format(' %d',[iNum]) ;
-
-     // Open save file dialog
-     SaveDialog.FileName := ExtractFileName(FileName) ;
-
-     if not SaveDialog.Execute then Exit ;
-
-     // Ensure extension is set
-     FileName := ChangeFileExt(SaveDialog.FileName, '.tif' ) ;
-     Filename := ReplaceText( FileName, '.ome.tif', '.tif' ) ;
-     SaveDirectory := ExtractFilePath(SaveDialog.FileName) ;
-
-
-     // Save image
-     for iSection  := 0 to NumZSectionsAvailable-1 do begin
-
-        meStatus.Lines.Clear ;
-        mestatus.Lines[0] := format('Saving to file %d/%d',[iSection+1,NumZSectionsAvailable]);
-
-        if NumZSectionsAvailable > 1 then begin
-           SectionFileName := ANSIReplaceText( FileName, '.tif', format('-%d.ome.tif',[iSection+1])) ;
-        end
-        else begin
-          SectionFileName := ANSIReplaceText( FileName, '.tif', '.ome.tif') ;
-        end;
-
-        // Check if file exists already
-        if FileExists( SectionFileName ) then begin
-           if MessageDlg( format(
-           'File %s already exists! Do you want to overwrite it? ',[SectionFileName]),
-           mtWarning,[mbYes,mbNo], 0 ) = mrNo then Exit ;
-        end ;
-
-        // Load image
-        LoadRawImage( RawImagesFileName, iSection ) ;
-
-        // Create file
-        if not ImageFile.CreateFile( SectionFileName,
-                                     FrameWidth,
-                                     FrameHeight,
-                                     2*8,
-                                     1,
-                                     True ) then Exit ;
-
-         ImageFile.XResolution := ScanArea[iScanZoom].Width/FrameWidth ;
-         ImageFile.YResolution := ImageFile.XResolution ;
-         ImageFile.ZResolution := ZStep ;
-         ImageFile.SaveFrame32( 1, PImageBuf ) ;
-
-         // Close file
-         ImageFile.CloseFile ;
-
-         UnsavedRawImage := False ;
-
-         end;
-
-mestatus.Lines.Add('File saved') ;
-
-end;
-
-
 procedure TMainFrm.cbImageModeChange(Sender: TObject);
 // ------------------
 // Image mode changed
@@ -2267,13 +2464,24 @@ procedure TMainFrm.cbPaletteChange(Sender: TObject);
 // ------------------------------
 // Display colour palette changed
 // ------------------------------
+var
+    ch : Integer ;
 begin
      PaletteType := TPaletteType(cbPalette.Items.Objects[cbPalette.ItemIndex]) ;
-     if BitMap <> Nil then SetPalette( BitMap, PaletteType ) ;
+     for ch  := 0 to NumPMTChannels-1 do
+         if BitMap[ch] <> Nil then SetPalette( BitMap[ch], PaletteType ) ;
 
      UpdateDisplay := True ;
      end;
 
+
+procedure TMainFrm.ckEnablePMT0Click(Sender: TObject);
+// --------------------
+// PMT enabled/disabled
+// --------------------
+begin
+  UpdatePMTSettings ;
+  end;
 
 procedure TMainFrm.ckLineScanClick(Sender: TObject);
 // ----------------------
@@ -2317,6 +2525,7 @@ var
     SectionFileName,FileName : String ;
     iSection : Integer ;
     iNum : Integer ;
+    iPMT : Integer ;
 begin
 
      SaveDialog.InitialDir := SaveDirectory ;
@@ -2351,19 +2560,24 @@ begin
      Filename := ReplaceText( FileName, '.ome.tif', '.tif' ) ;
      SaveDirectory := ExtractFilePath(SaveDialog.FileName) ;
 
-
      // Save image
-     for iSection  := 0 to NumZSectionsAvailable-1 do begin
+     for iPMT := 0 to NumPMTChannels-1 do
+        for iSection  := 0 to NumZSectionsAvailable-1 do begin
 
         meStatus.Lines.Clear ;
-        mestatus.Lines[0] := format('Saving to file %d/%d',[iSection+1,NumZSectionsAvailable]);
+        mestatus.Lines[0] := format('Saving to file %s %d/%d',
+                                    [ImageNames[iPMT],iSection+1,NumZSectionsAvailable]);
 
         if NumZSectionsAvailable > 1 then begin
-           SectionFileName := ANSIReplaceText( FileName, '.tif', format('-%d.ome.tif',[iSection+1])) ;
+           SectionFileName := ANSIReplaceText( FileName, '.tif',
+                                               format('.%s.%d.ome.tif',
+                                               [ImageNames[iPMT],iSection+1])) ;
         end
         else begin
-          SectionFileName := ANSIReplaceText( FileName, '.tif', '.ome.tif') ;
-        end;
+           SectionFileName := ANSIReplaceText( FileName, '.tif',
+                                               format('.%s.ome.tif',
+                                               [ImageNames[iPMT]])) ;
+           end;
 
         // Check if file exists already
         if FileExists( SectionFileName ) then begin
@@ -2386,7 +2600,7 @@ begin
          ImageFile.XResolution := ScanArea[iScanZoom].Width/FrameWidth ;
          ImageFile.YResolution := ImageFile.XResolution ;
          ImageFile.ZResolution := ZStep ;
-         ImageFile.SaveFrame32( 1, PImageBuf ) ;
+         ImageFile.SaveFrame( 1, PImageBuf[iPMT] ) ;
 
          // Close file
          ImageFile.CloseFile ;
@@ -2465,11 +2679,12 @@ begin
         edDisplayIntensityRange.HiValue := edDisplayIntensityRange.HiValue + 1.0 ;
         end ;
 
-     GreyLo := Round(edDisplayIntensityRange.LoValue) ;
-     GreyHi := Round(edDisplayIntensityRange.HiValue) ;
+     GreyLo[ImagePage.ActivePageIndex] := Round(edDisplayIntensityRange.LoValue) ;
+     GreyHi[ImagePage.ActivePageIndex] := Round(edDisplayIntensityRange.HiValue) ;
 
-     SetDisplayIntensityRange( GreyLo, GreyHi ) ;
-     UpdateLUT(ADCMaxValue ) ;
+     SetDisplayIntensityRange( GreyLo[ImagePage.ActivePageIndex],
+                               GreyHi[ImagePage.ActivePageIndex] ) ;
+     UpdateLUT( ImagePage.ActivePageIndex, ADCMaxValue ) ;
      UpdateDisplay := True ;
 
      end;
@@ -2482,8 +2697,10 @@ procedure TMainFrm.scZSectionChange(Sender: TObject);
 begin
 
      ZSection := scZSection.Position ;
-     LoadRawImage( RawImagesFileName, ZSection ) ;
-     UpdateDisplay := True ;
+     if not bStopScan.Enabled then begin
+        LoadRawImage( RawImagesFileName, ZSection ) ;
+        UpdateDisplay := True ;
+        end;
      end;
 
 
@@ -2507,18 +2724,17 @@ procedure TMainFrm.SaveRawImage(
 // Save raw image to file
 // ----------------------
 var
-    iBuf16 : PBig16BitArray ;
     FileHandle : THandle ;
-    FilePointer : Int64 ;
-    i,NumPixels : Integer ;
+    FilePointer,DataPointer,NumBytesPerImage : Int64 ;
+    i,ch,NumPixels : Integer ;
+    Buf16 : PBig16bitArray ;
 begin
 
       // Copy into I/O buf
       NumPixels := FrameWidth*FrameHeight ;
-      iBuf16 := AllocMem( Int64(NumPixels*Sizeof(Integer))) ;
-      for i := 0 to NumPixels-1 do iBuf16^[i] := PImageBuf^[i] ;
+      NumBytesPerImage := NumPixels*2 ;
+      Buf16 := AllocMem( NumBytesPerImage ) ;
 
-//      for i := 0 to FrameWidth*5-1 do iBuf16^[i] := iSection ;
 
       if not FileExists(FileName) then FileHandle := FileCreate( FileName )
                                   else FileHandle := FileOpen( FileName, fmOpenWrite ) ;
@@ -2528,21 +2744,25 @@ begin
       scZSection.Position := iSection ;
       lbZSection.Caption := Format('Section %d/%d',[iSection+1,NumZSectionsAvailable]);
 
-      FileWrite( FileHandle, NumZSectionsAvailable, Sizeof(FrameWidth)) ;
+      FilePointer := FileSeek( FileHandle, 0, 0 ) ;
+      FileWrite( FileHandle, NumZSectionsAvailable, Sizeof(NumZSectionsAvailable)) ;
+      FileWrite( FileHandle, NumPMTChannels, SizeOf(NumPMTChannels)) ;
       FileWrite( FileHandle, FrameWidth, Sizeof(FrameWidth)) ;
       FileWrite( FileHandle, FrameHeight, Sizeof(FrameHeight)) ;
       FileWrite( FileHandle, iScanZoom, Sizeof(iScanZoom)) ;
       FileWrite( FileHandle, ScanArea, Sizeof(ScanArea)) ;
-
       FileWrite( FileHandle, ZStep, Sizeof(ZStep)) ;
+      DataPointer := FileSeek( FileHandle, 0, 1 ) ;
 
-      FilePointer := FileSeek( FileHandle, 0, 1 ) ;
-      FilePointer := FilePointer +
-                     Int64(iSection)*Int64(NumPixels)*Int64(Sizeof(Integer)) ;
-      FileSeek( FileHandle, FilePointer, 0 ) ;
-      FileWrite( FileHandle, iBuf16^, NumPixels*Sizeof(Integer)) ;
+      for ch := 0 to NumPMTChannels-1 do begin
+          FilePointer := DataPointer +
+                         Int64(iSection*NumPMTChannels + ch)*NumBytesPerImage ;
+          FileSeek( FileHandle, FilePointer, 0 ) ;
+          for i := 0 to NumPixels-1 do Buf16^[i] := Max(PImageBuf[ch]^[i],0) ;
+          FileWrite( FileHandle, Buf16^, NumBytesPerImage) ;
+          end;
       FileClose(FileHandle) ;
-      FreeMem(iBuf16) ;
+      FreeMem(Buf16) ;
 
       // Set unsaved flag if image is high res.
       UnsavedRawImage := rbHRScan.Checked ;
@@ -2558,38 +2778,47 @@ procedure TMainFrm.LoadRawImage(
 // Load raw image to file
 // ----------------------
 var
-    iBuf16 : PBig16BitArray ;
     FileHandle : THandle ;
-    FilePointer : Int64 ;
-    i,NumPixels : Integer ;
+    FilePointer,DataPointer,NumBytesPerImage : Int64 ;
+    i,ch,NumPixels : Integer ;
+    Buf16 : PBig16bitArray ;
 begin
 
       FileHandle := FileOpen( FileName, fmOpenRead ) ;
 
-      FileRead( FileHandle, NumZSections, Sizeof(FrameWidth)) ;
+      FilePointer := FileSeek( FileHandle, 0, 0 ) ;
+      FileRead( FileHandle, NumZSections, Sizeof(NumZSections)) ;
+      FileRead( FileHandle, NumPMTChannels, SizeOf(NumPMTChannels)) ;
       FileRead( FileHandle, FrameWidth, Sizeof(FrameWidth)) ;
       FileRead( FileHandle, FrameHeight, Sizeof(FrameHeight)) ;
       FileRead( FileHandle, iScanZoom, Sizeof(iScanZoom)) ;
       FileRead( FileHandle, ScanArea, Sizeof(ScanArea)) ;
       FileRead( FileHandle, ZStep, Sizeof(ZStep)) ;
+      DataPointer := FileSeek( FileHandle, 0, 1 ) ;
+
       NumPixels := FrameWidth*FrameHeight ;
-      iBuf16 := AllocMem( Int64(NumPixels*Sizeof(Integer))) ;
+      NumBytesPerImage := NumPixels*2 ;
+      Buf16 := AllocMem( NumBytesPerImage ) ;
 
       // (re)allocate full field buffer
-      if PImageBuf = Nil then PImageBuf := AllocMem( NumPixels*SizeOf(Integer) ) ;
+      for ch := 0 to NumPMTChannels-1 do begin
+          if PImageBuf[ch] <> Nil then FreeMem(PImageBuf[ch]);
+          PImageBuf[ch] := AllocMem( NumPixels*SizeOf(Integer) ) ;
+          end;
 
-      FilePointer := FileSeek( FileHandle, 0, 1 ) ;
-      FilePointer := FilePointer +
-                     Int64(iSection)*Int64(NumPixels)*Int64(Sizeof(Integer)) ;
-      FileSeek( FileHandle, FilePointer, 0 ) ;
-      FileRead( FileHandle, iBuf16^, NumPixels*Sizeof(Integer)) ;
-
-      for i := 0 to NumPixels-1 do PImageBuf^[i] := iBuf16^[i] ;
+      for ch := 0 to NumPMTChannels-1 do begin
+          FilePointer := DataPointer +
+                         Int64(iSection*NumPMTChannels + ch)*NumBytesPerImage ;
+          FileSeek( FileHandle, FilePointer, 0 ) ;
+          FileRead( FileHandle, Buf16^, NumBytesPerImage) ;
+          for i := 0 to NumPixels-1 do PImageBuf[ch]^[i] := Buf16^[i] ;
+          end;
 
       FileClose(FileHandle) ;
-      FreeMem(iBuf16) ;
+      FreeMem(Buf16) ;
 
       end;
+
 
 procedure TMainFrm.SaveSettingsToXMLFile(
            FileName : String
@@ -2614,6 +2843,7 @@ var
    iNode,ProtNode : IXMLNode;
    s : TStringList ;
    XMLDoc : IXMLDocument ;
+   ch : Integer ;
 begin
 
     if FileName = '' then Exit ;
@@ -2650,7 +2880,6 @@ begin
     AddElementDouble( ProtNode, 'PHASESHIFT', PhaseShift ) ;
     AddElementDouble( ProtNode, 'LASERINTENSITY', LaserIntensity ) ;
     AddElementDouble( ProtNode, 'FULLFIELDWIDTHMICRONS', FullFieldWidthMicrons ) ;
-    AddElementDouble( ProtNode, 'ADCVOLTAGERANGE', ADCVoltageRange ) ;
 
     // Z stack
     iNode := ProtNode.AddChild( 'ZSTACK' ) ;
@@ -2664,6 +2893,26 @@ begin
     AddElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
     AddElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
     AddElementInt( iNode, 'COMPORT', Laser.ComPort ) ;
+
+    // PMT settings
+    AddElementInt( ProtNode, 'NUMPMTS', NumPMTs ) ;
+    iNode := ProtNode.AddChild( 'PMT' ) ;
+    AddElementBool( iNode, 'ENABLED0', ckEnablePMT0.Checked ) ;
+    AddElementBool( iNode, 'ENABLED1', ckEnablePMT1.Checked ) ;
+    AddElementBool( iNode, 'ENABLED2', ckEnablePMT2.Checked ) ;
+    AddElementBool( iNode, 'ENABLED3', ckEnablePMT3.Checked ) ;
+    AddElementINT( iNode, 'GAININDEX0', cbPMTGain0.ItemIndex ) ;
+    AddElementINT( iNode, 'GAININDEX1', cbPMTGain1.ItemIndex ) ;
+    AddElementINT( iNode, 'GAININDEX2', cbPMTGain2.ItemIndex ) ;
+    AddElementINT( iNode, 'GAININDEX3', cbPMTGain3.ItemIndex ) ;
+    AddElementDouble( iNode, 'VOLTS0', edPMTVolts0.Value ) ;
+    AddElementDouble( iNode, 'VOLTS1', edPMTVolts1.Value ) ;
+    AddElementDouble( iNode, 'VOLTS2', edPMTVolts2.Value ) ;
+    AddElementDouble( iNode, 'VOLTS3', edPMTVolts3.Value ) ;
+    for ch := 0 to High(PMTControls) do begin
+        AddElementINT( iNode, format('CONTROL%d',[ch]), PMTControls[ch] ) ;
+        end ;
+    AddElementDouble( iNode, 'MAXVOLTS', PMTMaxVolts ) ;
 
     // Z stage
     iNode := ProtNode.AddChild( 'ZSTAGE' ) ;
@@ -2709,12 +2958,8 @@ procedure TMainFrm.LoadSettingsFromXMLFile1(
 // ----------------------------------
 var
    iNode,ProtNode : IXMLNode;
-   iValue : Integer ;
-   dValue : Double ;
-
-   NodeIndex : Integer ;
+   ch,NodeIndex : Integer ;
    XMLDoc : IXMLDocument ;
-   bValue : Boolean ;
 begin
 
     if not FileExists(FileName) then Exit ;
@@ -2728,91 +2973,91 @@ begin
 
     ProtNode := xmldoc.DocumentElement ;
 
-    GetElementInt( ProtNode, 'FASTFRAMEWIDTH', FastFrameWidth ) ;
-    GetElementInt( ProtNode, 'FASTFRAMEHEIGHT', FastFrameHeight ) ;
-    GetElementInt( ProtNode, 'HRFRAMEWIDTH', HRFrameWidth ) ;
-    GetElementInt( ProtNode, 'LINESCANFRAMEHEIGHT', iValue ) ;
-    edLineScanFrameHeight.Value := iValue ;
+    FastFrameWidth := GetElementInt( ProtNode, 'FASTFRAMEWIDTH', FastFrameWidth ) ;
+    FastFrameHeight := GetElementInt( ProtNode, 'FASTFRAMEHEIGHT', FastFrameHeight ) ;
+    HRFrameWidth := GetElementInt( ProtNode, 'HRFRAMEWIDTH', HRFrameWidth ) ;
+    edLineScanFrameHeight.Value := GetElementInt( ProtNode, 'LINESCANFRAMEHEIGHT',
+                                                  Round(edLineScanFrameHeight.Value) ) ;
 
-    GetElementInt( ProtNode, 'PALETTE', iValue ) ;
-    cbPalette.ItemIndex := iValue ;
+    cbPalette.ItemIndex := GetElementInt( ProtNode, 'PALETTE', cbPalette.ItemIndex ) ;
     PaletteType := TPaletteType(cbPalette.Items.Objects[cbPalette.ItemIndex]) ;
-    if BitMap <> Nil then SetPalette( BitMap, PaletteType ) ;
+    for ch  := 0 to High(Bitmap) do
+       if BitMap[ch] <> Nil then SetPalette( BitMap[ch], PaletteType ) ;
 
-    GetElementBool( ProtNode, 'BIDIRECTIONALSCAN', BiDirectionalScan ) ;
-    GetElementBool( ProtNode, 'CORRECTSINEWAVEDISTORTION', CorrectSineWaveDistortion ) ;
+    BiDirectionalScan := GetElementBool( ProtNode, 'BIDIRECTIONALSCAN', BiDirectionalScan ) ;
+    CorrectSineWaveDistortion := GetElementBool( ProtNode, 'CORRECTSINEWAVEDISTORTION', CorrectSineWaveDistortion ) ;
 
-    GetElementBool( ProtNode, 'REPEATSCANS', bValue ) ;
-    ckRepeat.Checked := bValue ;
-    GetElementBool( ProtNode, 'INVERTPMTSIGNAL', InvertPMTSignal ) ;
+    ckRepeat.Checked := GetElementBool( ProtNode, 'REPEATSCANS', ckRepeat.Checked ) ;
 
-    GetElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
-    GetElementDouble( ProtNode, 'MAXSCANRATE', MaxScanRate ) ;
-    GetElementDouble( ProtNode, 'MINPIXELDWELLTIME', MinPixelDwellTime ) ;
-    GetElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
-    GetElementInt( ProtNode, 'BLACKLEVEL', BlackLevel ) ;
+    InvertPMTSignal := GetElementBool( ProtNode, 'INVERTPMTSIGNAL', InvertPMTSignal ) ;
 
-    GetElementDouble( ProtNode, 'XVOLTSPERMICRON', XVoltsPerMicron ) ;
-    GetElementDouble( ProtNode, 'YVOLTSPERMICRON', YVoltsPerMicron ) ;
-    GetElementDouble( ProtNode, 'PHASESHIFT', PhaseShift ) ;
-    GetElementDouble( ProtNode, 'LASERINTENSITY', LaserIntensity ) ;
-    GetElementDouble( ProtNode, 'FULLFIELDWIDTHMICRONS', FullFieldWidthMicrons ) ;
-    GetElementDouble( ProtNode, 'ADCVOLTAGERANGE', ADCVoltageRange ) ;
+    NumAverages := GetElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
+    MaxScanRate := GetElementDouble( ProtNode, 'MAXSCANRATE', MaxScanRate ) ;
+    MinPixelDwellTime := GetElementDouble( ProtNode, 'MINPIXELDWELLTIME', MinPixelDwellTime ) ;
+    NumAverages := GetElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
+    BlackLevel := GetElementInt( ProtNode, 'BLACKLEVEL', BlackLevel ) ;
 
+    XVoltsPerMicron := GetElementDouble( ProtNode, 'XVOLTSPERMICRON', XVoltsPerMicron ) ;
+    YVoltsPerMicron := GetElementDouble( ProtNode, 'YVOLTSPERMICRON', YVoltsPerMicron ) ;
+    PhaseShift := GetElementDouble( ProtNode, 'PHASESHIFT', PhaseShift ) ;
+    LaserIntensity := GetElementDouble( ProtNode, 'LASERINTENSITY', LaserIntensity ) ;
+    FullFieldWidthMicrons := GetElementDouble( ProtNode, 'FULLFIELDWIDTHMICRONS', FullFieldWidthMicrons ) ;
+
+    // Z stage
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'ZSTACK',iNode,NodeIndex) do begin
-       GetElementInt( iNode, 'NUMZSECTIONS', iValue ) ;
-       edNUMZSections.Value := iValue ;
-       GetElementInt( iNode, 'NUMPIXELSPERZSTEP', iValue ) ;
-       edNumPixelsPerZStep.Value := iValue ;
+       edNUMZSections.Value := GetElementInt( iNode, 'NUMZSECTIONS', Round(edNUMZSections.Value) ) ;
+       edNumPixelsPerZStep.Value := GetElementInt( iNode, 'NUMPIXELSPERZSTEP', Round(edNumPixelsPerZStep.Value) ) ;
        Inc(NodeIndex) ;
        end ;
+
+    // PMT settings
+    NumPMTs := GetElementInt( ProtNode, 'NUMPMTS', NumPMTs ) ;
+    NodeIndex := 0 ;
+    While FindXMLNode(ProtNode,'PMT',iNode,NodeIndex) do begin
+          ckEnablePMT0.Checked := GetElementBool( iNode, 'ENABLED0', ckEnablePMT0.Checked ) ;
+          ckEnablePMT1.Checked := GetElementBool( iNode, 'ENABLED1', ckEnablePMT1.Checked ) ;
+          ckEnablePMT2.Checked := GetElementBool( iNode, 'ENABLED2', ckEnablePMT2.Checked ) ;
+          ckEnablePMT3.Checked := GetElementBool( iNode, 'ENABLED3', ckEnablePMT3.Checked ) ;
+          cbPMTGain0.ItemIndex := GetElementINT( iNode, 'GAININDEX0', cbPMTGain0.ItemIndex ) ;
+          cbPMTGain1.ItemIndex := GetElementINT( iNode, 'GAININDEX1', cbPMTGain1.ItemIndex ) ;
+          cbPMTGain2.ItemIndex := GetElementINT( iNode, 'GAININDEX2', cbPMTGain2.ItemIndex ) ;
+          cbPMTGain3.ItemIndex := GetElementINT( iNode, 'GAININDEX3', cbPMTGain3.ItemIndex ) ;
+          edPMTVolts0.Value := GetElementDouble( iNode, 'VOLTS0', edPMTVolts0.Value ) ;
+          edPMTVolts1.Value := GetElementDouble( iNode, 'VOLTS1', edPMTVolts1.Value ) ;
+          edPMTVolts2.Value := GetElementDouble( iNode, 'VOLTS2', edPMTVolts2.Value ) ;
+          edPMTVolts3.Value := GetElementDouble( iNode, 'VOLTS3', edPMTVolts3.Value ) ;
+          for ch := 0 to High(PMTControls) do begin
+              PMTControls[ch] := GetElementINT( iNode, format('CONTROL%d',[ch]),PMTControls[ch] ) ;
+              end ;
+          PMTMaxVolts := GetElementDouble( iNode, 'MAXVOLTS', PMTMaxVolts ) ;
+          Inc(NodeIndex) ;
+          end ;
 
     // Laser control
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'LASER',iNode,NodeIndex) do begin
-        iValue := Laser.ShutterControlLine ;
-        GetElementInt( iNode, 'SHUTTERCONTROLLINE', iValue ) ;
-        Laser.ShutterControlLine := iValue ;
-
-        dValue := Laser.ShutterChangeTime ;
-        GetElementDouble( iNode, 'SHUTTERCHANGETIME', dValue ) ;
-        Laser.ShutterChangeTime := dValue ;
-
-        iValue := Laser.IntensityControlLine ;
-        GetElementInt( iNode, 'INTENSITYCONTROLLINE', iValue ) ;
-        Laser.IntensityControlLine := iValue ;
-
-        dValue := Laser.VMaxIntensity ;
-        GetElementDouble( iNode, 'VMAXINTENSITY', dValue ) ;
-        Laser.VMaxIntensity := dValue ;
-
-        iValue := Laser.ComPort ;
-        GetElementInt( iNode, 'COMPORT', iValue ) ;
-        Laser.ComPort := iValue ;
-
-        //GetElementBool( iNode, 'ENABLED', bValue ) ;
-        //ZStage.Enabled := bValue ;
+        Laser.ShutterControlLine := GetElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
+        Laser.ShutterChangeTime := GetElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
+        Laser.IntensityControlLine := GetElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
+        Laser.VMaxIntensity := GetElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
+        Laser.ComPort := GetElementInt( iNode, 'COMPORT', Laser.ComPort ) ;
         Inc(NodeIndex) ;
         end ;
 
     // Z stage
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'ZSTAGE',iNode,NodeIndex) do begin
-      GetElementInt( iNode, 'STAGETYPE', iValue ) ;
-      ZStage.StageType := iValue ;
-      GetElementBool( iNode, 'ENABLED', bValue ) ;
-      ZStage.Enabled := bValue ;
-      GetElementInt( iNode, 'CONTROLPORT', iValue ) ;
-      ZStage.ControlPort := iValue ;
-      GetElementInt( iNode, 'BAUDRATE', iValue ) ;
-      ZStage.BaudRate := iValue ;
-      GetElementDouble( iNode, 'ZSCALEFACTOR', ZStage.ZScaleFactor ) ;
-      GetElementDouble( iNode, 'ZSTEPTIME', ZStage.ZStepTime ) ;
+      ZStage.StageType := GetElementInt( iNode, 'STAGETYPE', ZStage.StageType ) ;
+      ZStage.Enabled := GetElementBool( iNode, 'ENABLED', ZStage.Enabled ) ;
+      ZStage.ControlPort := GetElementInt( iNode, 'CONTROLPORT', ZStage.ControlPort ) ;
+      ZStage.BaudRate := GetElementInt( iNode, 'BAUDRATE', ZStage.BaudRate ) ;
+      ZStage.ZScaleFactor := GetElementDouble( iNode, 'ZSCALEFACTOR', ZStage.ZScaleFactor ) ;
+      ZStage.ZStepTime := GetElementDouble( iNode, 'ZSTEPTIME', ZStage.ZStepTime ) ;
       Inc(NodeIndex) ;
       end ;
 
-    GetElementText( ProtNode, 'SAVEDIRECTORY', SaveDirectory ) ;
+    SaveDirectory := GetElementText( ProtNode, 'SAVEDIRECTORY', SaveDirectory ) ;
 
     XMLDoc.Active := False ;
     XMLDoc := Nil ;
@@ -2820,14 +3065,127 @@ begin
     end ;
 
 
+procedure TMainFrm.UpdatePMTSettings ;
+// ---------------------------
+// Enable/disable PMT controls
+// ---------------------------
+var
+  ch : Integer ;
+begin
+
+  if NumPMTs <= 3 then PanelPMT3.Visible := false
+                  else PanelPMT3.Visible := true ;
+  if NumPMTs <= 2 then PanelPMT2.Visible := false
+                  else PanelPMT2.Visible := true ;
+  if NumPMTs <= 1 then PanelPMT1.Visible := false
+                  else PanelPMT1.Visible := true ;
+  PanelPMT0.Visible := True ;
+
+  if not PanelPMT0.Visible then ckEnablePMT0.Checked := false ;
+  if not PanelPMT1.Visible then ckEnablePMT1.Checked := false ;
+  if not PanelPMT2.Visible then ckEnablePMT2.Checked := false ;
+  if not PanelPMT3.Visible then ckEnablePMT3.Checked := false ;
+
+  cbPMTGain0.Enabled := ckEnablePMT0.Checked ;
+  edPMTVolts0.Enabled := ckEnablePMT0.Checked ;
+  udPMTVolts0.Enabled := ckEnablePMT0.Checked ;
+  cbPMTGain1.Enabled := ckEnablePMT1.Checked ;
+  edPMTVolts1.Enabled := ckEnablePMT1.Checked ;
+  udPMTVolts1.Enabled := ckEnablePMT1.Checked ;
+  cbPMTGain2.Enabled := ckEnablePMT2.Checked ;
+  edPMTVolts2.Enabled := ckEnablePMT2.Checked ;
+  udPMTVolts2.Enabled := ckEnablePMT2.Checked ;
+  cbPMTGain3.Enabled := ckEnablePMT3.Checked ;
+  edPMTVolts3.Enabled := ckEnablePMT3.Checked ;
+  udPMTVolts3.Enabled := ckEnablePMT3.Checked ;
+
+  NumPMTChannels := 0 ;
+  for ch := 0 to High(ImageNames) do ImageNames[ch] := '' ;
+
+  if ckEnablePMT0.Checked and PanelPMT0.Visible then begin
+     ImageNames[NumPMTChannels] := 'PMT0' ;
+     Inc(NumPMTChannels) ;
+     end;
+  if ckEnablePMT1.Checked and PanelPMT1.Visible then begin
+     ImageNames[NumPMTChannels] := 'PMT1' ;
+     Inc(NumPMTChannels) ;
+     end;
+  if ckEnablePMT2.Checked and PanelPMT2.Visible then begin
+     ImageNames[NumPMTChannels] := 'PMT2' ;
+     Inc(NumPMTChannels) ;
+     end;
+  if ckEnablePMT3.Checked and PanelPMT3.Visible then begin
+     ImageNames[NumPMTChannels] := 'PMT3' ;
+     Inc(NumPMTChannels) ;
+     end;
+
+   TabImage0.Caption := ImageNames[0] ;
+   TabImage1.Caption := ImageNames[1] ;
+   TabImage2.Caption := ImageNames[2] ;
+   TabImage3.Caption := ImageNames[3] ;
+
+   if TabImage0.Caption <> '' then begin
+      TabImage0.TabVisible := True ;
+      TabImage0.Visible := True ;
+      TabImage0.Enabled := True ;
+      end
+   else begin
+      TabImage0.TabVisible := false ;
+      TabImage0.Visible := False ;
+      TabImage0.Enabled := False ;
+      end;
+
+   if TabImage1.Caption <> '' then begin
+      TabImage1.TabVisible := True ;
+      TabImage1.Visible := True ;
+      TabImage1.Enabled := True ;
+      end
+   else begin
+      TabImage1.TabVisible := false ;
+      TabImage1.Visible := False ;
+      TabImage1.Enabled := False ;
+      end;
+
+   if TabImage2.Caption <> '' then begin
+      TabImage2.TabVisible := True ;
+      TabImage2.Visible := True ;
+      TabImage2.Enabled := True ;
+      end
+   else begin
+      TabImage2.TabVisible := false ;
+      TabImage2.Visible := False ;
+      TabImage2.Enabled := False ;
+      end;
+
+   if TabImage3.Caption <> '' then begin
+      TabImage3.TabVisible := True ;
+      TabImage3.Visible := True ;
+      TabImage3.Enabled := True ;
+      end
+   else begin
+      TabImage3.TabVisible := false ;
+      TabImage3.Visible := False ;
+      TabImage3.Enabled := False ;
+      end;
+
+  ImagePage.ActivePage := TabImage2 ;
+  ImagePage.ActivePage := TabImage0 ;
+
+  end;
+
+
 procedure TMainFrm.FormDestroy(Sender: TObject);
 // ------------------------------
 // Tidy up when form is destroyed
 // ------------------------------
+var
+    ch : Integer ;
 begin
-     Bitmap.ReleasePalette ;
-     BitMap.Free ;
-     BitMap := Nil ;
+     for ch := 0 to High(BitMap) do if BitMap[ch] <> Nil then begin
+         Bitmap[ch].ReleasePalette ;
+         BitMap[ch].Free ;
+         BitMap[ch] := Nil ;
+         end;
      end;
 
 
@@ -2852,8 +3210,8 @@ begin
 function TMainFrm.GetElementDouble(
          ParentNode : IXMLNode ;
          NodeName : String ;
-         var Value : Double
-          ) : Boolean ;
+         Value : Double
+          ) : Double ;
 // ---------------------
 // Get value of element
 // ---------------------
@@ -2863,7 +3221,7 @@ var
    NodeIndex : Integer ;
    s : string ;
 begin
-    Result := False ;
+    Result := Value ;
     OldValue := Value ;
     NodeIndex := 0 ;
     if FindXMLNode(ParentNode,NodeName,ChildNode,NodeIndex) then begin
@@ -2872,12 +3230,9 @@ begin
        if (FormatSettings.DECIMALSEPARATOR = '.') then s := ANSIReplaceText(s , ',',FormatSettings.DECIMALSEPARATOR);
        if (FormatSettings.DECIMALSEPARATOR = ',') then s := ANSIReplaceText( s, '.',FormatSettings.DECIMALSEPARATOR);
        try
-
-          Value := StrToFloat(s) ;
-          Result := True ;
+          Result := StrToFloat(s) ;
        except
-          Value := OldValue ;
-          Result := False ;
+          Result := OldValue ;
           end ;
        end ;
 
@@ -2905,8 +3260,8 @@ begin
 function TMainFrm.GetElementInt(
           ParentNode : IXMLNode ;
           NodeName : String ;
-          var Value : Integer
-          ) : Boolean ;
+          Value : Integer
+          ) : Integer ;
 // ---------------------
 // Get value of element
 // ---------------------
@@ -2915,16 +3270,14 @@ var
    NodeIndex : Integer ;
    OldValue : Integer ;
 begin
-    Result := False ;
+    Result := Value ;
     OldValue := Value ;
     NodeIndex := 0 ;
     if FindXMLNode(ParentNode,NodeName,ChildNode,NodeIndex) then begin
        try
-          Value := StrToInt(ChildNode.Text) ;
-          Result := True ;
+          Result := StrToInt(ChildNode.Text) ;
        except
-          Value := OldValue ;
-          Result := False ;
+          Result := OldValue ;
           end ;
        end ;
     end ;
@@ -2952,7 +3305,7 @@ begin
 function TMainFrm.GetElementBool(
           ParentNode : IXMLNode ;
           NodeName : String ;
-          var Value : Boolean
+          Value : Boolean
           ) : Boolean ;
 // ---------------------
 // Get value of element
@@ -2961,12 +3314,12 @@ var
    ChildNode : IXMLNode;
    NodeIndex : Integer ;
 begin
-    Result := False ;
+    Result := Value ;
     NodeIndex := 0 ;
     if FindXMLNode(ParentNode,NodeName,ChildNode,NodeIndex) then begin
        if ANSIContainsText(ChildNode.Text,'T') then Value := True
-                                               else  Value := False ;
-       Result := True ;
+                                               else Value := False ;
+       Result := Value ;
        end ;
 
     end ;
@@ -2993,8 +3346,8 @@ begin
 function TMainFrm.GetElementText(
           ParentNode : IXMLNode ;
           NodeName : String ;
-          var Value : String
-          ) : Boolean ;
+          Value : String
+          ) : string ;
 // ---------------------
 // Get value of element
 // ---------------------
@@ -3003,11 +3356,10 @@ var
    NodeIndex : Integer ;
 begin
 
-    Result := False ;
+    Result := Value ;
     NodeIndex := 0 ;
     if FindXMLNode(ParentNode,NodeName,ChildNode,NodeIndex) then begin
-       Value := ChildNode.Text ;
-       Result := True ;
+       Result := ChildNode.Text ;
        end ;
 
     end ;

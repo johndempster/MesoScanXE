@@ -3,8 +3,8 @@ object SettingsFrm: TSettingsFrm
   Top = 0
   BorderStyle = bsDialog
   Caption = ' Scan Settings '
-  ClientHeight = 505
-  ClientWidth = 486
+  ClientHeight = 580
+  ClientWidth = 485
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,8 +17,8 @@ object SettingsFrm: TSettingsFrm
   PixelsPerInch = 96
   TextHeight = 13
   object ScanGrp: TGroupBox
-    Left = 8
-    Top = 249
+    Left = 244
+    Top = 8
     Width = 238
     Height = 216
     Caption = ' Scan Settings'
@@ -171,7 +171,7 @@ object SettingsFrm: TSettingsFrm
   end
   object bOK: TButton
     Left = 8
-    Top = 471
+    Top = 391
     Width = 65
     Height = 25
     Caption = 'OK'
@@ -187,7 +187,7 @@ object SettingsFrm: TSettingsFrm
   end
   object bCancel: TButton
     Left = 79
-    Top = 471
+    Top = 391
     Width = 72
     Height = 20
     Caption = 'Cancel'
@@ -202,48 +202,48 @@ object SettingsFrm: TSettingsFrm
     OnClick = bCancelClick
   end
   object GroupBox1: TGroupBox
-    Left = 244
-    Top = 8
+    Left = 247
+    Top = 230
     Width = 230
     Height = 177
     Caption = ' Laser Control '
     TabOrder = 3
     object Label7: TLabel
-      Left = 4
+      Left = 88
       Top = 18
-      Width = 130
+      Width = 46
       Height = 13
       Alignment = taRightJustify
       Caption = 'COM Port'
     end
     object Label14: TLabel
-      Left = 4
+      Left = 20
       Top = 96
-      Width = 130
+      Width = 114
       Height = 13
       Alignment = taRightJustify
       Caption = 'Shutter Control Output '
     end
     object Label15: TLabel
-      Left = 4
+      Left = 33
       Top = 122
-      Width = 130
+      Width = 101
       Height = 13
       Alignment = taRightJustify
       Caption = 'Shutter Change Time'
     end
     object Label17: TLabel
-      Left = 4
+      Left = 16
       Top = 41
-      Width = 130
+      Width = 118
       Height = 13
       Alignment = taRightJustify
       Caption = 'Intensity Control Output'
     end
     object Label16: TLabel
-      Left = 4
+      Left = 7
       Top = 69
-      Width = 130
+      Width = 127
       Height = 13
       Alignment = taRightJustify
       Caption = 'Voltage at 100% Intensity'
@@ -311,8 +311,8 @@ object SettingsFrm: TSettingsFrm
     end
   end
   object GroupBox2: TGroupBox
-    Left = 244
-    Top = 191
+    Left = 247
+    Top = 411
     Width = 230
     Height = 161
     Caption = ' Z position Control'
@@ -400,39 +400,80 @@ object SettingsFrm: TSettingsFrm
     Left = 8
     Top = 150
     Width = 230
-    Height = 93
+    Height = 235
     Caption = ' PMT '
     TabOrder = 5
     object Label2: TLabel
-      Left = 55
+      Left = 8
       Top = 17
-      Width = 68
+      Width = 115
       Height = 13
       Alignment = taRightJustify
-      Caption = 'Input Channel'
+      Caption = 'No. of PMTs available'
     end
     object Label18: TLabel
-      Left = 71
-      Top = 65
-      Width = 49
+      Left = 8
+      Top = 201
+      Width = 115
       Height = 13
       Alignment = taRightJustify
       Caption = 'Black level'
     end
-    object edADCInput: TValidatedEdit
-      Left = 129
+    object Label19: TLabel
+      Left = 8
+      Top = 44
+      Width = 115
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'PMT0 Voltage Control'
+    end
+    object Label20: TLabel
+      Left = 8
+      Top = 71
+      Width = 115
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'PMT1 Voltage Control'
+    end
+    object Label21: TLabel
+      Left = 8
+      Top = 98
+      Width = 115
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'PMT2 Voltage Control'
+    end
+    object Label22: TLabel
+      Left = 8
+      Top = 125
+      Width = 115
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'PMT3 Voltage Control'
+    end
+    object Label23: TLabel
+      Left = 8
+      Top = 152
+      Width = 115
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'PMT voltage at 100%'
+    end
+    object edNumPMTs: TValidatedEdit
+      Left = 130
       Top = 17
       Width = 90
       Height = 21
-      Text = ' 0 '
+      Text = ' 1 '
+      Value = 1.000000000000000000
       Scale = 1.000000000000000000
       NumberFormat = '%.0f'
-      LoLimit = -1.000000015047466E30
-      HiLimit = 3.000000000000000000
+      LoLimit = 1.000000000000000000
+      HiLimit = 4.000000000000000000
     end
     object ckInvertPMTsignal: TCheckBox
       Left = 111
-      Top = 44
+      Top = 180
       Width = 108
       Height = 15
       Alignment = taLeftJustify
@@ -442,8 +483,8 @@ object SettingsFrm: TSettingsFrm
       TabOrder = 1
     end
     object edBlackLevel: TValidatedEdit
-      Left = 129
-      Top = 65
+      Left = 130
+      Top = 201
       Width = 90
       Height = 21
       Text = ' 10 '
@@ -452,6 +493,51 @@ object SettingsFrm: TSettingsFrm
       NumberFormat = '%.0f'
       LoLimit = -32768.000000000000000000
       HiLimit = 32767.000000000000000000
+    end
+    object cbPMTControl0: TComboBox
+      Left = 130
+      Top = 44
+      Width = 90
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 3
+    end
+    object cbPMTControl1: TComboBox
+      Left = 130
+      Top = 71
+      Width = 90
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 4
+    end
+    object cbPMTControl2: TComboBox
+      Left = 130
+      Top = 98
+      Width = 90
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 5
+    end
+    object cbPMTControl3: TComboBox
+      Left = 130
+      Top = 125
+      Width = 90
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 6
+    end
+    object edPMTMaxVolts: TValidatedEdit
+      Left = 130
+      Top = 152
+      Width = 90
+      Height = 21
+      Text = ' 5 V'
+      Value = 5.000000000000000000
+      Scale = 1.000000000000000000
+      Units = 'V'
+      NumberFormat = '%.4g'
+      LoLimit = 0.000000000000000000
+      HiLimit = 10.000000000000000000
     end
   end
   object ImageHRGrp: TGroupBox

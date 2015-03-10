@@ -41,7 +41,7 @@ type
     edFullFieldWidthMicrons: TValidatedEdit;
     PMTgrp: TGroupBox;
     Label2: TLabel;
-    edADCInput: TValidatedEdit;
+    edNumPMTs: TValidatedEdit;
     ckInvertPMTsignal: TCheckBox;
     Label18: TLabel;
     edBlackLevel: TValidatedEdit;
@@ -64,6 +64,16 @@ type
     Label17: TLabel;
     Label16: TLabel;
     edLaserVMaxIntensity: TValidatedEdit;
+    Label19: TLabel;
+    cbPMTControl0: TComboBox;
+    cbPMTControl1: TComboBox;
+    Label20: TLabel;
+    cbPMTControl2: TComboBox;
+    Label21: TLabel;
+    Label22: TLabel;
+    cbPMTControl3: TComboBox;
+    Label23: TLabel;
+    edPMTMaxVolts: TValidatedEdit;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -81,7 +91,7 @@ implementation
 
 {$R *.dfm}
 
-uses MainUnit, ZStageUnit, LaserUnit;
+uses MainUnit, ZStageUnit, LaserUnit, LabIOUnit;
 
 procedure TSettingsFrm.bCancelClick(Sender: TObject);
 // ---------------------
@@ -107,12 +117,20 @@ begin
     MainFrm.PhaseShift := edPhaseShift.Value ;
     MainFrm.CorrectSineWaveDistortion := ckCorrectSineWaveDistortion.Checked ;
     MainFrm.BlackLevel := Round(edBlackLevel.Value) ;
-    MainFrm.ADCInput := Round(edADCInput.Value) ;
+
+    MainFrm.NumPMTs := Round(edNumPMTs.Value) ;
+    MainFrm.PMTControls[0] := cbPMTControl0.ItemIndex - 1 ;
+    MainFrm.PMTControls[1] := cbPMTControl1.ItemIndex - 1 ;
+    MainFrm.PMTControls[2] := cbPMTControl2.ItemIndex - 1 ;
+    MainFrm.PMTControls[3] := cbPMTControl3.ItemIndex - 1 ;
+    MainFrm.PMTMaxVolts := edPMTMaxVolts.Value ;
+    MainFrm.UpdatePMTSettings ;
 
     MainFrm.FullFieldWidthMicrons := edFullFieldWidthMicrons.Value ;
 
 
     MainFrm.InvertPMTSignal := ckInvertPMTSignal.Checked ;
+
 
     Laser.ComPort := cbLaserControlComPort.ItemIndex ;
     Laser.ShutterControlLine := cbLaserShutterControlLine.ItemIndex ;
@@ -151,14 +169,14 @@ procedure TSettingsFrm.FormShow(Sender: TObject);
 // Initialise form on display
 // --------------------------
 var
-    i : Integer ;
+    i,iDev : Integer ;
 begin
 
     edHRFrameWidth.Value := MainFrm.HRFrameWidth ;
     edFastFrameWidth.Value := MainFrm.FastFrameWidth ;
     edFastFrameHeight.Value := MainFrm.FastFrameHeight ;
 
-    edADCInput.Value := MainFrm.ADCInput ;
+    edNumPMTs.Value := MainFrm.NumPMTs ;
     edPhaseShift.Value := MainFrm.PhaseShift ;
     ckBidirectionalScan.Checked :=  MainFrm.BidirectionalScan ;
     edMaxScanRate.Value := MainFrm.MaxScanRate ;
@@ -169,6 +187,23 @@ begin
     edBlackLevel.Value := MainFrm.BlackLevel ;
     edFullFieldWidthMicrons.Value := MainFrm.FullFieldWidthMicrons ;
     ckInvertPMTSignal.Checked := MainFrm.InvertPMTSignal ;
+
+    // PMT control lines
+    cbPMTControl0.Clear ;
+    cbPMTControl0.Items.Add('None') ;
+    for iDev := 1 to LabIO.NumDevices do
+        for i := 0 to LabIO.NumDACs[iDev]-1 do begin
+            cbPMTControl0.Items.Add(Format('Dev%d:AO%d',[iDev,i])) ;
+            end;
+    cbPMTControl1.Items.Assign(cbPMTControl0.Items);
+    cbPMTControl2.Items.Assign(cbPMTControl0.Items);
+    cbPMTControl3.Items.Assign(cbPMTControl0.Items);
+    cbPMTControl0.ItemIndex := MainFrm.PMTControls[0] + 1 ;
+    cbPMTControl1.ItemIndex := MainFrm.PMTControls[1] + 1 ;
+    cbPMTControl2.ItemIndex := MainFrm.PMTControls[2] + 1 ;
+    cbPMTControl3.ItemIndex := MainFrm.PMTControls[3] + 1 ;
+
+    edPMTMaxVolts.Value := MainFrm.PMTMaxVolts ;
 
     // Laser control
     Laser.GetCOMPorts( cbLaserControlComPort.Items ) ;

@@ -1,9 +1,9 @@
 object MainFrm: TMainFrm
   Left = 794
   Top = 357
-  Caption = 'MesoScan V1.5.2 32 bit 15/07/13'
-  ClientHeight = 773
-  ClientWidth = 768
+  Caption = 'MesoScan V1.5.3 64 bit 19/01/15'
+  ClientHeight = 850
+  ClientWidth = 790
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -179,22 +179,6 @@ object MainFrm: TMainFrm
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    object Image1: TImage
-      Left = 3
-      Top = 23
-      Width = 329
-      Height = 185
-      Hint = 
-        'Double-click mouse to place and draw zoom region of interest box' +
-        '.'
-      ParentShowHint = False
-      ShowHint = True
-      Stretch = True
-      OnDblClick = Image1DblClick
-      OnMouseDown = Image1MouseDown
-      OnMouseMove = Image1MouseMove
-      OnMouseUp = Image1MouseUp
-    end
     object lbReadout: TLabel
       Left = 8
       Top = 217
@@ -207,14 +191,6 @@ object MainFrm: TMainFrm
       Font.Name = 'Arial'
       Font.Style = [fsBold]
       ParentFont = False
-    end
-    object lbBottomRight: TLabel
-      Left = 293
-      Top = 214
-      Width = 44
-      Height = 14
-      Alignment = taRightJustify
-      Caption = 'lbTopLeft'
     end
     object ZSectionPanel: TPanel
       Left = 159
@@ -247,17 +223,10 @@ object MainFrm: TMainFrm
       Height = 20
       BevelOuter = bvNone
       TabOrder = 1
-      object lbTopLeft: TLabel
-        Left = 0
-        Top = 0
-        Width = 44
-        Height = 14
-        Caption = 'lbTopLeft'
-      end
     end
     object ZoomPanel: TPanel
-      Left = 304
-      Top = 3
+      Left = 16
+      Top = 237
       Width = 105
       Height = 20
       BevelOuter = bvNone
@@ -310,6 +279,79 @@ object MainFrm: TMainFrm
         ShowHint = True
         TabOrder = 1
         OnClick = bZoomOutClick
+      end
+    end
+    object ImagePage: TPageControl
+      Left = 3
+      Top = 3
+      Width = 294
+      Height = 217
+      ActivePage = TabImage0
+      TabOrder = 3
+      object TabImage0: TTabSheet
+        Caption = 'PMT0'
+        object Image0: TImage
+          Left = 2
+          Top = 1
+          Width = 281
+          Height = 178
+          ParentShowHint = False
+          ShowHint = False
+          Stretch = True
+          OnDblClick = Image0DblClick
+          OnMouseDown = Image0MouseDown
+          OnMouseMove = Image0MouseMove
+          OnMouseUp = Image0MouseUp
+        end
+      end
+      object TabImage1: TTabSheet
+        Caption = 'TabImage1'
+        ImageIndex = 1
+        object Image1: TImage
+          Left = 0
+          Top = 0
+          Width = 281
+          Height = 185
+          ParentShowHint = False
+          ShowHint = False
+          Stretch = True
+          OnDblClick = Image0DblClick
+          OnMouseDown = Image0MouseDown
+          OnMouseMove = Image0MouseMove
+          OnMouseUp = Image0MouseUp
+        end
+      end
+      object TabImage2: TTabSheet
+        Caption = 'TabImage2'
+        ImageIndex = 2
+        object Image2: TImage
+          Left = 0
+          Top = 0
+          Width = 281
+          Height = 185
+          ParentShowHint = False
+          ShowHint = False
+          Stretch = True
+          OnDblClick = Image0DblClick
+          OnMouseDown = Image0MouseDown
+          OnMouseMove = Image0MouseMove
+          OnMouseUp = Image0MouseUp
+        end
+      end
+      object TabImage3: TTabSheet
+        Caption = 'TabImage3'
+        ImageIndex = 3
+        object Image3: TImage
+          Left = 0
+          Top = 0
+          Width = 281
+          Height = 185
+          Stretch = True
+          OnDblClick = Image0DblClick
+          OnMouseDown = Image0MouseDown
+          OnMouseMove = Image0MouseMove
+          OnMouseUp = Image0MouseUp
+        end
       end
     end
   end
@@ -513,35 +555,300 @@ object MainFrm: TMainFrm
     end
   end
   object GroupBox2: TGroupBox
-    Left = 4
-    Top = 384
+    Left = 8
+    Top = 385
     Width = 217
-    Height = 49
-    Caption = ' Sensitivity '
+    Height = 149
+    Caption = ' PMT Channels  '
     TabOrder = 4
     object Label15: TLabel
       Left = 56
-      Top = 20
-      Width = 58
-      Height = 13
-      Caption = 'PMT Range'
-    end
-    object cbADCVoltageRange: TComboBox
-      Left = 120
       Top = 16
-      Width = 81
-      Height = 25
-      Hint = 'Working voltage range of A/D converter'
-      Style = csOwnerDrawFixed
-      ItemHeight = 19
-      ParentShowHint = False
-      ShowHint = True
+      Width = 22
+      Height = 13
+      Caption = 'Gain'
+    end
+    object Label3: TLabel
+      Left = 114
+      Top = 16
+      Width = 23
+      Height = 13
+      Caption = 'Volts'
+    end
+    object PanelPMT0: TPanel
+      Left = 3
+      Top = 30
+      Width = 186
+      Height = 28
+      BevelOuter = bvNone
       TabOrder = 0
+      object cbPMTGain0: TComboBox
+        Left = 53
+        Top = 0
+        Width = 49
+        Height = 23
+        Hint = 'Working voltage range of A/D converter'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        Text = 'X1'
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object edPMTVolts0: TValidatedEdit
+        Left = 108
+        Top = 0
+        Width = 51
+        Height = 21
+        Text = ' 1 %'
+        Value = 1.000000000000000000
+        Scale = 1.000000000000000000
+        Units = '%'
+        NumberFormat = '%.0f'
+        LoLimit = -1.000000015047466E30
+        HiLimit = 100.000000000000000000
+      end
+      object ckEnablePMT0: TCheckBox
+        Left = 0
+        Top = 0
+        Width = 47
+        Height = 17
+        Caption = 'Ch.0'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnClick = ckEnablePMT0Click
+      end
+      object udPMTVolts0: TUpDown
+        Left = 158
+        Top = 0
+        Width = 17
+        Height = 23
+        Min = -30000
+        Max = 30000
+        TabOrder = 3
+        OnChangingEx = udPMTVolts0ChangingEx
+      end
+    end
+    object PanelPMT1: TPanel
+      Left = 3
+      Top = 59
+      Width = 186
+      Height = 28
+      BevelOuter = bvNone
+      TabOrder = 1
+      object cbPMTGain1: TComboBox
+        Left = 53
+        Top = 0
+        Width = 49
+        Height = 23
+        Hint = 'Working voltage range of A/D converter'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        Text = 'X1'
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object edPMTVolts1: TValidatedEdit
+        Left = 108
+        Top = 0
+        Width = 51
+        Height = 21
+        Text = ' 1 %'
+        Value = 1.000000000000000000
+        Scale = 1.000000000000000000
+        Units = '%'
+        NumberFormat = '%.0f'
+        LoLimit = -1.000000015047466E30
+        HiLimit = 100.000000000000000000
+      end
+      object ckEnablePMT1: TCheckBox
+        Left = 0
+        Top = 0
+        Width = 47
+        Height = 17
+        Caption = 'Ch.1'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnClick = ckEnablePMT0Click
+      end
+      object udPMTVolts1: TUpDown
+        Left = 158
+        Top = 0
+        Width = 17
+        Height = 23
+        TabOrder = 3
+        OnChangingEx = udPMTVolts1ChangingEx
+      end
+    end
+    object PanelPMT2: TPanel
+      Left = 3
+      Top = 86
+      Width = 186
+      Height = 28
+      BevelOuter = bvNone
+      TabOrder = 2
+      object cbPMTGain2: TComboBox
+        Left = 53
+        Top = 0
+        Width = 49
+        Height = 23
+        Hint = 'Working voltage range of A/D converter'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        Text = 'X1'
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object edPMTVolts2: TValidatedEdit
+        Left = 108
+        Top = 0
+        Width = 51
+        Height = 21
+        Text = ' 1 %'
+        Value = 1.000000000000000000
+        Scale = 1.000000000000000000
+        Units = '%'
+        NumberFormat = '%.0f'
+        LoLimit = -1.000000015047466E30
+        HiLimit = 100.000000000000000000
+      end
+      object ckEnablePMT2: TCheckBox
+        Left = 0
+        Top = 0
+        Width = 47
+        Height = 17
+        Caption = 'Ch.2'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnClick = ckEnablePMT0Click
+      end
+      object udPMTVolts2: TUpDown
+        Left = 158
+        Top = 0
+        Width = 17
+        Height = 23
+        TabOrder = 3
+        OnChangingEx = udPMTVolts2ChangingEx
+      end
+    end
+    object PanelPMT3: TPanel
+      Left = 3
+      Top = 113
+      Width = 186
+      Height = 28
+      BevelOuter = bvNone
+      TabOrder = 3
+      object cbPMTGain3: TComboBox
+        Left = 53
+        Top = 0
+        Width = 49
+        Height = 23
+        Hint = 'Working voltage range of A/D converter'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial Narrow'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        Text = 'X1'
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object edPMTVolts3: TValidatedEdit
+        Left = 108
+        Top = 0
+        Width = 51
+        Height = 21
+        Text = ' 1 %'
+        Value = 1.000000000000000000
+        Scale = 1.000000000000000000
+        Units = '%'
+        NumberFormat = '%.0f'
+        LoLimit = -1.000000015047466E30
+        HiLimit = 100.000000000000000000
+      end
+      object ckEnablePMT3: TCheckBox
+        Left = 0
+        Top = 0
+        Width = 47
+        Height = 17
+        Caption = 'Ch.3'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnClick = ckEnablePMT0Click
+      end
+      object udPMTVolts3: TUpDown
+        Left = 158
+        Top = 0
+        Width = 17
+        Height = 23
+        TabOrder = 3
+        OnChangingEx = udPMTVolts3ChangingEx
+      end
     end
   end
   object LaserGrp: TGroupBox
-    Left = 4
-    Top = 436
+    Left = 8
+    Top = 538
     Width = 217
     Height = 56
     Caption = ' Laser '
@@ -604,8 +911,8 @@ object MainFrm: TMainFrm
     end
   end
   object DisplayGrp: TGroupBox
-    Left = 4
-    Top = 496
+    Left = 8
+    Top = 600
     Width = 217
     Height = 165
     Caption = ' Display '
@@ -641,7 +948,7 @@ object MainFrm: TMainFrm
         object bFullScale: TButton
           Left = 2
           Top = 4
-          Width = 71
+          Width = 70
           Height = 17
           Hint = 'Set display intensity range to cover full camera range'
           Caption = 'Full Range'
@@ -655,9 +962,9 @@ object MainFrm: TMainFrm
           OnClick = bFullScaleClick
         end
         object bMaxContrast: TButton
-          Left = 78
-          Top = 4
-          Width = 59
+          Left = 3
+          Top = 23
+          Width = 70
           Height = 17
           Hint = 'Set display range to min. - max.  intensities within image'
           Caption = 'Best'
@@ -671,24 +978,24 @@ object MainFrm: TMainFrm
           OnClick = bMaxContrastClick
         end
         object edDisplayIntensityRange: TRangeEdit
-          Left = 2
-          Top = 24
-          Width = 135
+          Left = 78
+          Top = 4
+          Width = 104
           Height = 20
           Hint = 'Range of intensities displayed within image'
           OnKeyPress = edDisplayIntensityRangeKeyPress
           AutoSize = False
           ShowHint = True
-          Text = ' 4096.00 - 4096.00 '
+          Text = ' 4096 - 4096 '
           LoValue = 4096.000000000000000000
           HiValue = 4096.000000000000000000
           HiLimit = 1.000000015047466E30
           Scale = 1.000000000000000000
-          NumberFormat = '%.f - %.f'
+          NumberFormat = '%.0f - %.0f'
         end
         object ckContrast6SDOnly: TCheckBox
           Left = 2
-          Top = 61
+          Top = 63
           Width = 105
           Height = 17
           Hint = 
@@ -831,8 +1138,8 @@ object MainFrm: TMainFrm
     end
   end
   object StatusGrp: TGroupBox
-    Left = 4
-    Top = 670
+    Left = 8
+    Top = 770
     Width = 217
     Height = 81
     TabOrder = 7
@@ -852,23 +1159,23 @@ object MainFrm: TMainFrm
     Interval = 100
     OnTimer = TimerTimer
     Left = 232
-    Top = 392
+    Top = 608
   end
   object ImageFile: TImageFile
     XResolution = 1.000000000000000000
     YResolution = 1.000000000000000000
     ZResolution = 1.000000000000000000
     TResolution = 1.000000000000000000
-    Left = 248
-    Top = 432
+    Left = 264
+    Top = 608
   end
   object SaveDialog: TSaveDialog
-    Left = 304
-    Top = 440
+    Left = 336
+    Top = 608
   end
   object MainMenu1: TMainMenu
-    Left = 240
-    Top = 496
+    Left = 296
+    Top = 608
     object File1: TMenuItem
       Caption = 'File'
       object mnSaveImage: TMenuItem
