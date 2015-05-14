@@ -3,6 +3,7 @@ unit SettingsUnit;
 // MesoScan - Scan Settings dialog box
 // ------------------------------------
 // 1-6-12 MinPixelDwellTimeAdded
+// 17.03.15 Scan now only set to full field when full field with changed.
 
 interface
 
@@ -126,11 +127,12 @@ begin
     MainFrm.PMTMaxVolts := edPMTMaxVolts.Value ;
     MainFrm.UpdatePMTSettings ;
 
-    MainFrm.FullFieldWidthMicrons := edFullFieldWidthMicrons.Value ;
-
+    if MainFrm.FullFieldWidthMicrons <> edFullFieldWidthMicrons.Value then begin
+       MainFrm.FullFieldWidthMicrons := edFullFieldWidthMicrons.Value ;
+       MainFrm.SetScanZoomToFullField ;
+       end;
 
     MainFrm.InvertPMTSignal := ckInvertPMTSignal.Checked ;
-
 
     Laser.ComPort := cbLaserControlComPort.ItemIndex ;
     Laser.ShutterControlLine := cbLaserShutterControlLine.ItemIndex ;
@@ -144,7 +146,7 @@ begin
     ZStage.ZScaleFactor := edZScaleFactor.Value ;
     ZStage.ZStepTime := edZStepTime.Value ;
 
-    MainFrm.SetScanZoomToFullField ;
+
 
     Close ;
     end;

@@ -306,7 +306,6 @@ object SettingsFrm: TSettingsFrm
       Scale = 1.000000000000000000
       Units = 'V'
       NumberFormat = '%.4g'
-      LoLimit = 0.000000000000000000
       HiLimit = 10.000000000000000000
     end
   end
@@ -404,57 +403,57 @@ object SettingsFrm: TSettingsFrm
     Caption = ' PMT '
     TabOrder = 5
     object Label2: TLabel
-      Left = 8
+      Left = 20
       Top = 17
-      Width = 115
+      Width = 103
       Height = 13
       Alignment = taRightJustify
       Caption = 'No. of PMTs available'
     end
     object Label18: TLabel
-      Left = 8
+      Left = 74
       Top = 201
-      Width = 115
+      Width = 49
       Height = 13
       Alignment = taRightJustify
       Caption = 'Black level'
     end
     object Label19: TLabel
-      Left = 8
+      Left = 20
       Top = 44
-      Width = 115
+      Width = 103
       Height = 13
       Alignment = taRightJustify
       Caption = 'PMT0 Voltage Control'
     end
     object Label20: TLabel
-      Left = 8
+      Left = 20
       Top = 71
-      Width = 115
+      Width = 103
       Height = 13
       Alignment = taRightJustify
       Caption = 'PMT1 Voltage Control'
     end
     object Label21: TLabel
-      Left = 8
+      Left = 20
       Top = 98
-      Width = 115
+      Width = 103
       Height = 13
       Alignment = taRightJustify
       Caption = 'PMT2 Voltage Control'
     end
     object Label22: TLabel
-      Left = 8
+      Left = 20
       Top = 125
-      Width = 115
+      Width = 103
       Height = 13
       Alignment = taRightJustify
       Caption = 'PMT3 Voltage Control'
     end
     object Label23: TLabel
-      Left = 8
+      Left = 19
       Top = 152
-      Width = 115
+      Width = 104
       Height = 13
       Alignment = taRightJustify
       Caption = 'PMT voltage at 100%'
@@ -536,7 +535,6 @@ object SettingsFrm: TSettingsFrm
       Scale = 1.000000000000000000
       Units = 'V'
       NumberFormat = '%.4g'
-      LoLimit = 0.000000000000000000
       HiLimit = 10.000000000000000000
     end
   end
@@ -600,7 +598,7 @@ object SettingsFrm: TSettingsFrm
       Value = 50.000000000000000000
       Scale = 1.000000000000000000
       NumberFormat = '%.0f'
-      LoLimit = 0.000009999999747379
+      LoLimit = 1.000000000000000000
       HiLimit = 1000000.000000000000000000
     end
     object edFastFrameWidth: TValidatedEdit
@@ -612,7 +610,7 @@ object SettingsFrm: TSettingsFrm
       Value = 500.000000000000000000
       Scale = 1.000000000000000000
       NumberFormat = '%.0f'
-      LoLimit = 0.000009999999747379
+      LoLimit = 100.000000000000000000
       HiLimit = 1000000.000000000000000000
     end
   end

@@ -18,6 +18,13 @@ unit MainUnit;
 // V1.5.4 10.03.15 Now supports up to 4 PMT channels
 //                 PMT voltage control added
 // V1.5.5 10.03.15 Access violations on startup with no settings file fixed
+// V1.5.6 17.03.15 Scan now only set to full field when full field with changed in setup
+//                 FrameHeight now forced to be greater than 1.
+//                 PMT gain menus now forced to valid settings
+// V1.5.7 14.05.15 Z position is now incremented one step at end of stake
+//                 rather than being returned to top of stack to allow stack to be extended
+//                 Scan Full Field now correctly zooms out to full field (rather than
+//                 to next wider zoom setting)
 
 interface
 
@@ -546,13 +553,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.5.5 ';
+     Caption := 'MesoScan V1.5.7 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 10/3/15';
+    Caption := Caption + ' 13/5/15';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -612,6 +619,10 @@ begin
                  LabIO.ADCVoltageRanges[DeviceNum,i] ;
          cbPMTGain0.Items.Add(format('X%.4g',[Gain]));
          end ;
+     if cbPMTGain0.Items.Count <= 0 then begin
+        cbPMTGain0.Items.Add('n/a');
+        end;
+
      cbPMTGain1.Items.Assign(cbPMTGain0.Items);
      cbPMTGain2.Items.Assign(cbPMTGain0.Items);
      cbPMTGain3.Items.Assign(cbPMTGain0.Items);
@@ -1739,9 +1750,9 @@ begin
             iScanZoom := Max(iScanZoom-1,0) ;
             end ;
 
-          // Zoom out - change to next larger scan area
+          // Zoom out to full scan area
           -2 : begin
-            iScanZoom := Max(iScanZoom-1,0) ;
+            iScanZoom := 0 ;
             end;
 
           end ;
@@ -1749,20 +1760,23 @@ begin
        if rbFastScan.Checked then begin
           // Fast scan
           FrameWidth := FastFrameWidth ;
-          FrameHeight := Round(FrameWidth*(ScanArea[iScanZoom].Height/ScanArea[iScanZoom].Width)) ;
+          FrameHeight := Max(Round(FrameWidth*(ScanArea[iScanZoom].Height/ScanArea[iScanZoom].Width)),1) ;
           if FrameHeight > FastFrameHeight then begin
              FrameHeightScale := FrameHeight/FastFrameHeight ;
              FrameHeight := FastFrameHeight ;
              end
-           else FrameHeightScale := 1.0
+          else FrameHeightScale := 1.0
           end
         else begin
           // High resolution scan
           FrameWidth := HRFrameWidth ;
-          FrameHeight := Round(FrameWidth*(ScanArea[iScanZoom].Height/ScanArea[iScanZoom].Width)) ;
+          FrameHeight := Max(Round(FrameWidth*(ScanArea[iScanZoom].Height/ScanArea[iScanZoom].Width)),1) ;
           FrameHeightScale := 1.0 ;
           end;
+
        end ;
+
+
 
       // XT line scan mode
       XTMode : begin
@@ -1782,6 +1796,8 @@ begin
         end ;
 
       end ;
+
+      Outputdebugstring(pchar(format('frameheightscale %.0f',[FrameHeightScale])));
 
     // Image pixel to microns scaling factor
     PixelsToMicronsX := ScanArea[iScanZoom].Width/FrameWidth ;
@@ -2340,8 +2356,9 @@ begin
           else if cbImageMode.ItemIndex = XYZMode then begin
              // Increment Z position to next Section
              Inc(ZSection) ;
+             ZStage.MoveTo( ZStage.ZPosition + ZStep );
              if ZSection < NumZSections then begin
-                ZStage.MoveTo( ZStage.ZPosition + ZStep );
+
                 ScanRequested := Max(Round(ZStage.ZStepTime/(Timer.Interval*0.001)),1) ;
                 NumAverages := 1 ;
                 ClearAverage := True ;
@@ -2411,7 +2428,7 @@ begin
 
     case cbImageMode.ItemIndex of
        XYZMode : begin
-         ZStage.MoveTo( ZStartingPosition );
+         //ZStage.MoveTo( ZStartingPosition );
          scZSection.Position := 0 ;
          end;
        XZMode : begin
@@ -2505,6 +2522,7 @@ procedure TMainFrm.mnScanSettingsClick(Sender: TObject);
 begin
 
      SettingsFrm.ShowModal ;
+     edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
 
      //Re-open control port (if in use)
      if LaserControlEnabled then begin
@@ -3018,10 +3036,14 @@ begin
           ckEnablePMT1.Checked := GetElementBool( iNode, 'ENABLED1', ckEnablePMT1.Checked ) ;
           ckEnablePMT2.Checked := GetElementBool( iNode, 'ENABLED2', ckEnablePMT2.Checked ) ;
           ckEnablePMT3.Checked := GetElementBool( iNode, 'ENABLED3', ckEnablePMT3.Checked ) ;
-          cbPMTGain0.ItemIndex := GetElementINT( iNode, 'GAININDEX0', cbPMTGain0.ItemIndex ) ;
-          cbPMTGain1.ItemIndex := GetElementINT( iNode, 'GAININDEX1', cbPMTGain1.ItemIndex ) ;
-          cbPMTGain2.ItemIndex := GetElementINT( iNode, 'GAININDEX2', cbPMTGain2.ItemIndex ) ;
-          cbPMTGain3.ItemIndex := GetElementINT( iNode, 'GAININDEX3', cbPMTGain3.ItemIndex ) ;
+          cbPMTGain0.ItemIndex := Min(Max( GetElementINT( iNode, 'GAININDEX0', cbPMTGain0.ItemIndex )
+                                           ,0),cbPMTGain0.Items.Count-1) ;
+          cbPMTGain1.ItemIndex := Min(Max(GetElementINT( iNode, 'GAININDEX1', cbPMTGain1.ItemIndex )
+                                           ,0),cbPMTGain1.Items.Count-1) ;
+          cbPMTGain2.ItemIndex := Min(Max(GetElementINT( iNode, 'GAININDEX2', cbPMTGain2.ItemIndex )
+                                           , 0),cbPMTGain2.Items.Count-1) ;
+          cbPMTGain3.ItemIndex := Min(Max(GetElementINT( iNode, 'GAININDEX3', cbPMTGain3.ItemIndex )
+                                           , 0),cbPMTGain3.Items.Count-1) ;
           edPMTVolts0.Value := GetElementDouble( iNode, 'VOLTS0', edPMTVolts0.Value ) ;
           edPMTVolts1.Value := GetElementDouble( iNode, 'VOLTS1', edPMTVolts1.Value ) ;
           edPMTVolts2.Value := GetElementDouble( iNode, 'VOLTS2', edPMTVolts2.Value ) ;

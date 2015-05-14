@@ -1477,7 +1477,7 @@ begin
         end ;
     ADCEnd := FADCPointer - 1 ;
     if ADCEnd < 0 then ADCEnd := FADCPointerMax ;
-    outputdebugstring(pchar(format('%d %d %d',[ADCStart,ADCEnd,np]))) ;
+//    outputdebugstring(pchar(format('%d %d %d',[ADCStart,ADCEnd,np]))) ;
 
     // Update D/A output buffer with XY scan waveform
     DAQmxGetWriteSpaceAvail( DACTask[Device], SpaceAvailable ) ;
@@ -1676,7 +1676,7 @@ begin
      DACNumSamplesWritten := NumSamplesWritten ;
      DACPointer := 0 ;
 
-     outputdebugString(PChar(format('MemoryToDAC %d %d',[DACNumSamplesWritten,NumSamplesWritten]))) ;
+//     outputdebugString(PChar(format('MemoryToDAC %d %d',[DACNumSamplesWritten,NumSamplesWritten]))) ;
 
      // Request immediate start
      CheckError(DAQmxDisableStartTrig(DACTask[Device]));
@@ -1762,7 +1762,7 @@ begin
      // Copy into double array
      for i := 0 to nChannels-1 do begin
           DBuf[i] := Max(Min(DACVolts[i],DACMaxVolts[Device]),DACMinVolts[Device]) ;
-          outputdebugstring(pchar(format('DAC%d V=%.4g',[i,DBuf[i]])));
+//          outputdebugstring(pchar(format('DAC%d V=%.4g',[i,DBuf[i]])));
           end ;
 
      // Write data to buffer

@@ -286,7 +286,7 @@ object MainFrm: TMainFrm
       Top = 3
       Width = 294
       Height = 217
-      ActivePage = TabImage0
+      ActivePage = TabImage1
       TabOrder = 3
       object TabImage0: TTabSheet
         Caption = 'PMT0'
@@ -307,10 +307,6 @@ object MainFrm: TMainFrm
       object TabImage1: TTabSheet
         Caption = 'TabImage1'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image1: TImage
           Left = 0
           Top = 0
@@ -328,10 +324,6 @@ object MainFrm: TMainFrm
       object TabImage2: TTabSheet
         Caption = 'TabImage2'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image2: TImage
           Left = 0
           Top = 0
@@ -349,10 +341,6 @@ object MainFrm: TMainFrm
       object TabImage3: TTabSheet
         Caption = 'TabImage3'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image3: TImage
           Left = 0
           Top = 0
@@ -599,7 +587,7 @@ object MainFrm: TMainFrm
         Top = 0
         Width = 49
         Height = 23
-        Hint = 'Working voltage range of A/D converter'
+        Hint = 'PMT amplifier gain'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -619,9 +607,11 @@ object MainFrm: TMainFrm
       end
       object edPMTVolts0: TValidatedEdit
         Left = 108
-        Top = 0
+        Top = 2
         Width = 51
         Height = 21
+        Hint = 'PMT voltage (% of maximum)'
+        ShowHint = True
         Text = ' 1 %'
         Value = 1.000000000000000000
         Scale = 1.000000000000000000
@@ -668,7 +658,7 @@ object MainFrm: TMainFrm
         Top = 0
         Width = 49
         Height = 23
-        Hint = 'Working voltage range of A/D converter'
+        Hint = 'PMT amplifier gain'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -691,6 +681,8 @@ object MainFrm: TMainFrm
         Top = 0
         Width = 51
         Height = 21
+        Hint = 'PMT voltage (% of maximum)'
+        ShowHint = True
         Text = ' 1 %'
         Value = 1.000000000000000000
         Scale = 1.000000000000000000
@@ -735,7 +727,7 @@ object MainFrm: TMainFrm
         Top = 0
         Width = 49
         Height = 23
-        Hint = 'Working voltage range of A/D converter'
+        Hint = 'PMT amplifier gain'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -758,6 +750,8 @@ object MainFrm: TMainFrm
         Top = 0
         Width = 51
         Height = 21
+        Hint = 'PMT voltage (% of maximum)'
+        ShowHint = True
         Text = ' 1 %'
         Value = 1.000000000000000000
         Scale = 1.000000000000000000
@@ -802,7 +796,7 @@ object MainFrm: TMainFrm
         Top = 0
         Width = 49
         Height = 23
-        Hint = 'Working voltage range of A/D converter'
+        Hint = 'PMT amplifier gain'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -825,6 +819,8 @@ object MainFrm: TMainFrm
         Top = 0
         Width = 51
         Height = 21
+        Hint = 'PMT voltage (% of maximum)'
+        ParentCustomHint = False
         Text = ' 1 %'
         Value = 1.000000000000000000
         Scale = 1.000000000000000000
@@ -1042,10 +1038,6 @@ object MainFrm: TMainFrm
       object SlidersTab: TTabSheet
         Caption = 'Sliders'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Label9: TLabel
           Left = 14
           Top = 0
