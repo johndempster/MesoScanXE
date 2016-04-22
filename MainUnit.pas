@@ -707,16 +707,16 @@ begin
      edNumPixelsPerZStep.Value := 1.0 ;
      edNumZSections.Value := 10.0 ;
 
+     // Image-J program path
+     ImageJPath := 'C:\ImageJ\imagej.exe';
+     SaveAsMultipageTIFF := True ;
+
      // Load last used settings
      ProgDirectory := ExtractFilePath(ParamStr(0)) ;
      INIFileName := ProgDirectory + 'mesoscan settings.xml' ;
      LoadSettingsFromXMLFile( INIFileName ) ;
 
      RawImagesFileName := ProgDirectory + 'mesoscan.raw' ;
-
-     // Image-J program path
-     ImageJPath := 'C:\ImageJ\imagej.exe';
-     SaveAsMultipageTIFF := True ;
 
      // Load normal scan
 
