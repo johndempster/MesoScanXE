@@ -32,12 +32,13 @@ unit LabIOUnit;
 // 04.08.11 JD .... PCI-6733 board name now returned
 // 15.01.15    .... Now uses FIFO A/D and D/A buffers
 // 26.02.15 JD .... ADCToMemoryExtScan() now supports multiple channels and channel voltage ranges
+// 08.03.16 JD .... FADCPointerMax now correctly set to FADCNumSamples*FADCNumChannels - 1
 
 interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls,
-  Forms, Dialogs, nidaqcns, math, mmsystem, strutils ;
+  Forms, Dialogs, nidaqcns, math, mmsystem, strutils, system.uitypes ;
 const
 
     NIDAQ = 0 ;
@@ -1273,10 +1274,10 @@ function TLabIO.ADCToMemoryExtScan(
           ChannelVoltageRange : Array of Integer ;   // Index number of channel A/D voltage range
           var ChannelNums : Array of Integer ;   // Returns channel nos. in use
           var nChannels : Integer ;              // Return number of A/D channels
-          nSamples : Integer ;               { Number of A/D samples ( per channel) (IN) }
-          CircularBuffer : Boolean ;          { Repeated sampling into buffer (IN) }
-          TimingDevice : SmallInt            // Device supply ADC/DAC timing pulses
-          ) : Boolean ;                      { Returns TRUE indicating A/D started }
+          nSamples : Integer ;                   // Number of A/D samples ( per channel) (IN)
+          CircularBuffer : Boolean ;             // Repeated sampling into buffer (IN) }
+          TimingDevice : SmallInt                // Device supply ADC/DAC timing pulses
+          ) : Boolean ;                          // Returns TRUE indicating A/D started }
 { ----------------------------
   Start A/D converter sampling
   ----------------------------}
@@ -1303,7 +1304,8 @@ begin
      // Create channe; list
      ChannelList := '' ;
      nChannels := 0 ;
-     for ch := 0 to High(ChannelInUse) do if ChannelInUse[ch] then begin
+     for ch := 0 to High(ChannelInUse) do if ChannelInUse[ch] then
+       begin
        ChannelNums[nChannels] := ch ;
        ChannelList := ChannelList + DeviceName[Device] + format('/AI%d,',[ch]);
        Inc(nChannels) ;
@@ -1320,7 +1322,8 @@ begin
                                            nil));
 
      // Set individual channel voltage range
-     for ch := 0 to nChannels-1 do begin
+     for ch := 0 to nChannels-1 do
+         begin
          ChannelName := DeviceName[Device] + format('/AI%d',[ChannelNums[ch]]) ;
          CheckError( DAQmxSetAIRngHigh( ADCTask[Device],
                                         PANSIChar(ChannelName),
@@ -1337,7 +1340,7 @@ begin
 
      // Set timing
      ClockSource := '/' + DeviceName[TimingDevice] + '/ao/sampleclock' ;
-     SamplingRate := 1100000.0 ;// (nChannels+1) ;
+     SamplingRate := 500.0 ;// 1100000.0 ;// (nChannels+1) ;
 
      CheckError( DAQmxCfgSampClkTiming( ADCTask[Device],
                                         PANSIChar(ClockSource),
@@ -1370,7 +1373,7 @@ begin
      FADCPointer := 0 ;
      FADCNumChannels := nChannels ;
      FADCNumSamples := nSamples ;
-     FADCPointerMax := FADCNumSamples*FADCNumChannels ;
+     FADCPointerMax := FADCNumSamples*FADCNumChannels - 1;
      FADCNumSamplesAcquired := 0 ;
 
      // Define A/D channel offset sequence within A/D sample buffer
@@ -1443,7 +1446,8 @@ begin
                         NumSamplesRead,
                         Nil) ;
 
-    if NumSamplesRead <= 0 then begin
+    if NumSamplesRead <= 0 then
+       begin
        GetADCSamplesInUse := False ;
        ADCStart := FADCPointer ;
        ADCEnd := FADCPointer ;
@@ -1462,13 +1466,14 @@ begin
     if (not FADCCircularBuffer) and (FADCPointer > FADCPointerMax) then Done := True
                                                                    else Done := False ;
     i := 0 ;
-    while not Done do begin
-
+    while not Done do
+        begin
         ScaledValue := (InBuf^[i]*VScale + VOffset)*VUnScale ;
         ADCBuf[FADCPointer] := Round( Max( Min( ScaledValue, ADCMaxVal ), ADCMinVal )) ;
 
         Inc(FADCPointer) ;
-        if (FADCPointer > FADCPointerMax) then begin
+        if (FADCPointer > FADCPointerMax) then
+           begin
            if FADCCircularBuffer then FADCPointer := 0
                                  else Done := True ;
            end;
@@ -1481,7 +1486,8 @@ begin
 
     // Update D/A output buffer with XY scan waveform
     DAQmxGetWriteSpaceAvail( DACTask[Device], SpaceAvailable ) ;
-    if (SpaceAvailable > 0) and DACActive[Device] then begin
+    if (SpaceAvailable > 0) and DACActive[Device] then
+        begin
 
         NumPointsToWrite := Min(OutBufMaxSamples - DACPointer,SpaceAvailable ) ;
         NumPointsToWrite := Min( NumPointsToWrite, InBufMaxSamples ) ;
@@ -1489,10 +1495,12 @@ begin
         np := NumPointsToWrite*DACNumChannels ;
         npMax := DACNumSamplesToWrite*DACNumChannels ;
         iFrom := DACNumSamplesWritten*DACNumChannels ;
-        for iTo := 0 to np-1 do begin
+        for iTo := 0 to np-1 do
+            begin
             InBuf^[iTo] := DACBuf^[iFrom] ;
             Inc(iFrom) ;
-            if iFrom >= npMax then begin
+            if iFrom >= npMax then
+               begin
                if DACCircularBuffer then iFrom := 0
                                     else iFrom := npMax - DACNumChannels ;
                end
@@ -1569,7 +1577,7 @@ begin
         // Read rate back from board
         Err := DAQmxGetSampClkRate( ADCTask[DeviceNum], ActualSamplingRate ) ;
         if Err <> 0 then SamplingRate := SamplingRate*0.95 ;
-        Until Err = 0 ;
+     Until Err = 0 ;
 
      // Return actual sampling interval
      SamplingInterval := 1.0 / ActualSamplingRate ;
@@ -1607,7 +1615,8 @@ begin
      if (Device < 1) or (Device > NumDevices) then Exit ;
      if NumDACs[Device] <= 0 then Exit ;
 
-     if Device > TimingDevice then begin
+     if Device > TimingDevice then
+        begin
         ShowMessage('ERROR! Timing device must be last device number started.)') ;
         Exit ;
         end ;
@@ -1635,10 +1644,12 @@ begin
      DACCircularBuffer := CircularBufferMode ;
 
      // Set D/A clock source
-     if TimingDevice <> Device then begin
+     if TimingDevice <> Device then
+        begin
         ClockSource := '/' + DeviceName[TimingDevice] + '/ao/sampleclock' ;
         end
-     else begin
+     else
+        begin
         ClockSource := 'onboardclock' ;
         end ;
 

@@ -3,7 +3,7 @@ object SettingsFrm: TSettingsFrm
   Top = 0
   BorderStyle = bsDialog
   Caption = ' Scan Settings '
-  ClientHeight = 580
+  ClientHeight = 620
   ClientWidth = 485
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,12 +20,12 @@ object SettingsFrm: TSettingsFrm
     Left = 244
     Top = 8
     Width = 238
-    Height = 216
+    Height = 241
     Caption = ' Scan Settings'
     TabOrder = 0
     object Label3: TLabel
       Left = 73
-      Top = 90
+      Top = 110
       Width = 58
       Height = 13
       Alignment = taRightJustify
@@ -33,7 +33,7 @@ object SettingsFrm: TSettingsFrm
     end
     object xscalelab: TLabel
       Left = 66
-      Top = 116
+      Top = 136
       Width = 65
       Height = 13
       Alignment = taRightJustify
@@ -41,7 +41,7 @@ object SettingsFrm: TSettingsFrm
     end
     object Label5: TLabel
       Left = 66
-      Top = 140
+      Top = 160
       Width = 65
       Height = 13
       Alignment = taRightJustify
@@ -49,7 +49,7 @@ object SettingsFrm: TSettingsFrm
     end
     object Label6: TLabel
       Left = 59
-      Top = 164
+      Top = 184
       Width = 72
       Height = 13
       Alignment = taRightJustify
@@ -57,7 +57,7 @@ object SettingsFrm: TSettingsFrm
     end
     object Label9: TLabel
       Left = 36
-      Top = 188
+      Top = 208
       Width = 95
       Height = 13
       Alignment = taRightJustify
@@ -71,9 +71,17 @@ object SettingsFrm: TSettingsFrm
       Alignment = taRightJustify
       Caption = 'Field Width'
     end
+    object Label24: TLabel
+      Left = 82
+      Top = 44
+      Width = 49
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Field Edge'
+    end
     object ckCorrectSineWaveDistortion: TCheckBox
       Left = 26
-      Top = 68
+      Top = 88
       Width = 201
       Height = 15
       Alignment = taLeftJustify
@@ -84,7 +92,7 @@ object SettingsFrm: TSettingsFrm
     end
     object edPhaseShift: TValidatedEdit
       Left = 137
-      Top = 90
+      Top = 110
       Width = 90
       Height = 21
       Text = ' 0 ms'
@@ -96,7 +104,7 @@ object SettingsFrm: TSettingsFrm
     end
     object edXVoltsPerMicron: TValidatedEdit
       Left = 137
-      Top = 116
+      Top = 136
       Width = 90
       Height = 21
       Text = ' 1 V/um'
@@ -109,7 +117,7 @@ object SettingsFrm: TSettingsFrm
     end
     object edYVoltsPerMicron: TValidatedEdit
       Left = 137
-      Top = 140
+      Top = 160
       Width = 90
       Height = 21
       Text = ' 1 V/um'
@@ -122,7 +130,7 @@ object SettingsFrm: TSettingsFrm
     end
     object edMaxScanRate: TValidatedEdit
       Left = 137
-      Top = 164
+      Top = 184
       Width = 90
       Height = 21
       Text = ' 100.0 Hz'
@@ -135,7 +143,7 @@ object SettingsFrm: TSettingsFrm
     end
     object ckBidirectionalScan: TCheckBox
       Left = 26
-      Top = 45
+      Top = 65
       Width = 201
       Height = 17
       Alignment = taLeftJustify
@@ -144,7 +152,7 @@ object SettingsFrm: TSettingsFrm
     end
     object edMinPixelDwellTime: TValidatedEdit
       Left = 137
-      Top = 185
+      Top = 205
       Width = 90
       Height = 21
       Text = ' 0.5 us'
@@ -160,6 +168,8 @@ object SettingsFrm: TSettingsFrm
       Top = 18
       Width = 90
       Height = 21
+      Hint = 'Maximum width of scanning field (um)'
+      ShowHint = True
       Text = ' 5000 um'
       Value = 5000.000000000000000000
       Scale = 1.000000000000000000
@@ -168,10 +178,26 @@ object SettingsFrm: TSettingsFrm
       LoLimit = 100.000000000000000000
       HiLimit = 10000.000000000000000000
     end
+    object edFieldEdge: TValidatedEdit
+      Left = 137
+      Top = 43
+      Width = 90
+      Height = 21
+      Hint = 
+        'Additional non-imaging region at edge of field (% of field width' +
+        ')'
+      ShowHint = True
+      Text = ' 5 %'
+      Value = 0.050000000745058060
+      Scale = 100.000000000000000000
+      Units = '%'
+      NumberFormat = '%.0f'
+      HiLimit = 0.200000002980232200
+    end
   end
   object bOK: TButton
     Left = 8
-    Top = 391
+    Top = 487
     Width = 65
     Height = 25
     Caption = 'OK'
@@ -187,7 +213,7 @@ object SettingsFrm: TSettingsFrm
   end
   object bCancel: TButton
     Left = 79
-    Top = 391
+    Top = 487
     Width = 72
     Height = 20
     Caption = 'Cancel'
@@ -203,7 +229,7 @@ object SettingsFrm: TSettingsFrm
   end
   object GroupBox1: TGroupBox
     Left = 247
-    Top = 230
+    Top = 268
     Width = 230
     Height = 177
     Caption = ' Laser Control '
@@ -306,12 +332,13 @@ object SettingsFrm: TSettingsFrm
       Scale = 1.000000000000000000
       Units = 'V'
       NumberFormat = '%.4g'
+      LoLimit = -1.000000015047466E30
       HiLimit = 10.000000000000000000
     end
   end
   object GroupBox2: TGroupBox
     Left = 247
-    Top = 411
+    Top = 451
     Width = 230
     Height = 161
     Caption = ' Z position Control'
@@ -535,6 +562,7 @@ object SettingsFrm: TSettingsFrm
       Scale = 1.000000000000000000
       Units = 'V'
       NumberFormat = '%.4g'
+      LoLimit = -1.000000015047466E30
       HiLimit = 10.000000000000000000
     end
   end
@@ -612,6 +640,43 @@ object SettingsFrm: TSettingsFrm
       NumberFormat = '%.0f'
       LoLimit = 100.000000000000000000
       HiLimit = 1000000.000000000000000000
+    end
+  end
+  object GroupBox3: TGroupBox
+    Left = 8
+    Top = 392
+    Width = 230
+    Height = 89
+    TabOrder = 8
+    object Label25: TLabel
+      Left = 8
+      Top = 8
+      Width = 107
+      Height = 13
+      Caption = 'Image-J Program Path'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object edImageJPath: TEdit
+      Left = 8
+      Top = 26
+      Width = 217
+      Height = 21
+      TabOrder = 0
+      Text = 'edImageJPath'
+    end
+    object ckSaveAsMultipageTIFF: TCheckBox
+      Left = 64
+      Top = 50
+      Width = 161
+      Height = 17
+      Alignment = taLeftJustify
+      Caption = 'Save stacks as multipage TIFF'
+      TabOrder = 1
     end
   end
 end

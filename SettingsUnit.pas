@@ -75,6 +75,12 @@ type
     cbPMTControl3: TComboBox;
     Label23: TLabel;
     edPMTMaxVolts: TValidatedEdit;
+    edFieldEdge: TValidatedEdit;
+    Label24: TLabel;
+    GroupBox3: TGroupBox;
+    edImageJPath: TEdit;
+    Label25: TLabel;
+    ckSaveAsMultipageTIFF: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -127,8 +133,11 @@ begin
     MainFrm.PMTMaxVolts := edPMTMaxVolts.Value ;
     MainFrm.UpdatePMTSettings ;
 
-    if MainFrm.FullFieldWidthMicrons <> edFullFieldWidthMicrons.Value then begin
+    if (MainFrm.FullFieldWidthMicrons <> edFullFieldWidthMicrons.Value) or
+       (MainFrm.FieldEdge <> edFieldEdge.Value)then
+       begin
        MainFrm.FullFieldWidthMicrons := edFullFieldWidthMicrons.Value ;
+       MainFrm.FieldEdge := edFieldEdge.Value ;
        MainFrm.SetScanZoomToFullField ;
        end;
 
@@ -146,7 +155,8 @@ begin
     ZStage.ZScaleFactor := edZScaleFactor.Value ;
     ZStage.ZStepTime := edZStepTime.Value ;
 
-
+    MainFrm.ImageJPath := edImageJPath.Text ;
+    MainFrm.SaveAsMultipageTIFF := ckSaveAsMultipageTIFF.Checked ;
 
     Close ;
     end;
@@ -188,15 +198,17 @@ begin
     ckCorrectSineWaveDistortion.Checked := MainFrm.CorrectSineWaveDistortion ;
     edBlackLevel.Value := MainFrm.BlackLevel ;
     edFullFieldWidthMicrons.Value := MainFrm.FullFieldWidthMicrons ;
+    edFieldEdge.Value := MainFrm.FieldEdge ;
     ckInvertPMTSignal.Checked := MainFrm.InvertPMTSignal ;
 
     // PMT control lines
     cbPMTControl0.Clear ;
     cbPMTControl0.Items.Add('None') ;
     for iDev := 1 to LabIO.NumDevices do
-        for i := 0 to LabIO.NumDACs[iDev]-1 do begin
-            cbPMTControl0.Items.Add(Format('Dev%d:AO%d',[iDev,i])) ;
-            end;
+        for i := 0 to LabIO.NumDACs[iDev]-1 do
+        begin
+        cbPMTControl0.Items.Add(Format('Dev%d:AO%d',[iDev,i])) ;
+        end;
     cbPMTControl1.Items.Assign(cbPMTControl0.Items);
     cbPMTControl2.Items.Assign(cbPMTControl0.Items);
     cbPMTControl3.Items.Assign(cbPMTControl0.Items);
@@ -232,6 +244,9 @@ begin
     edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
     edZStepTime.Value := ZStage.ZStepTime ;
+
+    edImageJPath.Text := MainFrm.ImageJPath ;
+    ckSaveAsMultipageTIFF.Checked := MainFrm.SaveAsMultipageTIFF ;
 
     end;
 
