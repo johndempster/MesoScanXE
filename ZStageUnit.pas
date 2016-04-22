@@ -5,6 +5,7 @@ unit ZStageUnit;
 // ========================================================================
 // 7/6/12 Supports Prior OptiScan II controller
 // 14.5.14 Supports voltage-controlled lens positioner
+// 22.04.16 Support for Prior Proscan III added
 
 interface
 
@@ -82,7 +83,8 @@ const
 
     stNone = 0 ;
     stOptiscanII = 1 ;
-    stPiezo = 2 ;
+    stProscanIII = 2 ;
+    stPiezo = 3 ;
 
 procedure TZStage.DataModuleCreate(Sender: TObject);
 // ---------------------------------------
@@ -118,6 +120,7 @@ begin
       List.Clear ;
       List.Add('None') ;
       List.Add('Prior Optiscan II') ;
+      List.Add('Prior Proscan III') ;
       List.Add('Piezo (Voltage Controlled)');
       end;
 
@@ -131,7 +134,7 @@ var
 begin
      List.Clear ;
      case FStageType of
-        stOptiscanII : begin
+        stOptiscanII,stProScanIII : begin
           // COM ports
           for i := 1 to 16 do List.Add(format('COM%d',[i]));
           end ;
@@ -159,7 +162,7 @@ begin
     if ComPortOpen then CloseComPort ;
 
     case FStageType of
-        stOptiscanII : begin
+        stOptiscanII,stProScanIII : begin
           OpenComPort ;
           end ;
         stPiezo : begin
@@ -174,7 +177,7 @@ function TZStage.GetZScaleFactorUnits : string ;
 // -------------------------------
 begin
     case FStageType of
-        stOptiscanII : Result := 'steps/um' ;
+        stOptiscanII,stProScanIII : Result := 'steps/um' ;
         stPiezo : Result := 'V/um' ;
         else Result := '' ;
         end;
@@ -196,7 +199,7 @@ procedure TZStage.UpdateZPosition ;
 // ---------------------------
 begin
     case FStageType of
-        stOptiscanII : UpdateZPositionOSII ;
+        stOptiscanII,stProScanIII : UpdateZPositionOSII ;
         stPiezo : UpdateZPositionPZ ;
         end;
     end;
@@ -207,7 +210,7 @@ procedure TZStage.MoveTo( Position : Double ) ;
 // -----------------
 begin
     case FStageType of
-        stOptiscanII : MoveToOSII(  Position ) ;
+        stOptiscanII,stProScanIII : MoveToOSII(  Position ) ;
         stPiezo : MoveToPZ(  Position ) ;
         end;
     end;
@@ -294,8 +297,6 @@ begin
      for i := 1 to nC do xBuf[i-1] := ANSIChar(Line[i]) ;
      xBuf[nC] := #13 ;
      Inc(nC) ;
-//     xBuf[nC] := chr(10) ;
-//     Inc(nC) ;
 
     Overlapped := Nil ;
     OK := WriteFile( ComHandle, xBuf, nC, nWritten, Overlapped ) ;
@@ -429,7 +430,7 @@ procedure TZStage.ResetCOMPort ;
 // --------------------------
 begin
     case FStageType of
-        stOptiscanII : begin
+        stOptiscanII,stProScanIII : begin
           if ComPortOpen then begin
              CloseComPort ;
              OpenComPort ;
@@ -447,7 +448,7 @@ begin
 
     FEnabled := Value ;
     case FStageType of
-        stOptiscanII : begin
+        stOptiscanII,stProScanIII : begin
           if FEnabled and (not ComPortOpen) then OpenComPort
           else if (not FEnabled) and ComPortOpen then CloseComPort ;
           end;
