@@ -5,7 +5,7 @@ unit ZStageUnit;
 // ========================================================================
 // 7/6/12 Supports Prior OptiScan II controller
 // 14.5.14 Supports voltage-controlled lens positioner
-// 22.04.16 Support for Prior Proscan III added
+// 22.04.16 Support for Prior Proscan III added with Z stage upper limit protection
 
 interface
 
@@ -45,6 +45,7 @@ type
     procedure MoveToOSII( Position : Double ) ;
     procedure MoveToPZ( Position : Double ) ;
     function GetZScaleFactorUnits : string ;
+    procedure ProScanEnableZStageTTLAction ;
   public
     { Public declarations }
     ZPosition : Double ;     // Z position (um)
@@ -134,22 +135,26 @@ var
 begin
      List.Clear ;
      case FStageType of
-        stOptiscanII,stProScanIII : begin
+        stOptiscanII,stProScanIII :
+          begin
           // COM ports
           for i := 1 to 16 do List.Add(format('COM%d',[i]));
           end ;
-        stPiezo : begin
+        stPiezo :
+          begin
           // Analog outputs
           for iDev := 1 to LabIO.NumDevices do
-              for i := 0 to LabIO.NumDACs[iDev]-1 do begin
+              for i := 0 to LabIO.NumDACs[iDev]-1 do
+                begin
                 List.Add(Format('Dev%d:AO%d',[iDev,i])) ;
                 end;
           end;
-        else begin
+        else
+          begin
           List.Add('None');
           end ;
-        end;
      end;
+end;
 
 
 procedure TZStage.Open ;
@@ -162,10 +167,17 @@ begin
     if ComPortOpen then CloseComPort ;
 
     case FStageType of
-        stOptiscanII,stProScanIII : begin
+        stOptiscanII :
+          begin
           OpenComPort ;
           end ;
-        stPiezo : begin
+        stProScanIII :
+          begin
+          OpenComPort ;
+          ProScanEnableZStageTTLAction ; // Enable upper stage limit protection
+          end ;
+        stPiezo :
+          begin
 
           end;
         end;
@@ -201,8 +213,8 @@ begin
     case FStageType of
         stOptiscanII,stProScanIII : UpdateZPositionOSII ;
         stPiezo : UpdateZPositionPZ ;
-        end;
     end;
+end;
 
 procedure TZStage.MoveTo( Position : Double ) ;
 // -----------------
@@ -212,8 +224,8 @@ begin
     case FStageType of
         stOptiscanII,stProScanIII : MoveToOSII(  Position ) ;
         stPiezo : MoveToPZ(  Position ) ;
-        end;
     end;
+end;
 
 
 procedure TZStage.OpenCOMPort ;
@@ -264,7 +276,7 @@ begin
       Status := '' ;
     ControlState := csIdle ;
 
-    end ;
+end ;
 
 
 procedure TZStage.CloseCOMPort ;
@@ -274,7 +286,8 @@ procedure TZStage.CloseCOMPort ;
 begin
      if ComPortOpen then CloseHandle( ComHandle ) ;
      ComPortOpen := False ;
-     end ;
+end ;
+
 
 procedure TZStage.SendCommand(
           const Line : string   { Text to be sent to Com port }
@@ -300,11 +313,12 @@ begin
 
     Overlapped := Nil ;
     OK := WriteFile( ComHandle, xBuf, nC, nWritten, Overlapped ) ;
-    if (not OK) or (nWRitten <> nC) then begin
+    if (not OK) or (nWRitten <> nC) then
+        begin
         //ShowMessage( ' Error writing to COM port ' ) ;
         FEnabled := False ;
-    end;
-     end ;
+        end;
+end ;
 
 
 function TZStage.ReceiveBytes(
@@ -334,13 +348,14 @@ begin
      ClearCommError( ComHandle, ComError, PComState )  ;
 
      // Read characters until CR is encountered
-     while (NumRead < ComState.cbInQue) and (RBuf[0] <> #13) do begin
+     while (NumRead < ComState.cbInQue) and (RBuf[0] <> #13) do
+         begin
          ReadFile( ComHandle,rBuf,1,NumBytesRead,OverlapStructure ) ;
          if rBuf[0] <> #13 then Line := Line + String(rBuf[0])
                            else EndOfLine := True ;
          //outputdebugstring(pwidechar(RBuf[0]));
          Inc( NumRead ) ;
-     end ;
+         end ;
 
      Result := Line ;
 
@@ -357,38 +372,45 @@ begin
 
     case ControlState of
 
-        csIdle : begin
-          if MoveToRequest then begin
+        csIdle :
+          begin
+          if MoveToRequest then
+             begin
              // Go to required position
              SendCommand(format('U %d',[Round((MoveToPosition-ZPosition)*ZScaleFactor)])) ;
              ControlState := csWaitingForCompletion ;
              MoveToRequest := False ;
-          end
-          else begin
+             end
+          else
+            begin
             // Request stage position
             SendCommand( 'PZ' ) ;
             ControlState := csWaitingForPosition ;
-          end ;
-        end;
+            end ;
+          end;
 
-        csWaitingForPosition : begin
+        csWaitingForPosition :
+          begin
           Status := Status + ReceiveBytes( EndOfLine ) ;
-          if EndOfLine then begin
+          if EndOfLine then
+             begin
              ZScaleFactor := Max(ZScaleFactor,1E-3) ;
              ZPosition := StrToInt64(Status)/ZScaleFactor ;
              Status := '' ;
              ControlState := csIdle ;
-          end;
-        end ;
+             end;
+          end ;
 
-        csWaitingForCompletion : begin
+        csWaitingForCompletion :
+          begin
           Status := ReceiveBytes( EndOfLine ) ;
-          if EndOfLine then begin
+          if EndOfLine then
+             begin
              Status := '' ;
              ControlState := csIdle ;
-          end;
+             end;
 
-        end;
+          end;
     end;
 end;
 
@@ -430,8 +452,10 @@ procedure TZStage.ResetCOMPort ;
 // --------------------------
 begin
     case FStageType of
-        stOptiscanII,stProScanIII : begin
-          if ComPortOpen then begin
+        stOptiscanII,stProScanIII :
+          begin
+          if ComPortOpen then
+             begin
              CloseComPort ;
              OpenComPort ;
              end;
@@ -448,11 +472,12 @@ begin
 
     FEnabled := Value ;
     case FStageType of
-        stOptiscanII,stProScanIII : begin
+        stOptiscanII,stProScanIII :
+          begin
           if FEnabled and (not ComPortOpen) then OpenComPort
           else if (not FEnabled) and ComPortOpen then CloseComPort ;
           end;
-        end ;
+    end ;
 
     end;
 
@@ -488,12 +513,26 @@ begin
 
     iPort := 0 ;
     for iDev := 1 to LabIO.NumDevices do
-        for iChan := 0 to LabIO.NumDACs[iDev]-1 do begin
-            if iPort = FControlPort then begin
+        for iChan := 0 to LabIO.NumDACs[iDev]-1 do
+            begin
+            if iPort = FControlPort then
+                begin
                 LabIO.WriteDAC(iDev,Position*ZScaleFactor,iChan);
                 end;
             inc(iPort) ;
             end;
     end ;
+
+
+procedure TZStage.ProScanEnableZStageTTLAction ;
+// ---------------------------------------------------------------
+// Enable action to be taken when TTL hard limit trigger activated
+// ---------------------------------------------------------------
+begin
+     SendCommand('TTLTP,1,0') ;       // Enable trigger on input #1 going high
+     SendCommand('TTLACT,31,0,0,0') ; // Move Z axis to zero position
+     SendCommand('TLTRG,1') ;         // Enable triggers
+     end;
+
 
 end.
