@@ -9,84 +9,135 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ValidatedEdit, math ;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ValidatedEdit, math,
+  Vcl.ComCtrls, Vcl.ExtCtrls ;
 
 type
   TSettingsFrm = class(TForm)
+    bOK: TButton;
+    bCancel: TButton;
+    StageTab: TPageControl;
+    ScanTab: TTabSheet;
+    PMTTab: TTabSheet;
+    LasersTab: TTabSheet;
+    TabSheet1: TTabSheet;
+    MiscTab: TTabSheet;
+    ImageHRGrp: TGroupBox;
+    Label1: TLabel;
+    edHRFrameWidth: TValidatedEdit;
     ScanGrp: TGroupBox;
     Label3: TLabel;
     xscalelab: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    Label9: TLabel;
+    Label11: TLabel;
+    Label24: TLabel;
     ckCorrectSineWaveDistortion: TCheckBox;
     edPhaseShift: TValidatedEdit;
     edXVoltsPerMicron: TValidatedEdit;
     edYVoltsPerMicron: TValidatedEdit;
     edMaxScanRate: TValidatedEdit;
-    bOK: TButton;
-    bCancel: TButton;
     ckBidirectionalScan: TCheckBox;
-    GroupBox1: TGroupBox;
-    ckLaserControlEnabled: TCheckBox;
-    cbLaserControlComPort: TComboBox;
-    Label7: TLabel;
-    GroupBox2: TGroupBox;
-    Label8: TLabel;
-    ckZControlEnabled: TCheckBox;
-    cbZStagePort: TComboBox;
     edMinPixelDwellTime: TValidatedEdit;
-    Label9: TLabel;
-    Label10: TLabel;
-    edZScaleFactor: TValidatedEdit;
-    Label11: TLabel;
     edFullFieldWidthMicrons: TValidatedEdit;
-    PMTgrp: TGroupBox;
-    Label2: TLabel;
-    edNumPMTs: TValidatedEdit;
-    ckInvertPMTsignal: TCheckBox;
-    Label18: TLabel;
-    edBlackLevel: TValidatedEdit;
-    ImageHRGrp: TGroupBox;
-    ImageFastGrp: TGroupBox;
-    Label1: TLabel;
-    edHRFrameWidth: TValidatedEdit;
-    Label12: TLabel;
-    edFastFrameHeight: TValidatedEdit;
+    edFieldEdge: TValidatedEdit;
     Label4: TLabel;
     edFastFrameWidth: TValidatedEdit;
-    cbZStageType: TComboBox;
-    edZStepTime: TValidatedEdit;
-    Label13: TLabel;
-    cbLaserShutterControlLine: TComboBox;
-    Label14: TLabel;
-    Label15: TLabel;
-    edLaserShutterChangeTime: TValidatedEdit;
-    cbLaserIntensityControlLine: TComboBox;
-    Label17: TLabel;
-    Label16: TLabel;
-    edLaserVMaxIntensity: TValidatedEdit;
+    Label12: TLabel;
+    edFastFrameHeight: TValidatedEdit;
+    PMTgrp: TGroupBox;
+    Label2: TLabel;
+    Label18: TLabel;
     Label19: TLabel;
-    cbPMTControl0: TComboBox;
-    cbPMTControl1: TComboBox;
     Label20: TLabel;
-    cbPMTControl2: TComboBox;
     Label21: TLabel;
     Label22: TLabel;
-    cbPMTControl3: TComboBox;
     Label23: TLabel;
+    edNumPMTs: TValidatedEdit;
+    ckInvertPMTsignal: TCheckBox;
+    edBlackLevel: TValidatedEdit;
+    cbPMTControl0: TComboBox;
+    cbPMTControl1: TComboBox;
+    cbPMTControl2: TComboBox;
+    cbPMTControl3: TComboBox;
     edPMTMaxVolts: TValidatedEdit;
-    edFieldEdge: TValidatedEdit;
-    Label24: TLabel;
+    GroupBox2: TGroupBox;
+    Label8: TLabel;
+    Label10: TLabel;
+    Label13: TLabel;
+    ckZControlEnabled: TCheckBox;
+    cbZStagePort: TComboBox;
+    edZScaleFactor: TValidatedEdit;
+    cbZStageType: TComboBox;
+    edZStepTime: TValidatedEdit;
     GroupBox3: TGroupBox;
-    edImageJPath: TEdit;
     Label25: TLabel;
+    edImageJPath: TEdit;
     ckSaveAsMultipageTIFF: TCheckBox;
+    cbLaserType: TComboBox;
+    GroupBox4: TGroupBox;
+    edLaserName0: TEdit;
+    Label28: TLabel;
+    lbLaser0: TLabel;
+    Label29: TLabel;
+    edLaserName1: TEdit;
+    Label30: TLabel;
+    edLaserName2: TEdit;
+    Label31: TLabel;
+    edLaserName3: TEdit;
+    Label32: TLabel;
+    edLaserName4: TEdit;
+    Label33: TLabel;
+    edLaserName5: TEdit;
+    Label34: TLabel;
+    edLaserName6: TEdit;
+    Label35: TLabel;
+    edLaserName7: TEdit;
+    LaserExternalControlPanel: TPanel;
+    Label27: TLabel;
+    Label26: TLabel;
+    Label36: TLabel;
+    cbLaserActiveControl0: TComboBox;
+    cbLaserActiveControl1: TComboBox;
+    cbLaserActiveControl2: TComboBox;
+    cbLaserActiveControl3: TComboBox;
+    cbLaserActiveControl4: TComboBox;
+    cbLaserActiveControl5: TComboBox;
+    cbLaserActiveControl6: TComboBox;
+    cbLaserActiveControl7: TComboBox;
+    cbLaserIntensityControl0: TComboBox;
+    cbLaserIntensityControl1: TComboBox;
+    cbLaserIntensityControl2: TComboBox;
+    cbLaserIntensityControl3: TComboBox;
+    cbLaserIntensityControl4: TComboBox;
+    cbLaserIntensityControl5: TComboBox;
+    cbLaserIntensityControl6: TComboBox;
+    cbLaserIntensityControl7: TComboBox;
+    edLaserVMax0: TValidatedEdit;
+    edLaserVMax1: TValidatedEdit;
+    edLaserVMax2: TValidatedEdit;
+    edLaserVMax3: TValidatedEdit;
+    edLaserVMax4: TValidatedEdit;
+    edLaserVMax5: TValidatedEdit;
+    edLaserVMax6: TValidatedEdit;
+    edLaserVMax7: TValidatedEdit;
+    Label15: TLabel;
+    edLaserShutterChangeTime: TValidatedEdit;
+    ckLaserControlEnabled: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
     procedure cbZStageTypeChange(Sender: TObject);
   private
     { Private declarations }
+    procedure SetLaser(
+          Laser : Integer ;                  // Laser #
+          edName : TTextBox ;                 // Laser name
+          cbLaserActive :TComboBox ;     // Laser on/off control line menu
+          cbLaserIntensity :TComboBox ;  // Laser intensity control line menu
+          edVMax : TValidatedEdit ) ;        // Voltage at 100%
+
   public
     { Public declarations }
   end;
@@ -143,7 +194,7 @@ begin
 
     MainFrm.InvertPMTSignal := ckInvertPMTSignal.Checked ;
 
-    Laser.ComPort := cbLaserControlComPort.ItemIndex ;
+    Laser.ControlPort := cbLaserControlComPort.ItemIndex ;
     Laser.ShutterControlLine := cbLaserShutterControlLine.ItemIndex ;
     Laser.ShutterChangeTime := edLaserShutterChangeTime.Value ;
 
@@ -220,9 +271,18 @@ begin
     edPMTMaxVolts.Value := MainFrm.PMTMaxVolts ;
 
     // Laser control
+    Laser.GetLaserTypes(cbLaserType.Items);
     Laser.GetCOMPorts( cbLaserControlComPort.Items ) ;
-    cbLaserControlComPort.ItemIndex := Laser.ComPort ;
-    ckLaserControlEnabled.Checked := MainFrm.LaserControlEnabled ;
+
+    SetLaser( 0, edLaserName0, cbLaserActiveControl0, cbLaserIntensityControl0, edLaserVMax0 ) ;
+    SetLaser( 1, edLaserName1, cbLaserActiveControl1, cbLaserIntensityControl1, edLaserVMax1 ) ;
+    SetLaser( 2, edLaserName2, cbLaserActiveControl2, cbLaserIntensityControl2, edLaserVMax2 ) ;
+    SetLaser( 3, edLaserName3, cbLaserActiveControl3, cbLaserIntensityControl3, edLaserVMax3 ) ;
+    SetLaser( 4, edLaserName4, cbLaserActiveControl4, cbLaserIntensityControl4, edLaserVMax4 ) ;
+    SetLaser( 5, edLaserName5, cbLaserActiveControl5, cbLaserIntensityControl5, edLaserVMax5 ) ;
+    SetLaser( 6, edLaserName6, cbLaserActiveControl6, cbLaserIntensityControl6, edLaserVMax6 ) ;
+    SetLaser( 7, edLaserName7, cbLaserActiveControl7, cbLaserIntensityControl7, edLaserVMax7 ) ;
+
 
     Laser.GetShutterControlLines( cbLaserShutterControlLine.Items ) ;
     cbLaserShutterControlLine.ItemIndex := Laser.ShutterControlLine ;
@@ -245,9 +305,24 @@ begin
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
     edZStepTime.Value := ZStage.ZStepTime ;
 
+
+
     edImageJPath.Text := MainFrm.ImageJPath ;
     ckSaveAsMultipageTIFF.Checked := MainFrm.SaveAsMultipageTIFF ;
 
     end;
+
+procedure TSettingsFrm.SetLaser(
+          Laser : Integer ;                  // Laser #
+          edName : TTextBox ;                 // Laser name
+          cbLaserActive :TComboBox ;     // Laser on/off control line menu
+          cbLaserIntensity :TComboBox ;  // Laser intensity control line menu
+          edVMax : TValidatedEdit ) ;        // Voltage at 100%
+// ----------------------------------
+// Update laser control line settings
+// ----------------------------------
+begin
+
+end;
 
 end.

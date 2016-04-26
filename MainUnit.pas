@@ -3138,7 +3138,7 @@ begin
     AddElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
     AddElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
     AddElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
-    AddElementInt( iNode, 'COMPORT', Laser.ComPort ) ;
+    AddElementInt( iNode, 'COMPORT', Laser.ControlPort ) ;
 
     // PMT settings
     AddElementInt( ProtNode, 'NUMPMTS', NumPMTs ) ;
@@ -3307,7 +3307,7 @@ begin
         Laser.ShutterChangeTime := GetElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
         Laser.IntensityControlLine := GetElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
         Laser.VMaxIntensity := GetElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
-        Laser.ComPort := GetElementInt( iNode, 'COMPORT', Laser.ComPort ) ;
+        Laser.ControlPort := GetElementInt( iNode, 'COMPORT', Laser.ControlPort ) ;
         Inc(NodeIndex) ;
         end ;
 
