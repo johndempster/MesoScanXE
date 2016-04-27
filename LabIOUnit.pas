@@ -76,6 +76,7 @@ type
         ResourceType : TResourceType ;
         StartChannel : Integer ;
         EndChannel : Integer ;
+        Name : string ;
         end ;
 
   TBig16bitArray = Array[0..$1FFFFFFF] of SmallInt ;
@@ -213,8 +214,6 @@ type
 
   procedure Wait( Delay : Single ) ;
 
-
-
   public
     { Public declarations }
 
@@ -276,6 +275,10 @@ type
     function ResetNIBoards : Boolean ;
     procedure GetDeviceADCChannelProperties( DeviceNum : Integer ) ;
     procedure GetDeviceDACChannelProperties( DeviceNum : Integer ) ;
+
+    procedure GetAIPorts( List : TStrings ) ;
+    procedure GetAOPorts( List : TStrings ) ;
+    procedure GetPOPorts( List : TStrings ) ;
 
     procedure Close ;
 
@@ -361,6 +364,12 @@ type
               ADCVoltageRange : Single
               ) : Integer ;
 
+  procedure WriteBit(
+          Device : Integer ;  // Device
+          On : Boolean ;      // On/off
+          Bit : Integer       // Bit position (0..7)
+          ) ;
+
    procedure WriteToDigitalOutPutPort(
              Device : Integer ;
              Pattern : Integer
@@ -402,9 +411,6 @@ const
    Timebase_1ms = 4 ;
    Timebase_10ms = 5 ;
    TimeBasePeriod : Array[-3..5] of Single = (5E-8,0.0,2E-7,0.0,1E-6,1E-5,1E-4,1E-3,1E-2) ;
-
-
-
 
 type
 
@@ -476,7 +482,8 @@ begin
      Result := False ;
      if BoardsInitialised then Exit ;
 
-     for i := 0 to High(MinInterval) do begin
+     for i := 0 to High(MinInterval) do
+         begin
          MinInterval[i] := 1E-5 ;
          MinDACInterval[i] := 1E-4 ;
          end ;
@@ -733,6 +740,24 @@ begin
     end ;
 
 
+procedure TLabIO.WriteBit(
+          Device : Integer ;  // Device
+          On : Boolean ;      // On/off
+          Bit : Integer       // Bit position (0..7)
+          ) ;
+// ---------------------------
+// Write to digital output bit
+// ---------------------------
+var
+    Mask : Cardinal ;
+begin
+    Mask := 1 shl Bit ;
+    if On then DigOutState[Device] := DigOutState[Device] or Mask
+          else DigOutState[Device] := DigOutState[Device] and (not Mask) ;
+    NIDAQMX_WriteToDigitalOutPutPort( Device,DigOutState[Device] ) ;
+    end ;
+
+
 procedure TLabIO.FillDIGBufWithDefaultValues(
          Dev : Integer ;            // Device #
          DIGBuf : PBig32bitArray ;  // Buffer to be updated
@@ -781,7 +806,8 @@ begin
 
    // Load API function library
    if not LibraryLoaded then LibraryLoaded := NIDAQMX_LoadLibrary( LibraryHnd ) ;
-   if not LibraryLoaded then begin
+   if not LibraryLoaded then
+      begin
       LogFrm.AddLine('NIDAQ-MX library (nicaiu.dll) not found!') ;
       Exit ;
       end ;
@@ -794,23 +820,26 @@ begin
    i := 0 ;
    Done := False ;
    repeat
-        if (CBuf[i] <> ',') and (CBuf[i] <> #0) then begin
+        if (CBuf[i] <> ',') and (CBuf[i] <> #0) then
+           begin
            if CBuf[i] <> ' ' then
               DeviceName[NumDevices+1] := DeviceName[NumDevices+1] + CBuf[i] ;
            end
-        else begin
+        else
+           begin
            Inc(NumDevices) ;
            if CBuf[i] = #0 then Done := True ;
            end ;
         Inc(i) ;
         if i >= High(CBuf) then Done := True ;
-        until Done ;
+   until Done ;
 
 
    if NumDevices <= 0 then Exit ;
 
    // Get device board name
-   for i := 1 to NumDevices do begin
+   for i := 1 to NumDevices do
+       begin
        CheckError(DAQmxGetDevProductType(PANSIChar(DeviceName[i]),CBuf,High(CBuf)+1)) ;
        DeviceBoardName[i] := PCharArrayToString(CBuf) ;
        if AnsiContainsText(DeviceBoardName[i],'622') or
@@ -823,54 +852,115 @@ begin
    // List available device resources
 
    NumResources := 0 ;
-   for DeviceNum := 1 to NumDevices do begin
+   for DeviceNum := 1 to NumDevices do
+       begin
 
        // Determine number of A/D channels per board
        GetDeviceADCChannelProperties( DeviceNum ) ;
        // Add to resource list
-       if NumADCs[DeviceNum] > 0 then begin
+       if NumADCs[DeviceNum] > 0 then
+          begin
           Resource[NumResources].Device := DeviceNum ;
           Resource[NumResources].ResourceType := ADCIn ;
           Resource[NumResources].StartChannel := 0 ;
           Resource[NumResources].EndChannel := NumADCs[DeviceNum]-1 ;
+          Resource[NumResources].Name := format('Dev%d:AI0',[DeviceNum]) ;
           Inc(NumResources) ;
           end ;
 
        // Determine number of D/A channels per board
        GetDeviceDACChannelProperties( DeviceNum ) ;
        // Set analogue output DMA transfer mode
-       if NumDACs[DeviceNum] > 0 then begin
+       if NumDACs[DeviceNum] > 0 then
+          begin
           // Add to resource list
-          for i := 0 to NumDACs[DeviceNum]-1 do begin
+          for i := 0 to NumDACs[DeviceNum]-1 do
+              begin
               Resource[NumResources].Device := DeviceNum ;
               Resource[NumResources].ResourceType := DACOut ;
               Resource[NumResources].StartChannel := i ;
               Resource[NumResources].EndChannel := i ;
+              Resource[NumResources].Name := format('Dev%d:AO%d',[DeviceNum,i]) ;
               Inc(NumResources) ;
               end ;
           end ;
 
         // Volts -> binary scaling factor
-        if (DACMaxVolts[DeviceNum]- DACMinVolts[DeviceNum]) > 0.0 then begin
+        if (DACMaxVolts[DeviceNum]- DACMinVolts[DeviceNum]) > 0.0 then
+           begin
            DACScale[DeviceNum] := (DACMaxValue[DeviceNum] - DACMinValue[DeviceNum])/
                                   (DACMaxVolts[DeviceNum] - DACMinVolts[DeviceNum]) ;
            end
         else DACScale[DeviceNum] := 1.0 ;
 
         // Digital O/P ports
-        for i := 0 to 7 do begin
+        for i := 0 to 7 do
+            begin
             Resource[NumResources].Device := DeviceNum ;
             Resource[NumResources].ResourceType := DIGOut ;
             Resource[NumResources].StartChannel := i ;
             Resource[NumResources].EndChannel := i ;
+            Resource[NumResources].Name := format('Dev%d:PO.%d',[DeviceNum,i]) ;
             Inc(NumResources) ;
             end ;
-        end ;
+       end ;
 
 
    Result := True ;
 
    end ;
+
+
+procedure TLabIO.GetAIPorts( List : TStrings ) ;
+// ----------------------------------------------
+// Return list of analogue input ports available
+// ----------------------------------------------
+var
+    i : Cardinal ;
+begin
+    List.Clear ;
+    List.AddObject( 'None',TObject(MaxResources));
+    for i := 0 to High(Resource) do
+        if (Resource[i].ResourceType = ADCIn) then
+        begin
+        List.AddObject( Resource[i].Name[i],TObject(i));
+        end;
+end;
+
+
+procedure TLabIO.GetAOPorts( List : TStrings ) ;
+// ----------------------------------------------
+// Return list of analogue output ports available
+// ----------------------------------------------
+var
+    i : Cardinal ;
+begin
+    List.Clear ;
+    List.AddObject( 'None',TObject(MaxResources));
+    for i := 0 to High(Resource) do
+        if (Resource[i].ResourceType = DACOut) then
+        begin
+        List.AddObject( Resource[i].Name[i],TObject(i));
+        end;
+end;
+
+
+procedure TLabIO.GetPOPorts( List : TStrings ) ;
+// ----------------------------------------------
+// Return list of digital output ports available
+// ----------------------------------------------
+var
+    i : Cardinal ;
+begin
+    List.Clear ;
+    List.AddObject( 'None',TObject(MaxResources));
+    for i := 0 to High(Resource) do
+        if (Resource[i].ResourceType = DigOut) then
+        begin
+        List.AddObject( Resource[i].Name[i],TObject(i));
+        end;
+end;
+
 
 
 function TLabIO.NIDAQMX_ResetNIBoards : Boolean ;
@@ -910,11 +1000,13 @@ begin
    i := 0 ;
    Done := False ;
    repeat
-        if (CBuf[i] <> ',') and (CBuf[i] <> #0) then begin
+        if (CBuf[i] <> ',') and (CBuf[i] <> #0) then
+           begin
            if CBuf[i] <> ' ' then
               DeviceName[NumDevices+1] := DeviceName[NumDevices+1] + CBuf[i] ;
            end
-        else begin
+        else
+           begin
            Inc(NumDevices) ;
            if CBuf[i] = #0 then Done := True ;
            end ;
@@ -926,7 +1018,8 @@ begin
    if NumDevices <= 0 then Exit ;
 
    // Get device board name
-   for i := 1 to NumDevices do begin
+   for i := 1 to NumDevices do
+       begin
        CheckError(DAQmxGetDevProductType(PANSIChar(DeviceName[i]),CBuf,High(CBuf)+1)) ;
        DeviceBoardName[i] := PCharArrayToString(CBuf) ;
        if AnsiContainsText(DeviceBoardName[i],'622') or
@@ -939,12 +1032,14 @@ begin
    // List available device resources
 
    NumResources := 0 ;
-   for DeviceNum := 1 to NumDevices do begin
+   for DeviceNum := 1 to NumDevices do
+       begin
 
        // Determine number of A/D channels per board
        GetDeviceADCChannelProperties( DeviceNum ) ;
        // Add to resource list
-       if NumADCs[DeviceNum] > 0 then begin
+       if NumADCs[DeviceNum] > 0 then
+          begin
           Resource[NumResources].Device := DeviceNum ;
           Resource[NumResources].ResourceType := ADCIn ;
           Resource[NumResources].StartChannel := 0 ;
@@ -955,9 +1050,11 @@ begin
        // Determine number of D/A channels per board
        GetDeviceDACChannelProperties( DeviceNum ) ;
        // Set analogue output DMA transfer mode
-       if NumDACs[DeviceNum] > 0 then begin
+       if NumDACs[DeviceNum] > 0 then
+          begin
           // Add to resource list
-          for i := 0 to NumDACs[DeviceNum]-1 do begin
+          for i := 0 to NumDACs[DeviceNum]-1 do
+              begin
               Resource[NumResources].Device := DeviceNum ;
               Resource[NumResources].ResourceType := DACOut ;
               Resource[NumResources].StartChannel := i ;
@@ -967,14 +1064,16 @@ begin
           end ;
 
         // Volts -> binary scaling factor
-        if (DACMaxVolts[DeviceNum]- DACMinVolts[DeviceNum]) > 0.0 then begin
+        if (DACMaxVolts[DeviceNum]- DACMinVolts[DeviceNum]) > 0.0 then
+           begin
            DACScale[DeviceNum] := (DACMaxValue[DeviceNum] - DACMinValue[DeviceNum])/
                                   (DACMaxVolts[DeviceNum] - DACMinVolts[DeviceNum]) ;
            end
         else DACScale[DeviceNum] := 1.0 ;
 
         // Digital O/P ports
-        for i := 0 to 7 do begin
+        for i := 0 to 7 do
+            begin
             Resource[NumResources].Device := DeviceNum ;
             Resource[NumResources].ResourceType := DIGOut ;
             Resource[NumResources].StartChannel := i ;
@@ -1011,7 +1110,8 @@ begin
 
     NumChannels := 0 ;
     Err := 0 ;
-    While Err = 0 do begin
+    While Err = 0 do
+        begin
 
         // Create A/D task for selected channel
         CheckError( DAQmxCreateTask( '', ADCTask[DeviceNum] ) ) ;
@@ -1025,7 +1125,8 @@ begin
                                       DAQmx_Val_Volts,
                                       nil);
 
-        if Err <> 0 then begin
+        if Err <> 0 then
+           begin
            // Check for 61XX series devices which only
            // support pseudo-differential inputs 01/07/10
            CheckError( DAQmxClearTask( ADCTask[DeviceNum] ) ) ;
@@ -1043,7 +1144,8 @@ begin
 
         // If channel is valid, get its properties
 
-        if (Err = 0) and (NumChannels=0) then begin
+        if (Err = 0) and (NumChannels=0) then
+           begin
 
            // Get A/D converter resolution
            CheckError( DAQmxGetAIResolution( ADCTask[DeviceNum],
@@ -1072,7 +1174,8 @@ begin
     // Get available A/D voltage ranges
 
     NumADCVoltageRanges[DeviceNum] := 0 ;
-    for i := 0 to NumVRanges-1 do begin
+    for i := 0 to NumVRanges-1 do
+        begin
 
         CheckError( DAQmxCreateTask( '', ADCTask[DeviceNum] ) ) ;
         ChannelName := DeviceName[DeviceNum] + '/AI0' ;
@@ -1085,7 +1188,8 @@ begin
                                               DAQmx_Val_Volts,
                                               nil);
 
-        if Err = 0 then begin
+        if Err = 0 then
+           begin
            CheckError( DAQmxGetAIMax( ADCTask[DeviceNum], PANSIChar(ChannelName), DValue ));
            if Abs((DValue - VRanges[i])/VRanges[i]) < 0.1 then begin
               ADCVoltageRanges[DeviceNum,NumADCVoltageRanges[DeviceNum]] := DValue ;
@@ -1120,16 +1224,19 @@ begin
     // Create D/A task
     NumChannels := 0 ;
     Err := 0 ;
-    While Err = 0 do begin
+    While Err = 0 do
+        begin
 
         CheckError( DAQmxCreateTask( '', DACTask[DeviceNum] ) ) ;
         ChannelName := format('%s/ao%d',[DeviceName[DeviceNum],NumChannels]) ;
 
-        if AnsiContainsText(DeviceBoardName[DeviceNum],'600') then begin
+        if AnsiContainsText(DeviceBoardName[DeviceNum],'600') then
+           begin
            VMin := 0.0 ;
            VMax := 5.0 ;
            end
-        else begin
+        else
+           begin
            VMin := -10.0 ;
            VMax := 10.0 ;
            end;
@@ -1142,7 +1249,8 @@ begin
                                       DAQmx_Val_Volts,
                                       nil);
 
-        if (Err = 0) then begin
+        if (Err = 0) then
+           begin
 
            // D/A output range
            CheckError(DAQmxGetAODACRngHigh( DACTask[DeviceNum],
@@ -1162,20 +1270,22 @@ begin
                                              DValue)) ;
            DACResolution[DeviceNum] := Round(DValue) ;
 
-           if DACMinVolts[DeviceNum] = 0.0 then begin
+           if DACMinVolts[DeviceNum] = 0.0 then
+              begin
               // Unipolar DACs
               DACMaxValue[DeviceNum] := Round(Power(2.0,DValue)) - 1 ;
               DACMinValue[DeviceNum] := 0 ;
               end
-           else begin
+           else
+              begin
               // Bipolar DACs
               DACMaxValue[DeviceNum] := Round(Power(2.0,DValue-1.0)) - 1 ;
               DACMinValue[DeviceNum] := -DACMaxValue[DeviceNum] - 1 ;
               end ;
 
-          Inc(NumChannels) ;
-          CheckError( DAQmxClearTask( DACTask[DeviceNum] ) ) ;
-          end ;
+           Inc(NumChannels) ;
+           CheckError( DAQmxClearTask( DACTask[DeviceNum] ) ) ;
+           end ;
       end;
 
     NumDACs[DeviceNum] := NumChannels ;
@@ -1244,8 +1354,10 @@ function TLabIO.NIDAQMX_ADCInputModeCode(
 // ---------------------------------------------------------
 begin
      // Set A/D input mode
-     if (InputMode = imDifferential) or (InputMode = imBNC2110) then begin
-        if ANSIContainsText( DeviceBoardName[Device], '61' ) then begin
+     if (InputMode = imDifferential) or (InputMode = imBNC2110) then
+        begin
+        if ANSIContainsText( DeviceBoardName[Device], '61' ) then
+           begin
            Result := DAQmx_Val_PseudoDiff;
            end
         else Result := DAQmx_Val_Diff ;

@@ -53,12 +53,10 @@ object SettingsFrm: TSettingsFrm
     Top = 6
     Width = 761
     Height = 643
-    ActivePage = LasersTab
+    ActivePage = TabSheet1
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
-      ExplicitWidth = 513
-      ExplicitHeight = 509
       object ImageHRGrp: TGroupBox
         Left = 8
         Top = 10
@@ -311,8 +309,6 @@ object SettingsFrm: TSettingsFrm
     object PMTTab: TTabSheet
       Caption = 'PM Tubes'
       ImageIndex = 1
-      ExplicitWidth = 513
-      ExplicitHeight = 509
       object PMTgrp: TGroupBox
         Left = 8
         Top = 10
@@ -461,9 +457,6 @@ object SettingsFrm: TSettingsFrm
       Caption = 'Lasers '
       ImageIndex = 2
       ExplicitLeft = 0
-      ExplicitTop = 28
-      ExplicitWidth = 513
-      ExplicitHeight = 335
       object cbLaserType: TComboBox
         Left = 11
         Top = 32
@@ -962,10 +955,6 @@ object SettingsFrm: TSettingsFrm
     object TabSheet1: TTabSheet
       Caption = 'XYZ Stage Control'
       ImageIndex = 3
-      ExplicitLeft = 44
-      ExplicitTop = 55
-      ExplicitWidth = 513
-      ExplicitHeight = 509
       object GroupBox2: TGroupBox
         Left = 8
         Top = 10
@@ -1056,8 +1045,6 @@ object SettingsFrm: TSettingsFrm
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 4
-      ExplicitWidth = 513
-      ExplicitHeight = 509
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10
@@ -1095,6 +1082,30 @@ object SettingsFrm: TSettingsFrm
           TabOrder = 1
         end
       end
+    end
+  end
+  object Panel1: TPanel
+    Left = 272
+    Top = 456
+    Width = 297
+    Height = 137
+    Caption = 'Panel1'
+    TabOrder = 3
+    object Label7: TLabel
+      Left = 24
+      Top = 11
+      Width = 58
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Control Port'
+    end
+    object cbLaserControlComPort: TComboBox
+      Left = 88
+      Top = 11
+      Width = 97
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 0
     end
   end
 end

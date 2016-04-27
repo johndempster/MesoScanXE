@@ -24,15 +24,17 @@ type
     FControlPort : DWord ;    // Control port number
     FComPortOpen : Boolean ;          // Com port open flag
     FBaudRate : DWord ;       // Com port baud rate
-    FShutterControlLine : Integer ;
     FShutterOpen : Boolean ;
     FShutterChangeTime : Double ;
-    FIntensityControlLine : Integer ;
-    FVMaxIntensity : Double ;
+
     Status : String ;         // Laser status report
     FControlState : Integer ;  // Laser control state
-    FIntensity : Array[0..MaxLasers-1] of Double ;      // Laser intensity
-    FLaserActive : Array[0..MaxLasers-1] of Boolean ;       // Laser On/Off status
+    FIntensityControlPort : Array[0..MaxLasers-1] of Integer ;      // Laser intensity control port
+    FIntensity : Array[0..MaxLasers-1] of Double ;                  // Laser intensity
+    FVMaxIntensity: Array[0..MaxLasers-1] of Double ;               // Voltage at 100% intensity
+    FActiveControlPort : Array[0..MaxLasers-1] of Integer ;         // Laser on/off control port
+    FLaserActive : Array[0..MaxLasers-1] of Boolean ;               // Laser On/Off status
+    FName : Array[0..MaxLasers-1] of string ;                       // Laser name
 
     procedure SetCOMPort( Value : Integer ) ;
     procedure OpenCOMPort ;
@@ -41,44 +43,63 @@ type
     procedure SetLaserType( Value : Integer ) ;
     procedure SetControlPort( Value : DWord ) ;
     procedure SetBaudRate( Value : DWord ) ;
+    procedure UpdateLasersExternal ;
     procedure SetIntensity(
-              Laser : Integer ;
+              i : Integer ;
+              Value : Double ) ;
+    function GetVMaxIntensity(
+             i : Integer
+             ) :Double  ;
+    procedure SetVMaxIntensity(
+              i : Integer ;
               Value : Double ) ;
     function GetIntensity(
-             Laser : Integer
+             i : Integer
              ) :Double  ;
     procedure SetLaserActive(
-              Laser : Integer ;
+              i : Integer ;
               Value : Boolean ) ;
     function GetLaserActive(
-             Laser : Integer
+             i : Integer
              ) : Boolean  ;
-
-
-    procedure SetIntensityExternal(
-              Laser : Integer ;    // Laser # (0..
-              Value : Double ) ;  // Intensity (0-1.0)
+    procedure SetLaserName(
+              i : Integer ;
+              Value : string ) ;
+    function GetLaserName(
+             i : Integer
+             ) : string  ;
+    procedure SetIntensityControlPort(
+              i : Integer ;
+              Value : Integer ) ;
+    function GetIntensityControlPort(
+             i : Integer
+             ) : Integer  ;
+    procedure SetActiveControlPort(
+              i : Integer ;
+              Value : Integer ) ;
+    function GetActiveControlPort(
+             i : Integer
+             ) : Integer  ;
 
   public
     { Public declarations }
     procedure GetLaserTypes( List : TStrings ) ;
-    procedure GetShutterControlLines( List : TStrings ) ;
+    procedure GetActiveControlLines( List : TStrings ) ;
     procedure GetIntensityControlLines( List : TStrings ) ;
     procedure GetCOMPorts( List : TStrings ) ;
     procedure Open ;
     procedure Close ;
-    procedure SetShutterOpen( Value : boolean ) ;
     procedure UpdateLasers ;
     Property LaserType : Integer read FLaserType write SetLaserType ;
     Property ControlPort : DWORD read FControlPort write SetControlPort ;
     Property BaudRate : DWORD read FBaudRate write SetBaudRate ;
-    Property ShutterControlLine : Integer read FShutterControlLine write FShutterControlLine ;
     Property ShutterChangeTime : Double read FShutterChangeTime write FShutterChangeTime ;
-    Property IntensityControlLine : Integer read FIntensityControlLine write FIntensityControlLine ;
-    Property ShutterOpen : boolean read FShutterOpen write SetShutterOpen ;
-    Property VMaxIntensity : Double read FVMaxIntensity write FVMaxIntensity ;
-    Property Intensity[Laser : Integer] : Double read GetIntensity write SetIntensity ;
-    Property LaserActive[Laser : Integer] : Boolean read GetLaserActive write SetLaserActive ;
+    Property IntensityControlPort[Laser : Integer] : Integer read GetIntensityControlPort write SetIntensityControlPort ;
+    Property ActiveControlPort[Laser : Integer] : Integer read GetActiveControlPort write SetActiveControlPort ;
+    Property VMaxIntensity[i : Integer] : Double read GetVMaxIntensity write SetVMaxIntensity ;
+    Property Intensity[i : Integer] : Double read GetIntensity write SetIntensity ;
+    Property LaserActive[i : Integer] : Boolean read GetLaserActive write SetLaserActive ;
+    Property LaserName[i : Integer] : String read GetLaserName write SetLaserName ;
   end;
 
 var
@@ -93,7 +114,7 @@ uses LabIOUnit;
 {$R *.dfm}
 const
     lsNone = 0 ;
-    lsDigitalTTL  = 1 ;
+    lsExternal  = 1 ;
     lsOBIS = 2 ;
 
     csIdle = 0 ;
@@ -107,16 +128,15 @@ var
 begin
   FLaserType := lsNone ;
   FCOMPort := 0 ;
-  FShutterControlLine := 0 ;
-  FIntensityControlLine := 0 ;
   FShutterOpen := False ;
   FShutterChangeTime := 0.5 ;
-  VMaxIntensity := 5.0 ;
 
   for i := 0 to MaxLasers-1 do
       begin
       FIntensity[i] := 0.0 ;
       FLaserActive[i] := False ;
+      FName[i] := format('Laser %d.',[i]);
+      FVMaxIntensity[i] := 5.0 ;
       end;
   end;
 
@@ -132,41 +152,21 @@ begin
       end;
 
 
-procedure TLaser.GetShutterControlLines( List : TStrings ) ;
+procedure TLaser.GetActiveControlLines( List : TStrings ) ;
 // -----------------------------------
 // Get list of available control ports
 // -----------------------------------
-var
-    i : Integer ;
-  iDev: Integer;
 begin
-     List.Clear ;
-     List.Add('None') ;
-     for iDev := 1 to LabIO.NumDevices do
-         begin
-         for i := 0 to 7 do
-             begin
-             List.Add(Format('Dev%d:P0.%d',[iDev,i])) ;
-             end;
-          end;
+     LabIO.GetPOPorts( List ) ;
      end ;
 
 
 procedure TLaser.GetIntensityControlLines( List : TStrings ) ;
-// -----------------------------------
-// Get list of available control ports
-// -----------------------------------
-var
-    i : Integer ;
-  iDev: Integer;
+// -------------------------------------------
+// Get list of available analogue output ports
+// -------------------------------------------
 begin
-     List.Clear ;
-     List.Add('None');
-     for iDev := 1 to LabIO.NumDevices do
-         for i := 0 to LabIO.NumDACs[iDev]-1 do
-             begin
-             List.Add(Format('Dev%d:AO%d',[iDev,i])) ;
-             end;
+     LabIO.GetAOPorts( List ) ;
      end;
 
 
@@ -210,6 +210,7 @@ procedure TLaser.Close ;
 begin
     if FComPortOpen then CloseComPort ;
     end;
+
 
 
 procedure  TLaser.OpenCOMPort ;
@@ -312,88 +313,152 @@ begin
     end;
 
 
-procedure TLaser.SetShutterOpen( Value : boolean ) ;
-// ------------------------
-// Open/close laser shutter
-// ------------------------
-var
-    iLine,iBit,iDev,i : Integer ;
-begin
-
-     FShutterOpen := Value ;
-
-     // Set laser intensity
-     if FShutterOpen then SetIntensity( FIntensity )
-                     else SetIntensity( 0.0 ) ;
-
-     if FShutterControlLine <= 0 then Exit ;
-
-     iLine := 1 ;
-     for iDev := 1 to LabIO.NumDevices do
-         begin
-         iBit := 1 ;
-         for i := 0 to 7 do
-             begin
-             if iLine = FShutterControlLine then
-                begin
-                LabIO.DigOutState[iDev] := LabIO.DigOutState[iDev] and (not iBit) ;
-                if FShutterOpen then LabIO.DigOutState[iDev] := LabIO.DigOutState[iDev] or iBit ;
-                LabIO.WriteToDigitalOutPutPort( iDev, LabIO.DigOutState[iDev] ) ;
-                end ;
-             iBit := iBit*2 ;
-             Inc(iLine) ;
-             end;
-          end;
-
-     end;
-
 procedure TLaser.SetIntensity(
-          Laser : Integer ;    // Laser # (0..
+          i : Integer ;    // Laser # (0..
           Value : Double ) ;  // Intensity (0-1.0)
 // -------------------
 // Set laser intensity
 // -------------------
 begin
-     if (Laser < 0) and (Laser >= MaxLasers) then Exit ;
-     Intensity[Laser] := Value ;
+     if (i < 0) and (i >= MaxLasers) then Exit ;
+     Intensity[i] := Value ;
      UpdateLasers ;
 end ;
 
 
 function TLaser.GetIntensity(
-          Laser : Integer // Laser # 0..
+          i : Integer // Laser # 0..
           ) : Double ;     // Intensity (0-1.0)
 // -------------------
 // Get laser intensity
 // -------------------
 begin
-     if (Laser >= 0) and (Laser < MaxLasers) then Result := Intensity[Laser]
+     if (i >= 0) and (i < MaxLasers) then Result := Intensity[i]
+                                          else Result := 0.0 ;
+end ;
+
+
+procedure TLaser.SetVMaxIntensity(
+          i : Integer ;    // Laser # (0..
+          Value : Double ) ;  // Intensity (0-1.0)
+// --------------------------------------
+// Set Voltage at maximum laser intensity
+// --------------------------------------
+begin
+     if (i < 0) and (i >= MaxLasers) then Exit ;
+     FVMaxIntensity[i] := Value ;
+     UpdateLasers ;
+end ;
+
+
+function TLaser.GetVMaxIntensity(
+          i : Integer // Laser # 0..
+          ) : Double ;     // Intensity (0-1.0)
+// --------------------------------------
+// Get Voltage at maximum laser intensity
+// --------------------------------------
+begin
+     if (i >= 0) and (i < MaxLasers) then Result := VMaxIntensity[i]
                                              else Result := 0.0 ;
 end ;
 
 
 procedure TLaser.SetLaserActive(
-          Laser : Integer ;    // Laser # (0..
+          i : Integer ;    // Laser # (0..
           Value : Boolean ) ;  // True=ON,False=OFF
 // -----------------
 // Set laser on/off
 // -----------------
 begin
-     if (Laser < 0) and (Laser >= MaxLasers) then Exit ;
-     FLaserActive[Laser] := Value ;
+     if (i < 0) and (i >= MaxLasers) then Exit ;
+     FLaserActive[i] := Value ;
      UpdateLasers ;
 end ;
 
 
 function TLaser.GetLaserActive(
-          Laser : Integer // Laser # 0..
+          i : Integer // Laser # 0..
           ) : Boolean ;   // True=ON,False=OFF
 // ----------------------
 // Get laser on/off state
 // ----------------------
 begin
-     if (Laser >= 0) and (Laser < MaxLasers) then Result := FLaserActive[Laser]
-                                             else Result := 0.0 ;
+     if (i >= 0) and (i < MaxLasers) then Result := FLaserActive[i]
+                                             else Result := False ;
+end ;
+
+
+procedure TLaser.SetActiveControlPort(
+          i : Integer ;    // Laser # (0..
+          Value : Integer ) ;  // Control line #
+// -----------------------------
+// Set laser on/off control port
+// -----------------------------
+begin
+     if (i < 0) and (i >= MaxLasers) then Exit ;
+     FActiveControlPort[i] := Value ;
+     UpdateLasers ;
+end ;
+
+
+function TLaser.GetActiveControlPort(
+          i : Integer // Laser # 0..
+          ) : Integer ;   // Control line #
+// -----------------------------
+// Get laser on/off control port
+// -----------------------------
+begin
+     if (i >= 0) and (i < MaxLasers) then Result := FActiveControlPort[i]
+                                     else Result := MaxResources ;
+end ;
+
+
+procedure TLaser.SetIntensityControlPort(
+          i : Integer ;    // Laser # (0..
+          Value : Integer ) ;  // Control line #
+// -----------------------------
+// Set laser intensity control port
+// -----------------------------
+begin
+     if (i < 0) and (i >= MaxLasers) then Exit ;
+     FIntensityControlPort[i] := Value ;
+     UpdateLasers ;
+end ;
+
+
+function TLaser.GetIntensityControlPort(
+          i : Integer // Laser # 0..
+          ) : Integer ;   // Control line #
+// -----------------------------
+// Get laser intensity control port
+// -----------------------------
+begin
+     if (i >= 0) and (i < MaxLasers) then Result := FIntensityControlPort[i]
+                                     else Result := MaxResources ;
+end ;
+
+
+procedure TLaser.SetLaserName(
+          i : Integer ;    // Laser # (0..
+          Value : string ) ;   // Name
+// --------------
+// Set laser name
+// --------------
+begin
+     if (i < 0) and (i >= MaxLasers) then Exit ;
+     FName[i] := Value ;
+end ;
+
+
+function TLaser.GetLaserName(
+          i : Integer // Laser # 0..
+          ) : string ;    // name
+// --------------
+// Get laser name
+// --------------
+begin
+     if (i >= 0) and (i < MaxLasers) then Result := FName[i]
+                                     else Result := 'Error' ;
 end ;
 
 
@@ -405,32 +470,39 @@ begin
     case FLaserType of
 //        lsOBIS :
         lsExternal : UpdateLasersExternal ;
-        end;
     end;
 end;
 
 procedure TLaser.UpdateLasersExternal ;
 // ----------------------------------------
 // Update laser settings (external control)
+// ----------------------------------------
 var
-    iLine,iDev,Ch : Integer ;
+    iLaser,i : Integer ;
+    V : Double ;
 begin
 
-  FIntensity := Min(Max(Value,0),100);
-  if FIntensityControlLine <= 0 then Exit ;
-
-  iLine := 1 ;
-  for iDev := 1 to LabIO.NumDevices do
+  for iLaser := 0 to MaxLasers-1 do
       begin
-      for Ch := 0 to LabIO.NumDACs[iDev]-1 do
+      // Intensity control
+      i := FIntensityControlPort[iLaser] ;
+      if  i < MaxResources then
           begin
-          if iLine = FIntensityControlLine then
-             begin
-             LabIO.WriteDAC( iDev, (Value*0.01)/VMaxIntensity, Ch ) ;
-             end ;
-          Inc(iLine) ;
+          if FLaserActive[iLaser] then V := FIntensity[iLaser]*VMaxIntensity[iLaser]
+                                  else V := 0.0 ;
+          LabIO.WriteDAC( LabIO.Resource[i].Device,V,LabIO.Resource[i].StartChannel);
           end;
-      end;
+
+      // On/off control
+      if i < MaxResources then
+          begin
+          i := FActiveControlPort[iLaser] ;
+          LabIO.WriteBit( LabIO.Resource[i].Device,
+                          FLaserActive[iLaser],
+                          LabIO.Resource[i].StartChannel);
+          end;
+      end ;
+
   end;
 
 

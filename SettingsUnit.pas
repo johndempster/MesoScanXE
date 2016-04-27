@@ -125,6 +125,9 @@ type
     Label15: TLabel;
     edLaserShutterChangeTime: TValidatedEdit;
     ckLaserControlEnabled: TCheckBox;
+    Panel1: TPanel;
+    Label7: TLabel;
+    cbLaserControlComPort: TComboBox;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -132,11 +135,19 @@ type
   private
     { Private declarations }
     procedure SetLaser(
-          Laser : Integer ;                  // Laser #
-          edName : TTextBox ;                 // Laser name
+          iLaser : Integer ;                  // Laser #
+          edName : TEdit ;                 // Laser name
           cbLaserActive :TComboBox ;     // Laser on/off control line menu
           cbLaserIntensity :TComboBox ;  // Laser intensity control line menu
           edVMax : TValidatedEdit ) ;        // Voltage at 100%
+
+    procedure GetLaser(
+          iLaser : Integer ;                  // Laser #
+          edName : TEdit ;                   // Laser name
+          cbLaserActive : TComboBox ;        // Laser on/off control line menu
+          cbLaserIntensity : TComboBox ;     // Laser intensity control line menu
+          edVMax : TValidatedEdit ) ;        // Voltage at 100%
+
 
   public
     { Public declarations }
@@ -194,12 +205,17 @@ begin
 
     MainFrm.InvertPMTSignal := ckInvertPMTSignal.Checked ;
 
-    Laser.ControlPort := cbLaserControlComPort.ItemIndex ;
-    Laser.ShutterControlLine := cbLaserShutterControlLine.ItemIndex ;
-    Laser.ShutterChangeTime := edLaserShutterChangeTime.Value ;
+    // Set laser control line menus (for external control)
+    GetLaser( 0, edLaserName0, cbLaserActiveControl0, cbLaserIntensityControl0, edLaserVMax0 ) ;
+    GetLaser( 1, edLaserName1, cbLaserActiveControl1, cbLaserIntensityControl1, edLaserVMax1 ) ;
+    GetLaser( 2, edLaserName2, cbLaserActiveControl2, cbLaserIntensityControl2, edLaserVMax2 ) ;
+    GetLaser( 3, edLaserName3, cbLaserActiveControl3, cbLaserIntensityControl3, edLaserVMax3 ) ;
+    GetLaser( 4, edLaserName4, cbLaserActiveControl4, cbLaserIntensityControl4, edLaserVMax4 ) ;
+    GetLaser( 5, edLaserName5, cbLaserActiveControl5, cbLaserIntensityControl5, edLaserVMax5 ) ;
+    GetLaser( 6, edLaserName6, cbLaserActiveControl6, cbLaserIntensityControl6, edLaserVMax6 ) ;
+    GetLaser( 7, edLaserName7, cbLaserActiveControl7, cbLaserIntensityControl7, edLaserVMax7 ) ;
 
-    Laser.IntensityControlLine := cbLaserIntensityControlLine.ItemIndex ;
-    Laser.VMaxIntensity := edLaserVMaxIntensity.Value ;
+    Laser.ShutterChangeTime := edLaserShutterChangeTime.Value ;
 
     ZStage.Enabled := ckZControlEnabled.Checked ;
     ZStage.ControlPort := cbZStagePort.ItemIndex ;
@@ -274,6 +290,7 @@ begin
     Laser.GetLaserTypes(cbLaserType.Items);
     Laser.GetCOMPorts( cbLaserControlComPort.Items ) ;
 
+    // Set laser control line menus (for external control)
     SetLaser( 0, edLaserName0, cbLaserActiveControl0, cbLaserIntensityControl0, edLaserVMax0 ) ;
     SetLaser( 1, edLaserName1, cbLaserActiveControl1, cbLaserIntensityControl1, edLaserVMax1 ) ;
     SetLaser( 2, edLaserName2, cbLaserActiveControl2, cbLaserIntensityControl2, edLaserVMax2 ) ;
@@ -282,15 +299,6 @@ begin
     SetLaser( 5, edLaserName5, cbLaserActiveControl5, cbLaserIntensityControl5, edLaserVMax5 ) ;
     SetLaser( 6, edLaserName6, cbLaserActiveControl6, cbLaserIntensityControl6, edLaserVMax6 ) ;
     SetLaser( 7, edLaserName7, cbLaserActiveControl7, cbLaserIntensityControl7, edLaserVMax7 ) ;
-
-
-    Laser.GetShutterControlLines( cbLaserShutterControlLine.Items ) ;
-    cbLaserShutterControlLine.ItemIndex := Laser.ShutterControlLine ;
-    edLaserShutterChangeTime.Value := Laser.ShutterChangeTime ;
-
-    Laser.GetIntensityControlLines( cbLaserIntensityControlLine.Items ) ;
-    cbLaserIntensityControlLine.ItemIndex := Laser.IntensityControlLine ;
-    edLaserVMaxIntensity.Value := Laser.VMaxIntensity ;
 
     // Z stage control
     ZStage.GetZStageTypes(cbZStageType.Items);
@@ -313,16 +321,38 @@ begin
     end;
 
 procedure TSettingsFrm.SetLaser(
-          Laser : Integer ;                  // Laser #
-          edName : TTextBox ;                 // Laser name
-          cbLaserActive :TComboBox ;     // Laser on/off control line menu
-          cbLaserIntensity :TComboBox ;  // Laser intensity control line menu
+          iLaser : Integer ;                  // Laser #
+          edName : TEdit ;                   // Laser name
+          cbLaserActive : TComboBox ;        // Laser on/off control line menu
+          cbLaserIntensity : TComboBox ;     // Laser intensity control line menu
           edVMax : TValidatedEdit ) ;        // Voltage at 100%
 // ----------------------------------
 // Update laser control line settings
 // ----------------------------------
 begin
+     edName.Text := Laser.LaserName[iLaser] ;
+     Laser.GetActiveControlLines(cbLaserActive.Items);
+     cbLaserActive.ItemIndex := cbLaserActive.items.IndexOfObject(TObject(Laser.ActiveControlPort[iLaser]));
+     Laser.GetIntensityControlLines(cbLaserIntensity.Items);
+     cbLaserIntensity.ItemIndex := cbLaserIntensity.items.IndexOfObject(TObject(Laser.IntensityControlPort[iLaser]));
+     edVMax.Value := Laser.VMaxIntensity[iLaser] ;
+     end ;
 
-end;
+procedure TSettingsFrm.GetLaser(
+          iLaser : Integer ;                  // Laser #
+          edName : TEdit ;                   // Laser name
+          cbLaserActive : TComboBox ;        // Laser on/off control line menu
+          cbLaserIntensity : TComboBox ;     // Laser intensity control line menu
+          edVMax : TValidatedEdit ) ;        // Voltage at 100%
+// ----------------------------------
+// Get laser control line settings
+// ----------------------------------
+begin
+     Laser.LaserName[iLaser] := edName.Text ;
+     Laser.ActiveControlPort[iLaser] := Integer(cbLaserActive.Items.Objects[cbLaserActive.ItemIndex]);
+     Laser.IntensityControlPort[iLaser] := Integer(cbLaserIntensity.Items.Objects[cbLaserIntensity.ItemIndex]);
+     Laser.VMaxIntensity[iLaser] := edVMax.Value ;
+     end ;
+
 
 end.

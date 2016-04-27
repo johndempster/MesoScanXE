@@ -728,7 +728,7 @@ begin
         end
      else LaserControlOpen := False ;
      // Ensure laser shutter is closed
-     Laser.SetShutterOpen(False);
+     for i := 0 to MaxLasers-1 do Laser.LaserActive[i] := False ;
 
      UpdateDisplay := False ;
      ScanRequested := 0 ;
@@ -1129,10 +1129,12 @@ procedure TMainFrm.FormClose(Sender: TObject; var Action: TCloseAction);
 // ------------
 // Stop program
 // ------------
+var
+    i : Integer ;
 begin
 
      // Close laser shutter
-     Laser.ShutterOpen := False ;
+     for i := 0 to MaxLasers-1 do Laser.LaserActive[i] := False ;
 
      LabIO.Close ;
 
@@ -2134,7 +2136,7 @@ procedure TMainFrm.edLaserIntensityKeyPress(Sender: TObject; var Key: Char);
 begin
     if Key = #13 then
        begin
-       Laser.Intensity := edLaserIntensity.Value ;
+ //      Laser.Intensity := edLaserIntensity.Value ;
        tbLaserIntensity.Position := Round(10.0*edLaserIntensity.Value) ;
        end;
     end;
@@ -2293,7 +2295,7 @@ begin
        if not Laser.ShutterOpen then
           begin
           Laser.ShutterOpen := True ;
-          Laser.Intensity := edLaserIntensity.Value ;
+  //        Laser.Intensity := edLaserIntensity.Value ;
           ScanRequested := Round(Laser.ShutterChangeTime/(Timer.Interval*0.001)) ;
           end ;
        ScanRequested := Max(ScanRequested - 1,0) ;

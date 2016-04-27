@@ -143,12 +143,8 @@ begin
         stPiezo :
           begin
           // Analog outputs
-          for iDev := 1 to LabIO.NumDevices do
-              for i := 0 to LabIO.NumDACs[iDev]-1 do
-                begin
-                List.Add(Format('Dev%d:AO%d',[iDev,i])) ;
-                end;
-          end;
+          LabIO.GetAOPorts( List ) ;
+          end
         else
           begin
           List.Add('None');
