@@ -3,8 +3,8 @@ object SettingsFrm: TSettingsFrm
   Top = 0
   BorderStyle = bsDialog
   Caption = ' Scan Settings '
-  ClientHeight = 684
-  ClientWidth = 849
+  ClientHeight = 437
+  ClientWidth = 773
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object SettingsFrm: TSettingsFrm
   TextHeight = 13
   object bOK: TButton
     Left = 8
-    Top = 375
+    Top = 407
     Width = 65
     Height = 25
     Caption = 'OK'
@@ -34,7 +34,7 @@ object SettingsFrm: TSettingsFrm
   end
   object bCancel: TButton
     Left = 79
-    Top = 375
+    Top = 410
     Width = 72
     Height = 20
     Caption = 'Cancel'
@@ -52,11 +52,12 @@ object SettingsFrm: TSettingsFrm
     Left = 8
     Top = 6
     Width = 761
-    Height = 643
-    ActivePage = TabSheet1
+    Height = 395
+    ActivePage = ScanTab
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
+      ExplicitHeight = 615
       object ImageHRGrp: TGroupBox
         Left = 8
         Top = 10
@@ -309,6 +310,7 @@ object SettingsFrm: TSettingsFrm
     object PMTTab: TTabSheet
       Caption = 'PM Tubes'
       ImageIndex = 1
+      ExplicitHeight = 615
       object PMTgrp: TGroupBox
         Left = 8
         Top = 10
@@ -456,7 +458,7 @@ object SettingsFrm: TSettingsFrm
     object LasersTab: TTabSheet
       Caption = 'Lasers '
       ImageIndex = 2
-      ExplicitLeft = 0
+      ExplicitHeight = 615
       object cbLaserType: TComboBox
         Left = 11
         Top = 32
@@ -951,10 +953,35 @@ object SettingsFrm: TSettingsFrm
           TabOrder = 10
         end
       end
+      object Panel1: TPanel
+        Left = 403
+        Top = 63
+        Width = 297
+        Height = 137
+        Caption = 'Panel1'
+        TabOrder = 2
+        object Label7: TLabel
+          Left = 24
+          Top = 11
+          Width = 58
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Control Port'
+        end
+        object cbLaserControlComPort: TComboBox
+          Left = 88
+          Top = 11
+          Width = 97
+          Height = 21
+          Style = csDropDownList
+          TabOrder = 0
+        end
+      end
     end
     object TabSheet1: TTabSheet
       Caption = 'XYZ Stage Control'
       ImageIndex = 3
+      ExplicitHeight = 615
       object GroupBox2: TGroupBox
         Left = 8
         Top = 10
@@ -1045,6 +1072,7 @@ object SettingsFrm: TSettingsFrm
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 4
+      ExplicitHeight = 615
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10
@@ -1082,30 +1110,6 @@ object SettingsFrm: TSettingsFrm
           TabOrder = 1
         end
       end
-    end
-  end
-  object Panel1: TPanel
-    Left = 272
-    Top = 456
-    Width = 297
-    Height = 137
-    Caption = 'Panel1'
-    TabOrder = 3
-    object Label7: TLabel
-      Left = 24
-      Top = 11
-      Width = 58
-      Height = 13
-      Alignment = taRightJustify
-      Caption = 'Control Port'
-    end
-    object cbLaserControlComPort: TComboBox
-      Left = 88
-      Top = 11
-      Width = 97
-      Height = 21
-      Style = csDropDownList
-      TabOrder = 0
     end
   end
 end

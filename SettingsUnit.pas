@@ -349,8 +349,8 @@ procedure TSettingsFrm.GetLaser(
 // ----------------------------------
 begin
      Laser.LaserName[iLaser] := edName.Text ;
-     Laser.ActiveControlPort[iLaser] := Integer(cbLaserActive.Items.Objects[cbLaserActive.ItemIndex]);
-     Laser.IntensityControlPort[iLaser] := Integer(cbLaserIntensity.Items.Objects[cbLaserIntensity.ItemIndex]);
+//     Laser.ActiveControlPort[iLaser] := Integer(cbLaserActive.Items.Objects[cbLaserActive.ItemIndex]);
+//     Laser.IntensityControlPort[iLaser] := Integer(cbLaserIntensity.Items.Objects[cbLaserIntensity.ItemIndex]);
      Laser.VMaxIntensity[iLaser] := edVMax.Value ;
      end ;
 

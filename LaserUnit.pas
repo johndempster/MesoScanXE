@@ -358,8 +358,8 @@ function TLaser.GetVMaxIntensity(
 // Get Voltage at maximum laser intensity
 // --------------------------------------
 begin
-     if (i >= 0) and (i < MaxLasers) then Result := VMaxIntensity[i]
-                                             else Result := 0.0 ;
+     if (i >= 0) and (i < MaxLasers) then Result := FVMaxIntensity[i]
+                                     else Result := 0.0 ;
 end ;
 
 
@@ -384,7 +384,7 @@ function TLaser.GetLaserActive(
 // ----------------------
 begin
      if (i >= 0) and (i < MaxLasers) then Result := FLaserActive[i]
-                                             else Result := False ;
+                                     else Result := False ;
 end ;
 
 

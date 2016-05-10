@@ -2292,12 +2292,12 @@ begin
 
     if ScanRequested > 0 then
        begin
-       if not Laser.ShutterOpen then
-          begin
-          Laser.ShutterOpen := True ;
+//       if not Laser.ShutterOpen then
+//          begin
+ //         Laser.ShutterOpen := True ;
   //        Laser.Intensity := edLaserIntensity.Value ;
-          ScanRequested := Round(Laser.ShutterChangeTime/(Timer.Interval*0.001)) ;
-          end ;
+ //         ScanRequested := Round(Laser.ShutterChangeTime/(Timer.Interval*0.001)) ;
+ //         end ;
        ScanRequested := Max(ScanRequested - 1,0) ;
        if ScanRequested <= 0 then
           begin
@@ -2596,7 +2596,7 @@ begin
     LinesAvailableForDisplay := 0 ;
 
     // Close laser shutter
-    Laser.ShutterOpen := False ;
+ //   Laser.ShutterOpen := False ;
 
     // Move Z stage back to starting position
 
@@ -2955,7 +2955,7 @@ procedure TMainFrm.tbLaserIntensityChange(Sender: TObject);
 begin
      edLaserIntensity.Value := tbLaserIntensity.Position*0.1 ;
      tbLaserIntensity.Position := Round(10.*edLaserIntensity.Value) ;
-     Laser.Intensity := edLaserIntensity.Value ;
+  //   Laser.Intensity := edLaserIntensity.Value ;
      UpdateDisplay := True ;
      end;
 
@@ -3136,10 +3136,10 @@ begin
 
     // Laser control
     iNode := ProtNode.AddChild( 'LASER' ) ;
-    AddElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
-    AddElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
-    AddElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
-    AddElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
+//    AddElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
+//    AddElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
+//    AddElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
+//    AddElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
     AddElementInt( iNode, 'COMPORT', Laser.ControlPort ) ;
 
     // PMT settings
@@ -3305,10 +3305,10 @@ begin
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'LASER',iNode,NodeIndex) do
         begin
-        Laser.ShutterControlLine := GetElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
-        Laser.ShutterChangeTime := GetElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
-        Laser.IntensityControlLine := GetElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
-        Laser.VMaxIntensity := GetElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
+//        Laser.ShutterControlLine := GetElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
+//        Laser.ShutterChangeTime := GetElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
+//        Laser.IntensityControlLine := GetElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
+//        Laser.VMaxIntensity := GetElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
         Laser.ControlPort := GetElementInt( iNode, 'COMPORT', Laser.ControlPort ) ;
         Inc(NodeIndex) ;
         end ;
