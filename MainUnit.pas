@@ -33,7 +33,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ComCtrls, StdCtrls, ValidatedEdit, LabIOUnit, RangeEdit, math,
-  ExtCtrls, ImageFile, xmldoc, xmlintf, ActiveX, Vcl.Menus, system.types, strutils, UITypes, shellapi ;
+  ExtCtrls, ImageFile, xmldoc, xmlintf, ActiveX, Vcl.Menus, system.types, strutils, UITypes, shellapi, shlobj ;
 
 const
     VMax = 10.0 ;
@@ -240,7 +240,7 @@ type
         procedure FixRectangle( var Rect : TRect ) ;
         procedure SetImageSize(
                   Image : TImage ) ;
-
+        function GetSpecialFolder(const ASpecialFolderID: Integer): string;
 
   public
     { Public declarations }
@@ -383,6 +383,7 @@ type
     INIFileName : String ;
     ProgDirectory : String ;
     SaveDirectory : String ;
+    SettingsDirectory : String ;
     RawImagesFileName : String ;
     ImageJPath : String ;            // Path to Image-J program
     SaveAsMultipageTIFF : Boolean ;  // TRUE = save stacks as multi-page TIFF files
@@ -569,13 +570,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.5.8 ';
+     Caption := 'MesoScan V1.5.9 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 22/03/16';
+    Caption := Caption + ' 24/05/16';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -713,10 +714,19 @@ begin
 
      // Load last used settings
      ProgDirectory := ExtractFilePath(ParamStr(0)) ;
-     INIFileName := ProgDirectory + 'mesoscan settings.xml' ;
+
+     // Create settings directory path
+     SettingsDirectory := GetSpecialFolder(CSIDL_COMMON_DOCUMENTS) + '\MesoScan\';
+     if not SysUtils.DirectoryExists(SettingsDirectory) then begin
+        if not SysUtils.ForceDirectories(SettingsDirectory) then
+           ShowMessage( 'Unable to create settings folder' + SettingsDirectory) ;
+        end ;
+
+     // Load last used settings
+     INIFileName := SettingsDirectory + 'mesoscan settings.xml' ;
      LoadSettingsFromXMLFile( INIFileName ) ;
 
-     RawImagesFileName := ProgDirectory + 'mesoscan.raw' ;
+     RawImagesFileName := SettingsDirectory + 'mesoscan.raw' ;
 
      // Load normal scan
 
@@ -3684,6 +3694,18 @@ begin
       end ;
     end ;
 
+function TMainFrm.GetSpecialFolder(const ASpecialFolderID: Integer): string;
+// --------------------------
+// Get Windows special folder
+// --------------------------
+var
+  vSpecialPath : array[0..MAX_PATH] of Char;
+begin
+
+    SHGetFolderPath( 0, ASpecialFolderID, 0,0,vSpecialPath) ;
+    Result := StrPas(vSpecialPath);
+
+    end;
 
 
 end.
