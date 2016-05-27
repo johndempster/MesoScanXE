@@ -26,6 +26,8 @@ unit MainUnit;
 //                 Scan Full Field now correctly zooms out to full field (rather than
 //                 to next wider zoom setting)
 // V1.5.8 08.03.16 Beam now parked at 0,0 by last line of scan and unparked in first line
+// V1.5.9 27.06.16 27.0.16 Z stage pressure switch protection implemented
+//
 
 interface
 
@@ -576,7 +578,7 @@ begin
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 24/05/16';
+    Caption := Caption + ' 27/05/16';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;

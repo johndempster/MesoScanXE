@@ -6,6 +6,7 @@ unit ZStageUnit;
 // 7/6/12 Supports Prior OptiScan II controller
 // 14.5.14 Supports voltage-controlled lens positioner
 // 22.04.16 Support for Prior Proscan III added with Z stage upper limit protection
+// 27.0.16 Z stage pressure switch protection implemented
 
 interface
 
@@ -46,6 +47,7 @@ type
     procedure MoveToPZ( Position : Double ) ;
     function GetZScaleFactorUnits : string ;
     procedure ProScanEnableZStageTTLAction ;
+    procedure WaitforCompletion ;
   public
     { Public declarations }
     ZPosition : Double ;     // Z position (um)
@@ -73,7 +75,7 @@ implementation
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 
-uses LabIOUnit;
+uses LabIOUnit, mmsystem;
 
 {$R *.dfm}
 
@@ -299,7 +301,7 @@ var
    OK : Boolean ;
 begin
 
-     if not FEnabled then Exit ;
+  //   if not FEnabled then Exit ;
 
      { Copy command line to be sent to xMit buffer and and a CR character }
      nC := Length(Line) ;
@@ -315,6 +317,18 @@ begin
         FEnabled := False ;
         end;
 end ;
+
+procedure TZStage.WaitforCompletion ;
+var
+  Status : string ;
+  Timeout : Cardinal ;
+  EndOfLine : Boolean ;
+begin
+   TimeOut := timegettime + 1000 ;
+   repeat
+     Status := ReceiveBytes( EndOfLine ) ;
+     Until EndOfLine or (timegettime > TimeOut) ;
+     end ;
 
 
 function TZStage.ReceiveBytes(
@@ -374,6 +388,7 @@ begin
              begin
              // Go to required position
              SendCommand(format('U %d',[Round((MoveToPosition-ZPosition)*ZScaleFactor)])) ;
+//             SendCommand('TTL,0,1') ;
              ControlState := csWaitingForCompletion ;
              MoveToRequest := False ;
              end
@@ -525,9 +540,16 @@ procedure TZStage.ProScanEnableZStageTTLAction ;
 // Enable action to be taken when TTL hard limit trigger activated
 // ---------------------------------------------------------------
 begin
-     SendCommand('TTLTP,1,0') ;       // Enable trigger on input #1 going high
-     SendCommand('TTLACT,31,0,0,0') ; // Move Z axis to zero position
-     SendCommand('TLTRG,1') ;         // Enable triggers
+     SendCommand('TTDEL,1') ;
+     WaitforCompletion ;
+ //    SendCommand('TTL,0,1') ;
+ //    WaitforCompletion ;
+     SendCommand('TTLTP,1,1') ;       // Enable trigger on input #1 going high
+     WaitforCompletion ;
+     SendCommand('TTLACT,1,31,0,0,0') ; // Move Z axis to zero position
+     WaitforCompletion ;
+     SendCommand('TTLTRG,1') ;         // Enable triggers
+     WaitforCompletion ;
      end;
 
 
