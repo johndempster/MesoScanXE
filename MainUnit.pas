@@ -26,8 +26,8 @@ unit MainUnit;
 //                 Scan Full Field now correctly zooms out to full field (rather than
 //                 to next wider zoom setting)
 // V1.5.8 08.03.16 Beam now parked at 0,0 by last line of scan and unparked in first line
-// V1.5.9 27.06.16 27.0.16 Z stage pressure switch protection implemented
-//
+// V1.5.9 27.05.16 27.0.16 Z stage pressure switch protection implemented
+// V1.6.0 26.06.16 XZ mode being fixed
 
 interface
 
@@ -572,13 +572,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.5.9 ';
+     Caption := 'MesoScan V1.6.0 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 27/05/16';
+    Caption := Caption + ' 26/06/16';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -1180,20 +1180,11 @@ begin
     meStatus.Clear ;
     meStatus.Lines[0] := 'Wait: Creating XY scan waveform' ;
 
-    // Determine number of lines per Z step (for XZ mode)
-    if cbImageMode.ItemIndex = XZMode then
-       begin
-       NumLinesPerZStep := Round(edNumAverages.Value) + Max(Round(ZStage.ZStepTime/LineScanTime),1);
-       end
-    else NumLinesPerZStep := 1 ;
 
     // No. pixels in scan buffer
 
     NumXEdgePixels :=  Round(FieldEdge*FrameWidth) ;
     NumXPixels := FrameWidth + (2*NumXEdgePixels) ;
-    NumYEdgePixels := 1 ;
-    NumYPixels := (FrameHeight + 2*NumYEdgePixels)*NumLinesPerZStep ;
-    if not BidirectionalScan then NumYPixels := NumYPixels*2 ;
 
     // Determine line scan time
     PixelDwellTime := Max( 1.0/(MaxScanRate*NumXPixels*2), MinPixelDwellTime ) ;
@@ -1203,6 +1194,17 @@ begin
     ScanInfo := format('%.3g lines/s Tdwell=%.3g us',[ScanSpeed,1E6*PixelDwellTime]);
     LineScanTime := NumXPixels*PixelDwellTime ;
     if not BidirectionalScan then LineScanTime := LineScanTime*2.0 ;
+
+    // Determine number of lines per Z step (for XZ mode)
+    if cbImageMode.ItemIndex = XZMode then
+       begin
+       NumLinesPerZStep := Round(edNumAverages.Value) + Max(Round(ZStage.ZStepTime/LineScanTime),1);
+       end
+    else NumLinesPerZStep := 1 ;
+
+    NumYEdgePixels := 1 ;
+    NumYPixels := (FrameHeight + 2*NumYEdgePixels)*NumLinesPerZStep ;
+    if not BidirectionalScan then NumYPixels := NumYPixels*2 ;
 
     // Allocate image buffers
 
@@ -1996,7 +1998,7 @@ begin
        // Dispose of existing display buffers and create new ones
        if AvgBuf <> Nil then FreeMem( AvgBuf ) ;
        AvgBuf := AllocMem( Int64(NumPixels)*Int64(NumPMTChannels)*4 ) ;
-       for i := 0 to NumPixels-1 do AvgBuf^[i] := 0 ;
+       for i := 0 to NumPixels*NumPMTChannels-1 do AvgBuf^[i] := 0 ;
        ClearAverage := False ;
        NumAverages := 1 ;
        end ;
@@ -2010,7 +2012,7 @@ begin
     XZLineAverageEnd := NumLinesPerZStep - 1 ;
     if XZLineAverage <> Nil then FreeMem(XZLineAverage) ;
     XZLineAverage := AllocMem( NativeInt(NumXPixels)*NativeInt(NumPMTChannels)*4 ) ;
-    for i := 0 to NumXPixels-1 do XZLineAverage^[i] := 0 ;
+    for i := 0 to NumXPixels*NumPMTChannels-1 do XZLineAverage^[i] := 0 ;
     LinesAvailableForDisplay := 0 ;
 
     ADCNumNewSamples := 0 ;
