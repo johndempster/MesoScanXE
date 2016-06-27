@@ -7,6 +7,7 @@ unit ZStageUnit;
 // 14.5.14 Supports voltage-controlled lens positioner
 // 22.04.16 Support for Prior Proscan III added with Z stage upper limit protection
 // 27.0.16 Z stage pressure switch protection implemented
+// 27.06.16 Enabled property removed
 
 interface
 
@@ -38,7 +39,6 @@ type
     function ReceiveBytes( var EndOfLine : Boolean ) : string ;
     procedure SetControlPort( Value : DWord ) ;
     procedure SetBaudRate( Value : DWord ) ;
-    procedure SetEnabled( Value : Boolean ) ;
     procedure SetStageType( Value : Integer ) ;
 
     procedure UpdateZPositionOSII ;
@@ -63,7 +63,6 @@ type
   published
     Property ControlPort : DWORD read FControlPort write SetControlPort ;
     Property BaudRate : DWORD read FBaudRate write SetBaudRate ;
-    Property Enabled : Boolean read FEnabled write SetEnabled ;
     Property StageType : Integer read FStageType write SetStageType ;
     Property ZScaleFactorUnits : string read GetZScaleFactorUnits ;
   end;
@@ -95,7 +94,7 @@ procedure TZStage.DataModuleCreate(Sender: TObject);
 // ---------------------------------------
 begin
     FStageType := stNone ;
-    FEnabled := False ;
+    FEnabled := True ;
     ComPortOpen := False ;
     FControlPort := 0 ;
     FBaudRate := 9600 ;
@@ -301,7 +300,7 @@ var
    OK : Boolean ;
 begin
 
-  //   if not FEnabled then Exit ;
+     if not ComPortOpen then Exit ;
 
      { Copy command line to be sent to xMit buffer and and a CR character }
      nC := Length(Line) ;
@@ -314,7 +313,7 @@ begin
     if (not OK) or (nWRitten <> nC) then
         begin
         //ShowMessage( ' Error writing to COM port ' ) ;
-        FEnabled := False ;
+  //      FEnabled := False ;
         end;
 end ;
 
@@ -474,23 +473,6 @@ begin
         end;
     end;
 
-
-procedure TZStage.SetEnabled( Value : Boolean ) ;
-// ------------------------------
-// Enable/disable Z stage control
-//-------------------------------
-begin
-
-    FEnabled := Value ;
-    case FStageType of
-        stOptiscanII,stProScanIII :
-          begin
-          if FEnabled and (not ComPortOpen) then OpenComPort
-          else if (not FEnabled) and ComPortOpen then CloseComPort ;
-          end;
-    end ;
-
-    end;
 
 procedure TZStage.SetStageType( Value : Integer ) ;
 // ------------------------------

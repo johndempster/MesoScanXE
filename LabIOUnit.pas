@@ -1453,7 +1453,7 @@ begin
      // Set timing
      ClockSource := '/' + DeviceName[TimingDevice] + '/ao/sampleclock' ;
      SamplingRate := {500.0 ;//} 1100000.0 ;// (nChannels+1) ;
-      SamplingRate := 500.0 /nChannels ;
+    //  SamplingRate := 500.0 /nChannels ;
      CheckError( DAQmxCfgSampClkTiming( ADCTask[Device],
                                         PANSIChar(ClockSource),
                                         SamplingRate,

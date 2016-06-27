@@ -28,6 +28,7 @@ unit MainUnit;
 // V1.5.8 08.03.16 Beam now parked at 0,0 by last line of scan and unparked in first line
 // V1.5.9 27.05.16 27.0.16 Z stage pressure switch protection implemented
 // V1.6.0 26.06.16 XZ mode being fixed
+// V1.6.1 27.06.16 XZ mode revised and now working
 
 interface
 
@@ -255,7 +256,7 @@ type
     ADCBuf : PBig16bitArray ;
     AvgBuf : PBig32bitArray ;
     ADCMap : PBig32bitArray ;
-    XZLineAverage : PBig32bitArray ;
+//    XZLineAverage : PBig32bitArray ;
 
     ADCNumNewSamples : Integer ;
     ADCInput : Integer ;             // Selected analog input
@@ -336,9 +337,6 @@ type
     NumZSectionsAvailable : Integer ;   // No. of Sections in Z stack
     NumLinesPerZStep : Integer ;      // No. lines per Z step in XZ mode
     XZLine : Integer ;                // XZ mode line counter
-    XZAverageLine : Integer ;         // XZ mode averaged line counter
-    XZLineAverageStart : Integer ;    // XZ mode start averaging at line
-    XZLineAverageEnd : Integer ;    // XZ mode end averaging at line
     ZStartingPosition : Double ;      // Z position at start of scanning
     ADCPointer : Integer ;
     EmptyFlag : Integer ;
@@ -546,7 +544,7 @@ begin
      ADCBuf := Nil ;
      AvgBuf := Nil ;
      DACBuf := Nil ;
-     XZLineAverage := Nil ;
+//     XZLineAverage := Nil ;
      for ch := 0 to High(BitMap) do BitMap[ch] := Nil ;
 
      // Create array of image controls
@@ -572,13 +570,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.6.0 ';
+     Caption := 'MesoScan V1.6.1 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 26/06/16';
+    Caption := Caption + ' 27/06/16';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -602,7 +600,7 @@ begin
      NumLinesPerZStep := 1 ;
 
      XZLine := 0 ;
-     XZAverageLine := 0 ;
+//     XZAverageLine := 0 ;
      NumBeamParkLines := 10 ;            // Default # of beam parking lines
 
      DeviceNum := 1 ;
@@ -1154,7 +1152,7 @@ begin
      if ADCBuf <> Nil then FreeMem(ADCBuf) ;
      if AvgBuf <> Nil then FreeMem(AvgBuf) ;
      if DACBuf <> Nil then FreeMem(DACBuf) ;
-     if XZLineAverage <> Nil then FreeMem(XZLineAverage) ;
+//     if XZLineAverage <> Nil then FreeMem(XZLineAverage) ;
 
      SaveSettingsToXMLFile( INIFileName ) ;
 
@@ -1352,7 +1350,6 @@ begin
                     else Inc(n) ;
 
         end ;
-
 
      // Modify first line to smoothly unpark beam from centre position to top/left of imaging area
      YDAC := DACBuf^[1] ;
@@ -1989,7 +1986,7 @@ begin
     MemUsed := 0 ;
     ADCPointer := 0 ;
     XZLine := 0 ;
-    XZAverageLine := 0 ;
+//    XZAverageLine := 0 ;
     if LabIO.ADCActive[DeviceNum] then LabIO.StopADC(DeviceNum) ;
     if LabIO.DACActive[DeviceNum] then LabIO.StopDAC(DeviceNum) ;
 
@@ -2007,12 +2004,6 @@ begin
 
     // Set up for XZ mode image
     XZLine := 0 ;
-    XZAverageLine := 0 ;
-    XZLineAverageStart := NumLinesPerZStep - Round(edNumAverages.Value) ;
-    XZLineAverageEnd := NumLinesPerZStep - 1 ;
-    if XZLineAverage <> Nil then FreeMem(XZLineAverage) ;
-    XZLineAverage := AllocMem( NativeInt(NumXPixels)*NativeInt(NumPMTChannels)*4 ) ;
-    for i := 0 to NumXPixels*NumPMTChannels-1 do XZLineAverage^[i] := 0 ;
     LinesAvailableForDisplay := 0 ;
 
     ADCNumNewSamples := 0 ;
@@ -2322,11 +2313,8 @@ begin
 
     GetImageFromPMT ;
 
-    if ZStage.Enabled then
-       begin
-       ZStage.UpdateZPosition ;
-       edZTop.Text := format('%.2f um',[ZStage.ZPosition]) ;
-       end;
+    ZStage.UpdateZPosition ;
+    edZTop.Text := format('%.2f um',[ZStage.ZPosition]) ;
 
     end;
 
@@ -2369,10 +2357,11 @@ procedure TMainFrm.GetImageFromPMT ;
 // Get image from PMT
 // ------------------
 var
-    ch,iPix,iPointer,iPointerStep,iSign,iLine,iStart,nAvg : Integer ;
+    ch,iPix,iPointer,iPointerStep,iSign,iLine,iStart,nAvg,iAvg,AvgFrameStart : Integer ;
     i,ADCStart,ADCEnd : NativeInt ;
     NewZSection : Integer ;
-    y : Integer ;
+    Sum,y : Integer ;
+    j: Integer;
 begin
 
     if not LabIO.DACActive[DeviceNum] then exit ;
@@ -2413,68 +2402,38 @@ begin
 
     // Copy image to display bitmap
     iLine := ADCPointer div (NumXPixels*NumPMTChannels) ;
+    iLine := Max(iLine -1,0) ;
 
     if not BiDirectionalScan then iLine := iLine div 2 ;
 
     // Increment Z stage in XZ mode
     if cbImageMode.ItemIndex = XZMode then
        begin
-       LinesAvailableForDisplay := 0 ;
-       while XZLine < iLine do
-         begin
-
-         // Add to line average
-         if XZLine >= XZLineAverageStart then
-            begin
-            iStart := XZLine*NumXPixels ;
-
-            for iPix := 0 to NumXPixels-1 do
-                begin
-                for ch := 0 to NumPMTChannels-1 do
-                    begin
-                    i := iPix*NumPMTChannels + ch ;
-                    XZLineAverage^[i] := XZLineAverage^[i] + pImageBuf[ch]^[iPix+iStart] ;
-                    end;
-                end;
-            end;
-
-         // Add average to XZ image
-         if XZLine >= XZLineAverageEnd then
-            begin
-            nAvg := XZLineAverageEnd - XZLineAverageStart + 1 ;
-            iStart := (XZLine div NumLinesPerZStep)*NumXPixels ;
-            LinesAvailableForDisplay := (iStart div NumXPixels) + 1 ;
-
-            for iPix := 0 to NumXPixels-1 do
-                begin
-                for ch := 0 to NumPMTChannels-1 do
-                    begin
-                    i := iPix*NumPMTChannels + ch ;
-                    pImageBuf[ch]^[iPix+iStart] := XZLineAverage^[i] div nAvg ;
-                    XZLineAverage^[i] := 0 ;
-                    end;
-                end;
-            XZLineAverageStart := XZLineAverageStart + NumLinesPerZStep ;
-            XZLineAverageEnd := XZLineAverageEnd + NumLinesPerZStep ;
-            end ;
-
-         // Clear line
-         iStart := XZLine*NumXPixels ;
-         for ch := 0 to NumPMTChannels-1 do
-             for iPix := 0 to NumXPixels-1 do pImageBuf[ch]^[iPix+iStart] := 0 ;
-
-         Inc(XZLine) ;
-
-         end ;
-
-       // Move to new Z position
        NewZSection := iLine div NumLinesPerZStep ;
-       if NewZSection <> ZSection then
+       nAvg := Max(Round(edNumAverages.Value),1) ;
+       if (NewZSection <> ZSection) and (XZLine < FrameHeight) then
           begin
+          // Average lines for Z section
+          AvgFrameStart := ((XZLine*NumLinesPerZStep) + NumLinesPerZStep - 1)*FrameWidth  ;
+          for ch := 0 to NumPMTChannels-1 do
+              begin
+              for i := 0 to FrameWidth-1 do
+                  begin
+                  Sum := 0 ;
+                  j := AvgFrameStart + i ;
+                  for iAvg := 1 to nAvg do
+                      begin
+                      Sum := Sum + pImageBuf[ch]^[j] ;
+                      j := j - FrameWidth ;
+                      end;
+                  pImageBuf[ch]^[(XZLine*FrameWidth)+i] := Sum div nAvg
+                  end ;
+              end;
+          Inc(XZLine) ;
+          LinesAvailableForDisplay := XZLine ;
           ZSection := NewZSection ;
           ZStage.MoveTo( ZStage.ZPosition + ZStep );
           end;
-
        end
     else
        begin
@@ -3180,7 +3139,6 @@ begin
     // Z stage
     iNode := ProtNode.AddChild( 'ZSTAGE' ) ;
     AddElementInt( iNode, 'STAGETYPE', ZStage.StageType ) ;
-    AddElementBool( iNode, 'ENABLED', ZStage.Enabled ) ;
     AddElementInt( iNode, 'CONTROLPORT', ZStage.ControlPort ) ;
     AddElementInt( iNode, 'BAUDRATE', ZStage.BaudRate ) ;
     AddElementDouble( iNode, 'ZSCALEFACTOR', ZStage.ZScaleFactor ) ;
@@ -3332,7 +3290,6 @@ begin
     While FindXMLNode(ProtNode,'ZSTAGE',iNode,NodeIndex) do
       begin
       ZStage.StageType := GetElementInt( iNode, 'STAGETYPE', ZStage.StageType ) ;
-      ZStage.Enabled := GetElementBool( iNode, 'ENABLED', ZStage.Enabled ) ;
       ZStage.ControlPort := GetElementInt( iNode, 'CONTROLPORT', ZStage.ControlPort ) ;
       ZStage.BaudRate := GetElementInt( iNode, 'BAUDRATE', ZStage.BaudRate ) ;
       ZStage.ZScaleFactor := GetElementDouble( iNode, 'ZSCALEFACTOR', ZStage.ZScaleFactor ) ;

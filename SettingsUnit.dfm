@@ -57,7 +57,6 @@ object SettingsFrm: TSettingsFrm
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
-      ExplicitHeight = 615
       object ImageHRGrp: TGroupBox
         Left = 8
         Top = 10
@@ -310,7 +309,6 @@ object SettingsFrm: TSettingsFrm
     object PMTTab: TTabSheet
       Caption = 'PM Tubes'
       ImageIndex = 1
-      ExplicitHeight = 615
       object PMTgrp: TGroupBox
         Left = 8
         Top = 10
@@ -458,7 +456,6 @@ object SettingsFrm: TSettingsFrm
     object LasersTab: TTabSheet
       Caption = 'Lasers '
       ImageIndex = 2
-      ExplicitHeight = 615
       object cbLaserType: TComboBox
         Left = 11
         Top = 32
@@ -981,7 +978,6 @@ object SettingsFrm: TSettingsFrm
     object TabSheet1: TTabSheet
       Caption = 'XYZ Stage Control'
       ImageIndex = 3
-      ExplicitHeight = 615
       object GroupBox2: TGroupBox
         Left = 8
         Top = 10
@@ -1013,24 +1009,13 @@ object SettingsFrm: TSettingsFrm
           Alignment = taRightJustify
           Caption = 'Z step time'
         end
-        object ckZControlEnabled: TCheckBox
-          Left = 147
-          Top = 127
-          Width = 65
-          Height = 15
-          Alignment = taLeftJustify
-          Caption = 'Enabled'
-          Checked = True
-          State = cbChecked
-          TabOrder = 0
-        end
         object cbZStagePort: TComboBox
           Left = 120
           Top = 43
           Width = 97
           Height = 21
           Style = csDropDownList
-          TabOrder = 1
+          TabOrder = 0
         end
         object edZScaleFactor: TValidatedEdit
           Left = 120
@@ -1050,7 +1035,7 @@ object SettingsFrm: TSettingsFrm
           Top = 16
           Width = 209
           Height = 21
-          TabOrder = 3
+          TabOrder = 2
           Text = 'cbZStageType'
           OnChange = cbZStageTypeChange
         end
@@ -1072,7 +1057,6 @@ object SettingsFrm: TSettingsFrm
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 4
-      ExplicitHeight = 615
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10

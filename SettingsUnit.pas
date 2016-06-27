@@ -4,6 +4,7 @@ unit SettingsUnit;
 // ------------------------------------
 // 1-6-12 MinPixelDwellTimeAdded
 // 17.03.15 Scan now only set to full field when full field with changed.
+// 27.06.16 Enabled property removed
 
 interface
 
@@ -66,7 +67,6 @@ type
     Label8: TLabel;
     Label10: TLabel;
     Label13: TLabel;
-    ckZControlEnabled: TCheckBox;
     cbZStagePort: TComboBox;
     edZScaleFactor: TValidatedEdit;
     cbZStageType: TComboBox;
@@ -217,7 +217,6 @@ begin
 
     Laser.ShutterChangeTime := edLaserShutterChangeTime.Value ;
 
-    ZStage.Enabled := ckZControlEnabled.Checked ;
     ZStage.ControlPort := cbZStagePort.ItemIndex ;
     ZStage.ZScaleFactor := edZScaleFactor.Value ;
     ZStage.ZStepTime := edZStepTime.Value ;
@@ -237,7 +236,6 @@ begin
     ZStage.GetControlPorts(cbZStagePort.Items);
     cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
 
-    ckZControlEnabled.Checked := ZStage.Enabled ;
     edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
 
@@ -308,7 +306,6 @@ begin
     cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
 
 
-    ckZControlEnabled.Checked := ZStage.Enabled ;
     edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
     edZStepTime.Value := ZStage.ZStepTime ;
