@@ -97,7 +97,7 @@ object SettingsFrm: TSettingsFrm
           Value = 1000.000000000000000000
           Scale = 1.000000000000000000
           NumberFormat = '%.0f'
-          LoLimit = 100.000000000000000000
+          LoLimit = 10.000000000000000000
           HiLimit = 30000.000000000000000000
         end
         object edFastFrameWidth: TValidatedEdit
@@ -109,8 +109,8 @@ object SettingsFrm: TSettingsFrm
           Value = 500.000000000000000000
           Scale = 1.000000000000000000
           NumberFormat = '%.0f'
-          LoLimit = 100.000000000000000000
-          HiLimit = 1000000.000000000000000000
+          LoLimit = 10.000000000000000000
+          HiLimit = 30000.000000000000000000
         end
         object edFastFrameHeight: TValidatedEdit
           Left = 140
@@ -121,8 +121,8 @@ object SettingsFrm: TSettingsFrm
           Value = 50.000000000000000000
           Scale = 1.000000000000000000
           NumberFormat = '%.0f'
-          LoLimit = 1.000000000000000000
-          HiLimit = 1000000.000000000000000000
+          LoLimit = 10.000000000000000000
+          HiLimit = 30000.000000000000000000
         end
       end
       object ScanGrp: TGroupBox

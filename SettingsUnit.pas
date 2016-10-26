@@ -5,6 +5,7 @@ unit SettingsUnit;
 // 1-6-12 MinPixelDwellTimeAdded
 // 17.03.15 Scan now only set to full field when full field with changed.
 // 27.06.16 Enabled property removed
+// 26.10.16 Frame height/widths limited to 10-30K
 
 interface
 

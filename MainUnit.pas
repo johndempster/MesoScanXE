@@ -29,6 +29,9 @@ unit MainUnit;
 // V1.5.9 27.05.16 27.0.16 Z stage pressure switch protection implemented
 // V1.6.0 26.06.16 XZ mode being fixed
 // V1.6.1 27.06.16 XZ mode revised and now working
+// V1.6.2 26.10.16 Frame sizes now limited to 10,10 ... 20K,20K
+//                 PMT controls disabled when scanning
+//                 Exit query when user stops program
 
 interface
 
@@ -40,6 +43,11 @@ uses
 
 const
     VMax = 10.0 ;
+    MaxFrameWidth = 30000 ;
+    MaxFrameHeight = 30000 ;
+    MinFrameWidth = 10 ;
+    MinFrameHeight = 10 ;
+
     MaxFrameType = 2 ;
     MinPaletteColor = 11 ;
     MaxPaletteColor = 255 ;
@@ -111,7 +119,7 @@ type
     edZTop: TValidatedEdit;
     edGotoZPosition: TValidatedEdit;
     bGotoZPosition: TButton;
-    GroupBox2: TGroupBox;
+    PMTGrp: TGroupBox;
     LaserGrp: TGroupBox;
     edLaserIntensity: TValidatedEdit;
     tbLaserIntensity: TTrackBar;
@@ -230,6 +238,7 @@ type
     procedure udPMTVolts3ChangingEx(Sender: TObject; var AllowChange: Boolean;
       NewValue: Integer; Direction: TUpDownDirection);
     procedure SavetoImageJ1Click(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     { Private declarations }
         BitMap : Array[0..MaxPMT] of TBitMap ;  // Image internal bitmaps
@@ -570,13 +579,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.6.1 ';
+     Caption := 'MesoScan V1.6.2 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 27/06/16';
+    Caption := Caption + ' 26/10/16';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -1157,6 +1166,17 @@ begin
      SaveSettingsToXMLFile( INIFileName ) ;
 
      end;
+
+procedure TMainFrm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+// ----------------------------------------
+// Warn user that program is about to close
+// ----------------------------------------
+begin
+    if MessageDlg( 'Exit Program! Are you Sure? ',
+       mtConfirmation,[mbYes,mbNo], 0 ) = mrYes then CanClose := True
+                                                else CanClose := False ;
+end;
+
 
 procedure TMainFrm.CreateScanWaveform ;
 // ------------------------------
@@ -1849,6 +1869,8 @@ begin
     bScanZoomIn.Enabled := False ;
     bScanZoomOut.Enabled := False ;
     bScanFull.Enabled := False ;
+
+    PMTGrp.Enabled := False ;    // Disable changes to PMT settings
 
     if cbImageMode.ItemIndex = XYZMode then ckRepeat.Checked := False  ;
 
@@ -2563,6 +2585,7 @@ begin
     bScanZoomIn.Enabled := True ;
     bScanZoomOut.Enabled := True ;
     bScanFull.Enabled := True ;
+    PMTGrp.Enabled := True ;    // Enable changes to PMT settings
 
     ScanRequested := 0 ;
     ScanningInProgress := False ;
@@ -3206,8 +3229,14 @@ begin
     ProtNode := xmldoc.DocumentElement ;
 
     FastFrameWidth := GetElementInt( ProtNode, 'FASTFRAMEWIDTH', FastFrameWidth ) ;
+    FastFrameWidth := Min(Max(FastFrameWidth,MinFrameWidth),MaxFrameWidth) ;
+
     FastFrameHeight := GetElementInt( ProtNode, 'FASTFRAMEHEIGHT', FastFrameHeight ) ;
+    FastFrameHeight := Min(Max(FastFrameHeight,MinFrameHeight),MaxFrameHeight) ;
+
     HRFrameWidth := GetElementInt( ProtNode, 'HRFRAMEWIDTH', HRFrameWidth ) ;
+    HRFrameWidth := Min(Max(HRFrameWidth,MinFrameWidth),MaxFrameWidth) ;
+
     edLineScanFrameHeight.Value := GetElementInt( ProtNode, 'LINESCANFRAMEHEIGHT',
                                                   Round(edLineScanFrameHeight.Value) ) ;
 
