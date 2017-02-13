@@ -448,10 +448,10 @@ object MainFrm: TMainFrm
         Height = 21
         Hint = 'Z increment between sections'
         OnKeyPress = edNumPixelsPerZStepKeyPress
-        Text = ' 1 '
+        Text = ' 1.000 '
         Value = 1.000000000000000000
         Scale = 1.000000000000000000
-        NumberFormat = '%.0f'
+        NumberFormat = '%.3f'
         LoLimit = -100.000000000000000000
         HiLimit = 100.000000000000000000
       end
@@ -462,10 +462,10 @@ object MainFrm: TMainFrm
         Height = 21
         Hint = 'Z increment between sections'
         OnKeyPress = edMicronsPerZStepKeyPress
-        Text = ' 0.00 um'
+        Text = ' 0.000 um'
         Scale = 1.000000000000000000
         Units = 'um'
-        NumberFormat = '%.2f'
+        NumberFormat = '%.3f'
         LoLimit = -100.000000000000000000
         HiLimit = 100.000000000000000000
       end

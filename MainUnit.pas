@@ -32,6 +32,7 @@ unit MainUnit;
 // V1.6.2 26.10.16 Frame sizes now limited to 10,10 ... 20K,20K
 //                 PMT controls disabled when scanning
 //                 Exit query when user stops program
+// V1.6.3 13.02.17 Z steps no longer forced to be multiples of XY pixel size
 
 interface
 
@@ -579,13 +580,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.6.2 ';
+     Caption := 'MesoScan V1.6.3 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 26/10/16';
+    Caption := Caption + ' 13/02/17';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -2175,7 +2176,8 @@ procedure TMainFrm.edMicronsPerZStepKeyPress(Sender: TObject; var Key: Char);
 begin
       if Key = #13 then
          begin
-         edNumPixelsPerZStep.Value := Max(Round(edMicronsPerZStep.Value / (ScanArea[iScanZoom].Width/HRFrameWidth)),1) ;
+//         edNumPixelsPerZStep.Value := Max(Round(edMicronsPerZStep.Value / (ScanArea[iScanZoom].Width/HRFrameWidth)),1) ;
+         edNumPixelsPerZStep.Value := edMicronsPerZStep.Value / (ScanArea[iScanZoom].Width/HRFrameWidth) ;
          edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
          end;
       end;
@@ -3128,7 +3130,7 @@ begin
     // Z stack
     iNode := ProtNode.AddChild( 'ZSTACK' ) ;
     AddElementInt( iNode, 'NUMZSECTIONS', Round(edNUMZSections.Value) ) ;
-    AddElementInt( iNode, 'NUMPIXELSPERZSTEP', Round(edNumPixelsPerZStep.Value) ) ;
+    AddElementDouble( iNode, 'NUMPIXELSPERZSTEP', edNumPixelsPerZStep.Value ) ;
 
     // Laser control
     iNode := ProtNode.AddChild( 'LASER' ) ;
@@ -3270,7 +3272,7 @@ begin
     While FindXMLNode(ProtNode,'ZSTACK',iNode,NodeIndex) do
        begin
        edNUMZSections.Value := GetElementInt( iNode, 'NUMZSECTIONS', Round(edNUMZSections.Value) ) ;
-       edNumPixelsPerZStep.Value := GetElementInt( iNode, 'NUMPIXELSPERZSTEP', Round(edNumPixelsPerZStep.Value) ) ;
+       edNumPixelsPerZStep.Value := GetElementDouble( iNode, 'NUMPIXELSPERZSTEP', edNumPixelsPerZStep.Value ) ;
        Inc(NodeIndex) ;
        end ;
 
