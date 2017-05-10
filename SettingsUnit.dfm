@@ -982,7 +982,7 @@ object SettingsFrm: TSettingsFrm
         Left = 8
         Top = 10
         Width = 230
-        Height = 161
+        Height = 191
         Caption = ' Z position Control'
         TabOrder = 0
         object Label8: TLabel
@@ -1008,6 +1008,22 @@ object SettingsFrm: TSettingsFrm
           Height = 13
           Alignment = taRightJustify
           Caption = 'Z step time'
+        end
+        object Label14: TLabel
+          Left = 12
+          Top = 122
+          Width = 102
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Z Position Lower Limit'
+        end
+        object Label16: TLabel
+          Left = 12
+          Top = 149
+          Width = 102
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Z Position Upper Limit'
         end
         object cbZStagePort: TComboBox
           Left = 120
@@ -1049,6 +1065,32 @@ object SettingsFrm: TSettingsFrm
           Scale = 1000.000000000000000000
           Units = 'ms'
           NumberFormat = '%.4g'
+          LoLimit = -1.000000015047466E30
+          HiLimit = 1000000.000000000000000000
+        end
+        object edZpositionMin: TValidatedEdit
+          Left = 120
+          Top = 122
+          Width = 97
+          Height = 21
+          Text = ' -10000 um'
+          Value = -10000.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'um'
+          NumberFormat = '%.0f'
+          LoLimit = -1.000000015047466E30
+          HiLimit = 1000000.000000000000000000
+        end
+        object edZPositionMax: TValidatedEdit
+          Left = 120
+          Top = 149
+          Width = 97
+          Height = 21
+          Text = ' 10000 um'
+          Value = 10000.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'um'
+          NumberFormat = '%.0f'
           LoLimit = -1.000000015047466E30
           HiLimit = 1000000.000000000000000000
         end

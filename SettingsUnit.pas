@@ -6,6 +6,7 @@ unit SettingsUnit;
 // 17.03.15 Scan now only set to full field when full field with changed.
 // 27.06.16 Enabled property removed
 // 26.10.16 Frame height/widths limited to 10-30K
+// 10.05.17 ZPositionMin, ZPositionMax limits added
 
 interface
 
@@ -129,6 +130,10 @@ type
     Panel1: TPanel;
     Label7: TLabel;
     cbLaserControlComPort: TComboBox;
+    Label14: TLabel;
+    edZpositionMin: TValidatedEdit;
+    Label16: TLabel;
+    edZPositionMax: TValidatedEdit;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -221,6 +226,8 @@ begin
     ZStage.ControlPort := cbZStagePort.ItemIndex ;
     ZStage.ZScaleFactor := edZScaleFactor.Value ;
     ZStage.ZStepTime := edZStepTime.Value ;
+    ZStage.ZPositionMin := edZPositionMin.Value ;
+    ZStage.ZPositionMax := edZPositionMax.Value ;
 
     MainFrm.ImageJPath := edImageJPath.Text ;
     MainFrm.SaveAsMultipageTIFF := ckSaveAsMultipageTIFF.Checked ;
@@ -306,12 +313,11 @@ begin
     ZStage.GetControlPorts(cbZStagePort.Items);
     cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
 
-
     edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
     edZStepTime.Value := ZStage.ZStepTime ;
-
-
+    edZPositionMin.Value := ZStage.ZPositionMin ;
+    edZPositionMax.Value := ZStage.ZPositionMax ;
 
     edImageJPath.Text := MainFrm.ImageJPath ;
     ckSaveAsMultipageTIFF.Checked := MainFrm.SaveAsMultipageTIFF ;

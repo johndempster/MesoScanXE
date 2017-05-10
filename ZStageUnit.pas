@@ -8,6 +8,7 @@ unit ZStageUnit;
 // 22.04.16 Support for Prior Proscan III added with Z stage upper limit protection
 // 27.0.16 Z stage pressure switch protection implemented
 // 27.06.16 Enabled property removed
+// 10.05.17 ZPositionMax,ZPositionMin limits added
 
 interface
 
@@ -51,6 +52,8 @@ type
   public
     { Public declarations }
     ZPosition : Double ;     // Z position (um)
+    ZPositionMax : Double ;  // Z position upper limit (um)
+    ZPositionMin : Double ;  // Z position lower limit (um)
     ZScaleFactor : Double ;  // Z step scaling factor
     ZStepTime : Double ;     // Time to perform Z step (s)
     procedure Open ;
@@ -101,6 +104,8 @@ begin
     Status := '' ;
     ControlState := csIdle ;
     ZPosition := 0.0 ;
+    ZPositionMax := 2000.0 ;
+    ZPositionMin := -10000.0 ;
     ZscaleFactor := 1.0 ;
     MoveToRequest := False ;
     MoveToPosition := 0.0 ;
@@ -218,6 +223,9 @@ procedure TZStage.MoveTo( Position : Double ) ;
 // Go to Z position
 // -----------------
 begin
+    // Keep within limits
+    Position := Min(Max(Position,ZPositionMin),ZPositionMax);
+
     case FStageType of
         stOptiscanII,stProScanIII : MoveToOSII(  Position ) ;
         stPiezo : MoveToPZ(  Position ) ;

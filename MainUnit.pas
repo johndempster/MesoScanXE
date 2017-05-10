@@ -33,6 +33,7 @@ unit MainUnit;
 //                 PMT controls disabled when scanning
 //                 Exit query when user stops program
 // V1.6.3 13.02.17 Z steps no longer forced to be multiples of XY pixel size
+// V1.6.4 10.05.17 ZPositionMin, ZPositionMax limits added
 
 interface
 
@@ -580,13 +581,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.6.3 ';
+     Caption := 'MesoScan V1.6.4 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 13/02/17';
+    Caption := Caption + ' 10/05/17';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -3168,6 +3169,8 @@ begin
     AddElementInt( iNode, 'BAUDRATE', ZStage.BaudRate ) ;
     AddElementDouble( iNode, 'ZSCALEFACTOR', ZStage.ZScaleFactor ) ;
     AddElementDouble( iNode, 'ZSTEPTIME', ZStage.ZStepTime ) ;
+    AddElementDouble( iNode, 'ZPOSITIONMAX', ZStage.ZPositionMax ) ;
+    AddElementDouble( iNode, 'ZPOSITIONMIN', ZStage.ZPositionMin ) ;
 
     AddElementText( ProtNode, 'SAVEDIRECTORY', SaveDirectory ) ;
 
@@ -3325,8 +3328,13 @@ begin
       ZStage.BaudRate := GetElementInt( iNode, 'BAUDRATE', ZStage.BaudRate ) ;
       ZStage.ZScaleFactor := GetElementDouble( iNode, 'ZSCALEFACTOR', ZStage.ZScaleFactor ) ;
       ZStage.ZStepTime := GetElementDouble( iNode, 'ZSTEPTIME', ZStage.ZStepTime ) ;
+      ZStage.ZPositionMax := GetElementDouble( iNode, 'ZPOSITIONMAX', ZStage.ZPositionMax ) ;
+      ZStage.ZPositionMin := GetElementDouble( iNode, 'ZPOSITIONMIN', ZStage.ZPositionMin ) ;
       Inc(NodeIndex) ;
       end ;
+
+    edGotoZPosition.HiLimit := ZStage.ZPositionMax ;
+    edGotoZPosition.LoLimit := ZStage.ZPositionMin ;
 
     SaveDirectory := GetElementText( ProtNode, 'SAVEDIRECTORY', SaveDirectory ) ;
     ImageJPath := GetElementText( ProtNode, 'IMAGEJPATH', ImageJPath ) ;
