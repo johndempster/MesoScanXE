@@ -244,7 +244,7 @@ begin
     ZStage.GetControlPorts(cbZStagePort.Items);
     cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
 
-    edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;
+    edZScaleFactor.Units := ZStage.ScaleFactorUnits ;
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
 
     end;
@@ -313,7 +313,7 @@ begin
     ZStage.GetControlPorts(cbZStagePort.Items);
     cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
 
-    edZScaleFactor.Units := ZStage.ZScaleFactorUnits ;
+    edZScaleFactor.Units := ZStage.ScaleFactorUnits ;
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
     edZStepTime.Value := ZStage.ZStepTime ;
     edZPositionMin.Value := ZStage.ZPositionMin ;

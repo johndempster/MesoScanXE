@@ -57,6 +57,10 @@ object SettingsFrm: TSettingsFrm
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ImageHRGrp: TGroupBox
         Left = 8
         Top = 10
@@ -309,6 +313,10 @@ object SettingsFrm: TSettingsFrm
     object PMTTab: TTabSheet
       Caption = 'PM Tubes'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object PMTgrp: TGroupBox
         Left = 8
         Top = 10
@@ -456,6 +464,10 @@ object SettingsFrm: TSettingsFrm
     object LasersTab: TTabSheet
       Caption = 'Lasers '
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object cbLaserType: TComboBox
         Left = 11
         Top = 32
@@ -978,6 +990,10 @@ object SettingsFrm: TSettingsFrm
     object TabSheet1: TTabSheet
       Caption = 'XYZ Stage Control'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 8
         Top = 10
@@ -1099,6 +1115,10 @@ object SettingsFrm: TSettingsFrm
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10
