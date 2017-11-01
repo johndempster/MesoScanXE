@@ -19,6 +19,7 @@ unit ZStageUnit;
 // 18.10.17 Now reports if COM port cannot be opened and disables send/recieves to controller
 // 27.10.17 Stage controller module from imported from MesoCam to add correct ProScanEnableZStageTTLAction
 //          Now interrupts Z movement commands before move to zero
+// 01.11.17 OptiScan II now operated in standard (COMP 0) mode
 
 interface
 
@@ -210,11 +211,7 @@ begin
     if ComPortOpen then CloseComPort ;
 
     case FStageType of
-        stOptiscanII :
-          begin
-          OpenComPort ;
-          end ;
-        stProScanIII :
+        stOptiscanII,stProScanIII :
           begin
           OpenComPort ;
           StageInitRequired := True ;

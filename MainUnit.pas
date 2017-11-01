@@ -35,6 +35,7 @@ unit MainUnit;
 // V1.6.3 13.02.17 Z steps no longer forced to be multiples of XY pixel size
 // V1.6.4 10.05.17 ZPositionMin, ZPositionMax limits added
 // V1.6.5 27.10.17 ZStageUnit: Stage protection interrupt now interrupts Z movement commands before move to zero.
+// V1.6.6 91.11.17 ZStageUnit: OptiScan II now operated in standard (COMP 0) mode
 
 interface
 
@@ -582,13 +583,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.6.5 ';
+     Caption := 'MesoScan V1.6.6 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 27/10/17';
+    Caption := Caption + ' 1/11/17';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
