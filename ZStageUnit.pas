@@ -123,7 +123,8 @@ const
     stPiezo = 3 ;
 
     XMaxStep = 10000.0 ;
-    YMaxStep = 10000.0 ;
+    YMaxStep = 10000.0 ;                                                                                                                                                              // ---------------------------------------
+
     ZMaxStep = 10000.0 ;
 
 procedure TZStage.DataModuleCreate(Sender: TObject);
@@ -152,6 +153,7 @@ begin
     MoveToRequest := False ;
     StageInitRequired := False ;
     end;
+
 
 procedure TZStage.DataModuleDestroy(Sender: TObject);
 // --------------------------------

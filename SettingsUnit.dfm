@@ -3,7 +3,7 @@ object SettingsFrm: TSettingsFrm
   Top = 0
   BorderStyle = bsDialog
   Caption = ' Scan Settings '
-  ClientHeight = 437
+  ClientHeight = 643
   ClientWidth = 773
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object SettingsFrm: TSettingsFrm
   TextHeight = 13
   object bOK: TButton
     Left = 8
-    Top = 407
+    Top = 431
     Width = 65
     Height = 25
     Caption = 'OK'
@@ -34,7 +34,7 @@ object SettingsFrm: TSettingsFrm
   end
   object bCancel: TButton
     Left = 79
-    Top = 410
+    Top = 434
     Width = 72
     Height = 20
     Caption = 'Cancel'
@@ -52,49 +52,53 @@ object SettingsFrm: TSettingsFrm
     Left = 8
     Top = 6
     Width = 761
-    Height = 395
+    Height = 419
     ActivePage = ScanTab
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ImageHRGrp: TGroupBox
         Left = 8
         Top = 10
-        Width = 235
-        Height = 103
+        Width = 240
+        Height = 131
         Caption = ' Image (hi. res. scan)'
         TabOrder = 0
         object Label1: TLabel
-          Left = 43
-          Top = 18
+          Left = 40
+          Top = 42
           Width = 88
           Height = 13
           Alignment = taRightJustify
           Caption = 'Hi. Res. Pixels/line'
         end
         object Label4: TLabel
-          Left = 26
-          Top = 42
+          Left = 31
+          Top = 66
           Width = 97
           Height = 13
           Alignment = taRightJustify
           Caption = 'Fast Scan Pixels/line'
         end
         object Label12: TLabel
-          Left = 17
-          Top = 72
+          Left = 22
+          Top = 96
           Width = 106
           Height = 13
           Alignment = taRightJustify
           Caption = 'Fast Scan Lines/image'
         end
-        object edHRFrameWidth: TValidatedEdit
-          Left = 140
+        object Label37: TLabel
+          Left = 85
           Top = 18
+          Width = 43
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Pixel size'
+        end
+        object edHRFrameWidth: TValidatedEdit
+          Left = 132
+          Top = 42
           Width = 90
           Height = 21
           Text = ' 1000 '
@@ -105,8 +109,8 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 30000.000000000000000000
         end
         object edFastFrameWidth: TValidatedEdit
-          Left = 140
-          Top = 45
+          Left = 132
+          Top = 69
           Width = 90
           Height = 21
           Text = ' 500 '
@@ -117,8 +121,8 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 30000.000000000000000000
         end
         object edFastFrameHeight: TValidatedEdit
-          Left = 140
-          Top = 72
+          Left = 132
+          Top = 96
           Width = 90
           Height = 21
           Text = ' 50 '
@@ -128,12 +132,25 @@ object SettingsFrm: TSettingsFrm
           LoLimit = 10.000000000000000000
           HiLimit = 30000.000000000000000000
         end
+        object edHRPixelSize: TValidatedEdit
+          Left = 132
+          Top = 18
+          Width = 90
+          Height = 21
+          Text = ' 0.25 um'
+          Value = 0.250000000000000000
+          Scale = 1.000000000000000000
+          Units = 'um'
+          NumberFormat = '%.4g'
+          LoLimit = -1.000000015047466E30
+          HiLimit = 1.000000000000000000
+        end
       end
       object ScanGrp: TGroupBox
         Left = 256
         Top = 10
         Width = 235
-        Height = 241
+        Height = 295
         Caption = ' Scan Settings'
         TabOrder = 1
         object Label3: TLabel
@@ -143,22 +160,6 @@ object SettingsFrm: TSettingsFrm
           Height = 13
           Alignment = taRightJustify
           Caption = 'Phase delay'
-        end
-        object xscalelab: TLabel
-          Left = 66
-          Top = 136
-          Width = 65
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'X scale factor'
-        end
-        object Label5: TLabel
-          Left = 66
-          Top = 160
-          Width = 65
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'Y scale factor'
         end
         object Label6: TLabel
           Left = 59
@@ -170,7 +171,7 @@ object SettingsFrm: TSettingsFrm
         end
         object Label9: TLabel
           Left = 36
-          Top = 208
+          Top = 209
           Width = 95
           Height = 13
           Alignment = taRightJustify
@@ -215,32 +216,6 @@ object SettingsFrm: TSettingsFrm
           LoLimit = -1.000000015047466E30
           HiLimit = 20000.000000000000000000
         end
-        object edXVoltsPerMicron: TValidatedEdit
-          Left = 137
-          Top = 136
-          Width = 90
-          Height = 21
-          Text = ' 1 V/um'
-          Value = 1.000000000000000000
-          Scale = 1.000000000000000000
-          Units = 'V/um'
-          NumberFormat = '%.4g'
-          LoLimit = 0.000009999999747379
-          HiLimit = 1.000000000000000000
-        end
-        object edYVoltsPerMicron: TValidatedEdit
-          Left = 137
-          Top = 160
-          Width = 90
-          Height = 21
-          Text = ' 1 V/um'
-          Value = 1.000000000000000000
-          Scale = 1.000000000000000000
-          Units = 'V/um'
-          NumberFormat = '%.4g'
-          LoLimit = 0.000009999999747379
-          HiLimit = 10.000000000000000000
-        end
         object edMaxScanRate: TValidatedEdit
           Left = 137
           Top = 184
@@ -261,11 +236,11 @@ object SettingsFrm: TSettingsFrm
           Height = 17
           Alignment = taLeftJustify
           Caption = 'Bi-directional scan'
-          TabOrder = 5
+          TabOrder = 3
         end
         object edMinPixelDwellTime: TValidatedEdit
           Left = 137
-          Top = 205
+          Top = 209
           Width = 90
           Height = 21
           Text = ' 0.5 us'
@@ -309,104 +284,205 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 0.200000002980232200
         end
       end
-    end
-    object PMTTab: TTabSheet
-      Caption = 'PM Tubes'
-      ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object PMTgrp: TGroupBox
+      object GroupBox1: TGroupBox
         Left = 8
-        Top = 10
-        Width = 230
-        Height = 235
-        TabOrder = 0
-        object Label2: TLabel
-          Left = 20
-          Top = 17
-          Width = 103
+        Top = 147
+        Width = 240
+        Height = 150
+        Caption = ' Scanning Galvanometer Control '
+        TabOrder = 2
+        object Label40: TLabel
+          Left = 48
+          Top = 20
+          Width = 75
           Height = 13
           Alignment = taRightJustify
+          Caption = 'X Mirror Control'
+        end
+        object Label41: TLabel
+          Left = 48
+          Top = 79
+          Width = 75
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Y Mirror Control'
+        end
+        object xscalelab: TLabel
+          Left = 59
+          Top = 46
+          Width = 65
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'X scale factor'
+        end
+        object Label5: TLabel
+          Left = 59
+          Top = 106
+          Width = 65
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Y scale factor'
+        end
+        object cbXGalvo: TComboBox
+          Left = 130
+          Top = 20
+          Width = 90
+          Height = 21
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object cbYGalvo: TComboBox
+          Left = 130
+          Top = 79
+          Width = 90
+          Height = 21
+          Style = csDropDownList
+          TabOrder = 1
+        end
+        object edXVoltsPerMicron: TValidatedEdit
+          Left = 130
+          Top = 46
+          Width = 90
+          Height = 21
+          Text = ' 1 V/um'
+          Value = 1.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'V/um'
+          NumberFormat = '%.4g'
+          LoLimit = 0.000009999999747379
+          HiLimit = 1.000000000000000000
+        end
+        object edYVoltsPerMicron: TValidatedEdit
+          Left = 130
+          Top = 106
+          Width = 90
+          Height = 21
+          Text = ' 1 V/um'
+          Value = 1.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'V/um'
+          NumberFormat = '%.4g'
+          LoLimit = 0.000009999999747379
+          HiLimit = 10.000000000000000000
+        end
+      end
+    end
+    object gpIntegrator: TTabSheet
+      Caption = 'PM Tubes'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = []
+      ImageIndex = 1
+      ParentFont = False
+      object gpPMTs: TGroupBox
+        Left = 259
+        Top = 8
+        Width = 238
+        Height = 306
+        Caption = ' Photomultiplier Tubes '
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object Label2: TLabel
+          Left = 69
+          Top = 27
+          Width = 104
+          Height = 16
+          Alignment = taRightJustify
           Caption = 'No. of PMTs available'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial Narrow'
+          Font.Style = []
+          ParentFont = False
         end
         object Label18: TLabel
-          Left = 74
-          Top = 201
-          Width = 49
-          Height = 13
+          Left = 63
+          Top = 273
+          Width = 62
+          Height = 16
           Alignment = taRightJustify
           Caption = 'Black level'
         end
-        object Label19: TLabel
-          Left = 20
-          Top = 44
-          Width = 103
-          Height = 13
+        object Label23: TLabel
+          Left = 177
+          Top = 105
+          Width = 25
+          Height = 15
           Alignment = taRightJustify
-          Caption = 'PMT0 Voltage Control'
+          Caption = 'Gain'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object Label19: TLabel
+          Left = 79
+          Top = 105
+          Width = 86
+          Height = 15
+          Alignment = taRightJustify
+          Caption = 'Voltage Control'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
         end
         object Label20: TLabel
-          Left = 20
-          Top = 71
-          Width = 103
-          Height = 13
+          Left = 56
+          Top = 50
+          Width = 117
+          Height = 16
           Alignment = taRightJustify
-          Caption = 'PMT1 Voltage Control'
+          Caption = 'PMT Voltage (Min. Gain)'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial Narrow'
+          Font.Style = []
+          ParentFont = False
         end
         object Label21: TLabel
-          Left = 20
-          Top = 98
-          Width = 103
-          Height = 13
+          Left = 52
+          Top = 79
+          Width = 121
+          Height = 16
           Alignment = taRightJustify
-          Caption = 'PMT2 Voltage Control'
-        end
-        object Label22: TLabel
-          Left = 20
-          Top = 125
-          Width = 103
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'PMT3 Voltage Control'
-        end
-        object Label23: TLabel
-          Left = 19
-          Top = 152
-          Width = 104
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'PMT voltage at 100%'
-        end
-        object edNumPMTs: TValidatedEdit
-          Left = 130
-          Top = 17
-          Width = 90
-          Height = 21
-          Text = ' 1 '
-          Value = 1.000000000000000000
-          Scale = 1.000000000000000000
-          NumberFormat = '%.0f'
-          LoLimit = 1.000000000000000000
-          HiLimit = 4.000000000000000000
+          Caption = 'PMT Voltage (Max. Gain)'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial Narrow'
+          Font.Style = []
+          ParentFont = False
         end
         object ckInvertPMTsignal: TCheckBox
-          Left = 111
-          Top = 180
-          Width = 108
+          Left = 98
+          Top = 250
+          Width = 123
           Height = 15
           Alignment = taLeftJustify
           Caption = 'Invert PMT signal'
           Checked = True
           State = cbChecked
-          TabOrder = 1
+          TabOrder = 0
         end
         object edBlackLevel: TValidatedEdit
-          Left = 130
-          Top = 201
+          Left = 131
+          Top = 271
           Width = 90
-          Height = 21
+          Height = 24
           Text = ' 10 '
           Value = 10.000000000000000000
           Scale = 1.000000000000000000
@@ -414,43 +490,209 @@ object SettingsFrm: TSettingsFrm
           LoLimit = -32768.000000000000000000
           HiLimit = 32767.000000000000000000
         end
-        object cbPMTControl0: TComboBox
-          Left = 130
-          Top = 44
-          Width = 90
-          Height = 21
-          Style = csDropDownList
+        object pnPMT0: TPanel
+          Left = 18
+          Top = 126
+          Width = 217
+          Height = 28
+          BevelOuter = bvNone
+          TabOrder = 2
+          object Edit1: TEdit
+            Left = 1
+            Top = 0
+            Width = 57
+            Height = 24
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Arial Narrow'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox1: TComboBox
+            Tag = 1
+            Left = 63
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ValidatedEdit1: TValidatedEdit
+            Tag = 2
+            Left = 159
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 100 %'
+            Value = 1.000000000000000000
+            Scale = 100.000000000000000000
+            Units = '%'
+            NumberFormat = '%.4g'
+            HiLimit = 1.000000000000000000
+          end
+        end
+        object spNumPMTs: TSpinEdit
+          Left = 179
+          Top = 18
+          Width = 50
+          Height = 26
+          Hint = 'Number of PMTS installed in system'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          MaxValue = 4
+          MinValue = 1
+          ParentFont = False
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 3
+          Value = 1
+          OnChange = spNumPMTsChange
         end
-        object cbPMTControl1: TComboBox
-          Left = 130
-          Top = 71
-          Width = 90
-          Height = 21
-          Style = csDropDownList
+        object pnPMT1: TPanel
+          Left = 18
+          Top = 156
+          Width = 217
+          Height = 28
+          BevelOuter = bvNone
           TabOrder = 4
+          object Edit2: TEdit
+            Left = 0
+            Top = 0
+            Width = 57
+            Height = 24
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Arial Narrow'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox2: TComboBox
+            Tag = 1
+            Left = 63
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ValidatedEdit2: TValidatedEdit
+            Tag = 2
+            Left = 159
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 100 %'
+            Value = 1.000000000000000000
+            Scale = 100.000000000000000000
+            Units = '%'
+            NumberFormat = '%.4g'
+            HiLimit = 1.000000000000000000
+          end
         end
-        object cbPMTControl2: TComboBox
-          Left = 130
-          Top = 98
-          Width = 90
-          Height = 21
-          Style = csDropDownList
+        object pnPMT2: TPanel
+          Left = 18
+          Top = 186
+          Width = 217
+          Height = 28
+          BevelOuter = bvNone
           TabOrder = 5
+          object Edit3: TEdit
+            Left = 0
+            Top = 0
+            Width = 57
+            Height = 24
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Arial Narrow'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox3: TComboBox
+            Tag = 1
+            Left = 63
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ValidatedEdit3: TValidatedEdit
+            Tag = 2
+            Left = 159
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 100 %'
+            Value = 1.000000000000000000
+            Scale = 100.000000000000000000
+            Units = '%'
+            NumberFormat = '%.4g'
+            HiLimit = 1.000000000000000000
+          end
         end
-        object cbPMTControl3: TComboBox
-          Left = 130
-          Top = 125
-          Width = 90
-          Height = 21
-          Style = csDropDownList
+        object pnPMT3: TPanel
+          Left = 18
+          Top = 216
+          Width = 217
+          Height = 28
+          BevelOuter = bvNone
           TabOrder = 6
+          object Edit4: TEdit
+            Left = 0
+            Top = 0
+            Width = 57
+            Height = 24
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Arial Narrow'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox4: TComboBox
+            Tag = 1
+            Left = 63
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ValidatedEdit4: TValidatedEdit
+            Tag = 2
+            Left = 159
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 100 %'
+            Value = 1.000000000000000000
+            Scale = 100.000000000000000000
+            Units = '%'
+            NumberFormat = '%.4g'
+            HiLimit = 1.000000000000000000
+          end
         end
-        object edPMTMaxVolts: TValidatedEdit
-          Left = 130
-          Top = 152
-          Width = 90
-          Height = 21
+        object edPMTGainVMin: TValidatedEdit
+          Left = 177
+          Top = 49
+          Width = 50
+          Height = 24
+          Hint = 'PMT control voltage at minimum gain'
+          ShowHint = True
           Text = ' 5 V'
           Value = 5.000000000000000000
           Scale = 1.000000000000000000
@@ -458,6 +700,53 @@ object SettingsFrm: TSettingsFrm
           NumberFormat = '%.4g'
           LoLimit = -1.000000015047466E30
           HiLimit = 10.000000000000000000
+        end
+        object edPMTGainVMax: TValidatedEdit
+          Left = 177
+          Top = 79
+          Width = 50
+          Height = 24
+          Hint = 'PMT control voltage at maximum gain'
+          ShowHint = True
+          Text = ' 5 V'
+          Value = 5.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'V'
+          NumberFormat = '%.4g'
+          LoLimit = -1.000000015047466E30
+          HiLimit = 10.000000000000000000
+        end
+      end
+      object GroupBox5: TGroupBox
+        Left = 8
+        Top = 8
+        Width = 233
+        Height = 57
+        Caption = ' PMT Integrator '
+        TabOrder = 1
+        object cbIntegratorType: TComboBox
+          Left = 8
+          Top = 20
+          Width = 215
+          Height = 24
+          TabOrder = 0
+          Text = 'cbIntegratorType'
+        end
+      end
+      object GroupBox6: TGroupBox
+        Left = 8
+        Top = 72
+        Width = 233
+        Height = 56
+        Caption = ' A/D Converter '
+        TabOrder = 2
+        object cbPMTADCPort: TComboBox
+          Left = 8
+          Top = 20
+          Width = 215
+          Height = 24
+          TabOrder = 0
+          Text = 'cbPMTADCDevice'
         end
       end
     end
@@ -475,473 +764,116 @@ object SettingsFrm: TSettingsFrm
         Height = 21
         TabOrder = 0
         Text = 'cbZStageType'
-        OnChange = cbZStageTypeChange
+        OnChange = cbLaserTypeChange
       end
-      object GroupBox4: TGroupBox
+      object grpUSBLaser: TPanel
+        Left = 403
+        Top = 54
+        Width = 297
+        Height = 137
+        Caption = 'grpUSBLaser'
+        TabOrder = 1
+        object cbLaserControlComPort: TComboBox
+          Left = 88
+          Top = 11
+          Width = 97
+          Height = 21
+          Style = csDropDownList
+          TabOrder = 0
+        end
+      end
+      object grpLaserExternal: TGroupBox
         Left = 3
         Top = 59
         Width = 382
         Height = 294
-        Caption = 'GroupBox4'
-        TabOrder = 1
+        Caption = ' Extrenal Analogue/Digital Laser Control'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
         object Label28: TLabel
-          Left = 24
-          Top = 20
-          Width = 27
-          Height = 13
+          Left = 8
+          Top = 56
+          Width = 33
+          Height = 15
           Caption = 'Name'
-        end
-        object lbLaser0: TLabel
-          Left = 3
-          Top = 38
-          Width = 12
-          Height = 14
-          Caption = '0.'
-          Font.Charset = DEFAULT_CHARSET
+          Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label29: TLabel
-          Left = 3
-          Top = 65
-          Width = 12
-          Height = 14
-          Caption = '1.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label30: TLabel
-          Left = 3
-          Top = 92
-          Width = 12
-          Height = 14
-          Caption = '2.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label31: TLabel
-          Left = 3
-          Top = 119
-          Width = 12
-          Height = 14
-          Caption = '3.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label32: TLabel
-          Left = 3
-          Top = 146
-          Width = 12
-          Height = 14
-          Caption = '4.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label33: TLabel
-          Left = 3
-          Top = 173
-          Width = 12
-          Height = 14
-          Caption = '5.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label34: TLabel
-          Left = 3
-          Top = 198
-          Width = 12
-          Height = 14
-          Caption = '6.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label35: TLabel
-          Left = 1
-          Top = 225
-          Width = 12
-          Height = 14
-          Caption = '7.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Tahoma'
+          Font.Name = 'Arial'
           Font.Style = [fsBold]
           ParentFont = False
         end
         object Label15: TLabel
-          Left = 22
+          Left = 1
           Top = 259
-          Width = 101
-          Height = 13
+          Width = 122
+          Height = 16
           Alignment = taRightJustify
           Caption = 'Shutter Change Time'
         end
-        object edLaserName0: TEdit
-          Left = 24
-          Top = 38
-          Width = 99
-          Height = 21
-          TabOrder = 0
-          Text = 'edLaserName0'
+        object Label7: TLabel
+          Left = 113
+          Top = 56
+          Width = 36
+          Height = 15
+          Caption = 'On/Off'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
         end
-        object edLaserName1: TEdit
-          Left = 24
-          Top = 65
-          Width = 99
-          Height = 21
-          TabOrder = 1
-          Text = 'edLaserName0'
+        object Label22: TLabel
+          Left = 209
+          Top = 56
+          Width = 48
+          Height = 15
+          Caption = 'Intensity'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
         end
-        object edLaserName2: TEdit
-          Left = 24
-          Top = 92
-          Width = 99
-          Height = 21
-          TabOrder = 2
-          Text = 'edLaserName0'
+        object Label26: TLabel
+          Left = 305
+          Top = 56
+          Width = 46
+          Height = 15
+          Caption = 'V(100%)'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
         end
-        object edLaserName3: TEdit
-          Left = 24
-          Top = 119
-          Width = 99
-          Height = 21
-          TabOrder = 3
-          Text = 'edLaserName0'
-        end
-        object edLaserName4: TEdit
-          Left = 24
-          Top = 146
-          Width = 99
-          Height = 21
-          TabOrder = 4
-          Text = 'edLaserName0'
-        end
-        object edLaserName5: TEdit
-          Left = 24
-          Top = 173
-          Width = 99
-          Height = 21
-          TabOrder = 5
-          Text = 'edLaserName0'
-        end
-        object edLaserName6: TEdit
-          Left = 24
-          Top = 198
-          Width = 99
-          Height = 21
-          TabOrder = 6
-          Text = 'edLaserName0'
-        end
-        object edLaserName7: TEdit
-          Left = 22
-          Top = 225
-          Width = 99
-          Height = 21
-          TabOrder = 7
-          Text = 'edLaserName0'
-        end
-        object LaserExternalControlPanel: TPanel
-          Left = 129
-          Top = 16
-          Width = 249
-          Height = 241
-          BevelOuter = bvNone
-          TabOrder = 8
-          object Label27: TLabel
-            Left = 0
-            Top = 3
-            Width = 72
-            Height = 13
-            Hint = 'Laser on/off TTL digital output'
-            Caption = 'On/Off Control'
-            Color = clBtnFace
-            ParentColor = False
-          end
-          object Label26: TLabel
-            Left = 96
-            Top = 4
-            Width = 81
-            Height = 13
-            Hint = 'Laser intensity analogue output'
-            Caption = 'Intensity Control'
-            ParentShowHint = False
-            ShowHint = True
-          end
-          object Label36: TLabel
-            Left = 192
-            Top = 2
-            Width = 46
-            Height = 13
-            Hint = 'Control voltage at maximum intensity'
-            Caption = 'V (100%)'
-            ParentShowHint = False
-            ShowHint = True
-          end
-          object cbLaserActiveControl0: TComboBox
-            Left = 0
-            Top = 22
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 0
-          end
-          object cbLaserActiveControl1: TComboBox
-            Left = 0
-            Top = 49
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 1
-          end
-          object cbLaserActiveControl2: TComboBox
-            Left = 0
-            Top = 76
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 2
-          end
-          object cbLaserActiveControl3: TComboBox
-            Left = 0
-            Top = 103
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 3
-          end
-          object cbLaserActiveControl4: TComboBox
-            Left = 0
-            Top = 130
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 4
-          end
-          object cbLaserActiveControl5: TComboBox
-            Left = 0
-            Top = 157
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 5
-          end
-          object cbLaserActiveControl6: TComboBox
-            Left = 0
-            Top = 182
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 6
-          end
-          object cbLaserActiveControl7: TComboBox
-            Left = 0
-            Top = 209
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 7
-          end
-          object cbLaserIntensityControl0: TComboBox
-            Left = 96
-            Top = 22
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 8
-          end
-          object cbLaserIntensityControl1: TComboBox
-            Left = 96
-            Top = 49
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 9
-          end
-          object cbLaserIntensityControl2: TComboBox
-            Left = 96
-            Top = 76
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 10
-          end
-          object cbLaserIntensityControl3: TComboBox
-            Left = 96
-            Top = 103
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 11
-          end
-          object cbLaserIntensityControl4: TComboBox
-            Left = 96
-            Top = 130
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 12
-          end
-          object cbLaserIntensityControl5: TComboBox
-            Left = 96
-            Top = 157
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 13
-          end
-          object cbLaserIntensityControl6: TComboBox
-            Left = 96
-            Top = 182
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 14
-          end
-          object cbLaserIntensityControl7: TComboBox
-            Left = 96
-            Top = 209
-            Width = 90
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 15
-          end
-          object edLaserVMax0: TValidatedEdit
-            Left = 192
-            Top = 21
-            Width = 50
-            Height = 21
-            Text = ' 5 V'
-            Value = 5.000000000000000000
-            Scale = 1.000000000000000000
-            Units = 'V'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 10.000000000000000000
-          end
-          object edLaserVMax1: TValidatedEdit
-            Left = 192
-            Top = 49
-            Width = 50
-            Height = 21
-            Text = ' 5 V'
-            Value = 5.000000000000000000
-            Scale = 1.000000000000000000
-            Units = 'V'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 10.000000000000000000
-          end
-          object edLaserVMax2: TValidatedEdit
-            Left = 192
-            Top = 76
-            Width = 50
-            Height = 21
-            Text = ' 5 V'
-            Value = 5.000000000000000000
-            Scale = 1.000000000000000000
-            Units = 'V'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 10.000000000000000000
-          end
-          object edLaserVMax3: TValidatedEdit
-            Left = 192
-            Top = 103
-            Width = 50
-            Height = 21
-            Text = ' 5 V'
-            Value = 5.000000000000000000
-            Scale = 1.000000000000000000
-            Units = 'V'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 10.000000000000000000
-          end
-          object edLaserVMax4: TValidatedEdit
-            Left = 192
-            Top = 130
-            Width = 50
-            Height = 21
-            Text = ' 5 V'
-            Value = 5.000000000000000000
-            Scale = 1.000000000000000000
-            Units = 'V'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 10.000000000000000000
-          end
-          object edLaserVMax5: TValidatedEdit
-            Left = 192
-            Top = 157
-            Width = 50
-            Height = 21
-            Text = ' 5 V'
-            Value = 5.000000000000000000
-            Scale = 1.000000000000000000
-            Units = 'V'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 10.000000000000000000
-          end
-          object edLaserVMax6: TValidatedEdit
-            Left = 192
-            Top = 184
-            Width = 50
-            Height = 21
-            Text = ' 5 V'
-            Value = 5.000000000000000000
-            Scale = 1.000000000000000000
-            Units = 'V'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 10.000000000000000000
-          end
-          object edLaserVMax7: TValidatedEdit
-            Left = 192
-            Top = 211
-            Width = 50
-            Height = 21
-            Text = ' 5 V'
-            Value = 5.000000000000000000
-            Scale = 1.000000000000000000
-            Units = 'V'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 10.000000000000000000
-          end
+        object Label27: TLabel
+          Left = 191
+          Top = 20
+          Width = 108
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'No. of Lasers available'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial Narrow'
+          Font.Style = []
+          ParentFont = False
         end
         object edLaserShutterChangeTime: TValidatedEdit
           Left = 129
           Top = 259
           Width = 81
-          Height = 21
+          Height = 24
           Text = ' 500 ms'
           Value = 0.500000000000000000
           Scale = 1000.000000000000000000
@@ -959,31 +891,267 @@ object SettingsFrm: TSettingsFrm
           Caption = 'Enabled'
           Checked = True
           State = cbChecked
-          TabOrder = 10
+          TabOrder = 1
         end
-      end
-      object Panel1: TPanel
-        Left = 403
-        Top = 63
-        Width = 297
-        Height = 137
-        Caption = 'Panel1'
-        TabOrder = 2
-        object Label7: TLabel
-          Left = 24
-          Top = 11
-          Width = 58
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'Control Port'
+        object pnLaser0: TPanel
+          Left = 8
+          Top = 75
+          Width = 353
+          Height = 27
+          BevelOuter = bvNone
+          TabOrder = 2
+          object Edit6: TEdit
+            Left = 0
+            Top = 0
+            Width = 99
+            Height = 24
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox5: TComboBox
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ComboBox6: TComboBox
+            Tag = 2
+            Left = 201
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 2
+          end
+          object ValidatedEdit5: TValidatedEdit
+            Tag = 3
+            Left = 297
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 5 V'
+            Value = 5.000000000000000000
+            Scale = 1.000000000000000000
+            Units = 'V'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 10.000000000000000000
+          end
         end
-        object cbLaserControlComPort: TComboBox
-          Left = 88
-          Top = 11
-          Width = 97
-          Height = 21
-          Style = csDropDownList
-          TabOrder = 0
+        object pnLaser1: TPanel
+          Left = 8
+          Top = 108
+          Width = 353
+          Height = 27
+          BevelOuter = bvNone
+          TabOrder = 3
+          object Edit7: TEdit
+            Left = 0
+            Top = 0
+            Width = 99
+            Height = 24
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox7: TComboBox
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ComboBox8: TComboBox
+            Tag = 2
+            Left = 201
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 2
+          end
+          object ValidatedEdit6: TValidatedEdit
+            Tag = 3
+            Left = 297
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 5 V'
+            Value = 5.000000000000000000
+            Scale = 1.000000000000000000
+            Units = 'V'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 10.000000000000000000
+          end
+        end
+        object pnLaser2: TPanel
+          Left = 8
+          Top = 141
+          Width = 353
+          Height = 27
+          BevelOuter = bvNone
+          TabOrder = 4
+          object Edit8: TEdit
+            Left = 0
+            Top = 0
+            Width = 99
+            Height = 24
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox9: TComboBox
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ComboBox10: TComboBox
+            Tag = 2
+            Left = 201
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 2
+          end
+          object ValidatedEdit7: TValidatedEdit
+            Tag = 3
+            Left = 297
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 5 V'
+            Value = 5.000000000000000000
+            Scale = 1.000000000000000000
+            Units = 'V'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 10.000000000000000000
+          end
+        end
+        object pnLaser3: TPanel
+          Left = 8
+          Top = 174
+          Width = 353
+          Height = 27
+          BevelOuter = bvNone
+          TabOrder = 5
+          object Edit9: TEdit
+            Left = 0
+            Top = 0
+            Width = 99
+            Height = 24
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox11: TComboBox
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ComboBox12: TComboBox
+            Tag = 2
+            Left = 201
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 2
+          end
+          object ValidatedEdit8: TValidatedEdit
+            Tag = 3
+            Left = 297
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 5 V'
+            Value = 5.000000000000000000
+            Scale = 1.000000000000000000
+            Units = 'V'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 10.000000000000000000
+          end
+        end
+        object pnLaser4: TPanel
+          Left = 8
+          Top = 204
+          Width = 353
+          Height = 27
+          BevelOuter = bvNone
+          TabOrder = 6
+          object Edit10: TEdit
+            Left = 0
+            Top = 0
+            Width = 99
+            Height = 24
+            TabOrder = 0
+            Text = 'edLaserName0'
+          end
+          object ComboBox13: TComboBox
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object ComboBox14: TComboBox
+            Tag = 2
+            Left = 201
+            Top = 0
+            Width = 90
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 2
+          end
+          object ValidatedEdit9: TValidatedEdit
+            Tag = 3
+            Left = 297
+            Top = 0
+            Width = 50
+            Height = 24
+            Text = ' 5 V'
+            Value = 5.000000000000000000
+            Scale = 1.000000000000000000
+            Units = 'V'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 10.000000000000000000
+          end
+        end
+        object spNumLasers: TSpinEdit
+          Left = 305
+          Top = 20
+          Width = 50
+          Height = 26
+          Hint = 'Number of lasers installed in system'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          MaxValue = 4
+          MinValue = 1
+          ParentFont = False
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 7
+          Value = 1
+          OnChange = spNumLasersChange
         end
       end
     end
@@ -1122,8 +1290,8 @@ object SettingsFrm: TSettingsFrm
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10
-        Width = 230
-        Height = 89
+        Width = 329
+        Height = 199
         TabOrder = 0
         object Label25: TLabel
           Left = 8
@@ -1138,22 +1306,43 @@ object SettingsFrm: TSettingsFrm
           Font.Style = []
           ParentFont = False
         end
+        object Label17: TLabel
+          Left = 8
+          Top = 73
+          Width = 99
+          Height = 13
+          Caption = 'Raw Data File Folder'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
         object edImageJPath: TEdit
           Left = 8
           Top = 26
-          Width = 217
+          Width = 315
           Height = 21
           TabOrder = 0
           Text = 'edImageJPath'
         end
         object ckSaveAsMultipageTIFF: TCheckBox
-          Left = 64
-          Top = 50
+          Left = 160
+          Top = 53
           Width = 161
           Height = 17
           Alignment = taLeftJustify
           Caption = 'Save stacks as multipage TIFF'
           TabOrder = 1
+        end
+        object edRawFileFolder: TEdit
+          Left = 8
+          Top = 92
+          Width = 315
+          Height = 21
+          TabOrder = 2
+          Text = 'edImageJPath'
         end
       end
     end

@@ -2,8 +2,8 @@ object MainFrm: TMainFrm
   Left = 794
   Top = 357
   Caption = 'MesoScan V1.5.3 64 bit 19/01/15'
-  ClientHeight = 850
-  ClientWidth = 790
+  ClientHeight = 1146
+  ClientWidth = 812
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -21,156 +21,9 @@ object MainFrm: TMainFrm
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object ControlGrp: TGroupBox
-    Left = 4
-    Top = 4
-    Width = 217
-    Height = 118
-    Caption = ' Scan Control '
-    TabOrder = 0
-    object bScanImage: TButton
-      Left = 58
-      Top = 40
-      Width = 101
-      Height = 20
-      Hint = 'Scan new image'
-      Caption = 'Scan Image'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 0
-      OnClick = bScanImageClick
-    end
-    object bStopScan: TButton
-      Left = 58
-      Top = 63
-      Width = 101
-      Height = 20
-      Hint = 'Stop scanning'
-      Caption = 'Stop'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
-      OnClick = bStopScanClick
-    end
-    object ckRepeat: TCheckBox
-      Left = 125
-      Top = 89
-      Width = 60
-      Height = 17
-      Hint = 'Repeated image scanning'
-      Caption = 'Repeat'
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-    end
-    object rbFastScan: TRadioButton
-      Left = 16
-      Top = 89
-      Width = 41
-      Height = 17
-      Hint = 'High speed image'
-      Caption = 'Fast '
-      Checked = True
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 3
-      TabStop = True
-      OnClick = rbFastScanClick
-    end
-    object rbHRScan: TRadioButton
-      Left = 63
-      Top = 89
-      Width = 56
-      Height = 17
-      Hint = 'High resolution image'
-      Caption = 'Hi Res.'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 4
-      OnClick = rbHRScanClick
-    end
-    object bScanZoomOut: TButton
-      Left = 11
-      Top = 40
-      Width = 41
-      Height = 20
-      Hint = 'Zoom Out: Scan Image using previous ROI '
-      Caption = '-'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 5
-      OnClick = bScanZoomOutClick
-    end
-    object bScanZoomIn: TButton
-      Left = 165
-      Top = 40
-      Width = 41
-      Height = 20
-      Hint = 'Zoom In: Scan image within user selected region of interest.'
-      Caption = '+'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 6
-      OnClick = bScanZoomInClick
-    end
-    object bScanFull: TButton
-      Left = 58
-      Top = 16
-      Width = 101
-      Height = 20
-      Hint = 'Scan full field of view'
-      Caption = 'Scan Full Field'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 7
-      OnClick = bScanFullClick
-    end
-  end
   object ImageGrp: TGroupBox
-    Left = 231
-    Top = 8
+    Left = 287
+    Top = 13
     Width = 500
     Height = 288
     Font.Charset = ANSI_CHARSET
@@ -179,7 +32,7 @@ object MainFrm: TMainFrm
     Font.Name = 'Arial'
     Font.Style = []
     ParentFont = False
-    TabOrder = 1
+    TabOrder = 0
     object lbReadout: TLabel
       Left = 8
       Top = 217
@@ -291,10 +144,6 @@ object MainFrm: TMainFrm
       TabOrder = 3
       object TabImage0: TTabSheet
         Caption = 'PMT0'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image0: TImage
           Left = 2
           Top = 1
@@ -329,10 +178,6 @@ object MainFrm: TMainFrm
       object TabImage2: TTabSheet
         Caption = 'TabImage2'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image2: TImage
           Left = 0
           Top = 0
@@ -350,10 +195,6 @@ object MainFrm: TMainFrm
       object TabImage3: TTabSheet
         Caption = 'TabImage3'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image3: TImage
           Left = 0
           Top = 0
@@ -370,14 +211,14 @@ object MainFrm: TMainFrm
   end
   object ImageSizeGrp: TGroupBox
     Left = 8
-    Top = 128
-    Width = 217
-    Height = 181
+    Top = 167
+    Width = 273
+    Height = 188
     Caption = ' Image '
-    TabOrder = 2
+    TabOrder = 1
     object Label4: TLabel
       Left = 60
-      Top = 46
+      Top = 14
       Width = 103
       Height = 13
       Alignment = taRightJustify
@@ -385,7 +226,7 @@ object MainFrm: TMainFrm
     end
     object edNumAverages: TValidatedEdit
       Left = 169
-      Top = 47
+      Top = 15
       Width = 33
       Height = 21
       Hint = 'No. of images to be averaged'
@@ -399,9 +240,9 @@ object MainFrm: TMainFrm
     end
     object ZStackGrp: TGroupBox
       Left = 12
-      Top = 74
-      Width = 190
-      Height = 104
+      Top = 42
+      Width = 189
+      Height = 139
       TabOrder = 1
       object Label5: TLabel
         Left = 56
@@ -470,24 +311,12 @@ object MainFrm: TMainFrm
         HiLimit = 100.000000000000000000
       end
     end
-    object cbImageMode: TComboBox
-      Left = 11
-      Top = 20
-      Width = 191
-      Height = 21
-      Hint = 'Image acquisition mode'
-      Style = csDropDownList
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-      OnChange = cbImageModeChange
-    end
     object LineScanGrp: TGroupBox
       Left = 12
-      Top = 74
+      Top = 42
       Width = 190
       Height = 104
-      TabOrder = 3
+      TabOrder = 2
       object Label2: TLabel
         Left = 74
         Top = 16
@@ -514,11 +343,11 @@ object MainFrm: TMainFrm
   end
   object ZStageGrp: TGroupBox
     Left = 8
-    Top = 304
-    Width = 217
+    Top = 354
+    Width = 273
     Height = 75
     Caption = 'Z Position '
-    TabOrder = 3
+    TabOrder = 2
     object edZTop: TValidatedEdit
       Left = 12
       Top = 17
@@ -569,375 +398,503 @@ object MainFrm: TMainFrm
   end
   object PMTGrp: TGroupBox
     Left = 8
-    Top = 385
-    Width = 217
-    Height = 149
+    Top = 435
+    Width = 273
+    Height = 393
     Caption = ' PMT Channels  '
-    TabOrder = 4
-    object Label15: TLabel
-      Left = 56
-      Top = 16
-      Width = 22
-      Height = 13
-      Caption = 'Gain'
-    end
-    object Label3: TLabel
-      Left = 114
-      Top = 16
-      Width = 23
-      Height = 13
-      Caption = 'Volts'
-    end
-    object PanelPMT0: TPanel
-      Left = 3
-      Top = 30
-      Width = 186
-      Height = 28
-      BevelOuter = bvNone
+    TabOrder = 3
+    object gpPMT1: TGroupBox
+      Left = 8
+      Top = 110
+      Width = 251
+      Height = 86
       TabOrder = 0
-      object cbPMTGain0: TComboBox
-        Left = 53
-        Top = 0
-        Width = 49
-        Height = 23
-        Hint = 'PMT amplifier gain'
-        Style = csDropDownList
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Arial Narrow'
-        Font.Style = []
-        ItemIndex = 0
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 0
-        Text = 'X1'
-        Items.Strings = (
-          'X1'
-          'X2'
-          'X5')
+      object Label8: TLabel
+        Left = 70
+        Top = 6
+        Width = 22
+        Height = 13
+        Caption = 'Gain'
       end
-      object edPMTVolts0: TValidatedEdit
-        Left = 108
-        Top = 2
-        Width = 51
-        Height = 21
-        Hint = 'PMT voltage (% of maximum)'
-        ShowHint = True
-        Text = ' 1 %'
-        Value = 1.000000000000000000
-        Scale = 1.000000000000000000
-        Units = '%'
-        NumberFormat = '%.0f'
-        LoLimit = -1.000000015047466E30
-        HiLimit = 100.000000000000000000
+      object Label16: TLabel
+        Left = 125
+        Top = 6
+        Width = 26
+        Height = 13
+        Caption = 'Laser'
       end
-      object ckEnablePMT0: TCheckBox
-        Left = 0
-        Top = 0
-        Width = 47
+      object Label17: TLabel
+        Left = 24
+        Top = 50
+        Width = 39
+        Height = 13
+        Caption = 'Intensity'
+      end
+      object CheckBox1: TCheckBox
+        Left = 7
+        Top = 22
+        Width = 65
         Height = 17
         Caption = 'Ch.0'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -12
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 0
         OnClick = ckEnablePMT0Click
       end
-      object udPMTVolts0: TUpDown
-        Left = 158
-        Top = 0
-        Width = 17
-        Height = 23
-        Min = -30000
-        Max = 30000
+      object ComboBox1: TComboBox
+        Tag = 1
+        Left = 70
+        Top = 20
+        Width = 49
+        Height = 24
+        Hint = 'PMT amplifier gain'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+        Text = 'X1'
+        OnChange = cbPMTGain0Change
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object ComboBox2: TComboBox
+        Tag = 2
+        Left = 125
+        Top = 20
+        Width = 116
+        Height = 24
+        Hint = 'PMT amplifier gain'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+        Text = 'X1'
+        OnChange = cbLaserChange
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object TrackBar3: TTrackBar
+        Tag = 3
+        Left = 70
+        Top = 50
+        Width = 124
+        Height = 25
+        Max = 1000
+        Position = 100
         TabOrder = 3
-        OnChangingEx = udPMTVolts0ChangingEx
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit2: TValidatedEdit
+        Tag = 4
+        Left = 190
+        Top = 50
+        Width = 50
+        Height = 21
+        OnKeyPress = ValidatedEdit1KeyPress
+        Text = ' 100 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.0f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
       end
     end
-    object PanelPMT1: TPanel
-      Left = 3
-      Top = 59
-      Width = 186
-      Height = 28
-      BevelOuter = bvNone
+    object gpPMT2: TGroupBox
+      Left = 8
+      Top = 200
+      Width = 251
+      Height = 86
       TabOrder = 1
-      object cbPMTGain1: TComboBox
-        Left = 53
-        Top = 0
+      object Label18: TLabel
+        Left = 70
+        Top = 6
+        Width = 22
+        Height = 13
+        Caption = 'Gain'
+      end
+      object Label19: TLabel
+        Left = 125
+        Top = 6
+        Width = 26
+        Height = 13
+        Caption = 'Laser'
+      end
+      object Label20: TLabel
+        Left = 24
+        Top = 50
+        Width = 39
+        Height = 13
+        Caption = 'Intensity'
+      end
+      object CheckBox2: TCheckBox
+        Left = 7
+        Top = 22
+        Width = 65
+        Height = 17
+        Caption = 'Ch.0'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnClick = ckEnablePMT0Click
+      end
+      object ComboBox3: TComboBox
+        Tag = 1
+        Left = 70
+        Top = 20
         Width = 49
-        Height = 23
+        Height = 24
         Hint = 'PMT amplifier gain'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Arial Narrow'
+        Font.Height = -13
+        Font.Name = 'Arial'
         Font.Style = []
         ItemIndex = 0
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 0
+        TabOrder = 1
         Text = 'X1'
+        OnChange = cbPMTGain0Change
         Items.Strings = (
           'X1'
           'X2'
           'X5')
       end
-      object edPMTVolts1: TValidatedEdit
-        Left = 108
-        Top = 0
-        Width = 51
-        Height = 21
-        Hint = 'PMT voltage (% of maximum)'
-        ShowHint = True
-        Text = ' 1 %'
-        Value = 1.000000000000000000
-        Scale = 1.000000000000000000
-        Units = '%'
-        NumberFormat = '%.0f'
-        LoLimit = -1.000000015047466E30
-        HiLimit = 100.000000000000000000
-      end
-      object ckEnablePMT1: TCheckBox
-        Left = 0
-        Top = 0
-        Width = 47
-        Height = 17
-        Caption = 'Ch.1'
+      object ComboBox4: TComboBox
+        Tag = 2
+        Left = 125
+        Top = 20
+        Width = 116
+        Height = 24
+        Hint = 'PMT amplifier gain'
+        Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -12
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = []
+        ItemIndex = 0
         ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 2
-        OnClick = ckEnablePMT0Click
+        Text = 'X1'
+        OnChange = cbLaserChange
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
       end
-      object udPMTVolts1: TUpDown
-        Left = 158
-        Top = 0
-        Width = 17
-        Height = 23
+      object TrackBar4: TTrackBar
+        Tag = 3
+        Left = 70
+        Top = 50
+        Width = 124
+        Height = 25
+        Max = 1000
+        Position = 100
         TabOrder = 3
-        OnChangingEx = udPMTVolts1ChangingEx
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit3: TValidatedEdit
+        Tag = 4
+        Left = 190
+        Top = 50
+        Width = 50
+        Height = 21
+        OnKeyPress = ValidatedEdit1KeyPress
+        Text = ' 100 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.0f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
       end
     end
-    object PanelPMT2: TPanel
-      Left = 3
-      Top = 86
-      Width = 186
-      Height = 28
-      BevelOuter = bvNone
+    object gpPMT0: TGroupBox
+      Left = 8
+      Top = 20
+      Width = 251
+      Height = 86
       TabOrder = 2
-      object cbPMTGain2: TComboBox
-        Left = 53
-        Top = 0
+      object Label15: TLabel
+        Left = 70
+        Top = 6
+        Width = 22
+        Height = 13
+        Caption = 'Gain'
+      end
+      object Label3: TLabel
+        Left = 125
+        Top = 6
+        Width = 26
+        Height = 13
+        Caption = 'Laser'
+      end
+      object Label7: TLabel
+        Left = 24
+        Top = 50
+        Width = 39
+        Height = 13
+        Caption = 'Intensity'
+      end
+      object ckEnablePMT0: TCheckBox
+        Left = 7
+        Top = 22
+        Width = 65
+        Height = 17
+        Caption = 'Ch.0'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnClick = ckEnablePMT0Click
+      end
+      object cbPMTGain0: TComboBox
+        Tag = 1
+        Left = 70
+        Top = 20
         Width = 49
-        Height = 23
+        Height = 24
         Hint = 'PMT amplifier gain'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Arial Narrow'
+        Font.Height = -13
+        Font.Name = 'Arial'
         Font.Style = []
         ItemIndex = 0
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 0
+        TabOrder = 1
         Text = 'X1'
+        OnChange = cbPMTGain0Change
         Items.Strings = (
           'X1'
           'X2'
           'X5')
       end
-      object edPMTVolts2: TValidatedEdit
-        Left = 108
-        Top = 0
-        Width = 51
-        Height = 21
-        Hint = 'PMT voltage (% of maximum)'
-        ShowHint = True
-        Text = ' 1 %'
-        Value = 1.000000000000000000
-        Scale = 1.000000000000000000
-        Units = '%'
-        NumberFormat = '%.0f'
-        LoLimit = -1.000000015047466E30
-        HiLimit = 100.000000000000000000
-      end
-      object ckEnablePMT2: TCheckBox
-        Left = 0
-        Top = 0
-        Width = 47
-        Height = 17
-        Caption = 'Ch.2'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Arial'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 2
-        OnClick = ckEnablePMT0Click
-      end
-      object udPMTVolts2: TUpDown
-        Left = 158
-        Top = 0
-        Width = 17
-        Height = 23
-        TabOrder = 3
-        OnChangingEx = udPMTVolts2ChangingEx
-      end
-    end
-    object PanelPMT3: TPanel
-      Left = 3
-      Top = 113
-      Width = 186
-      Height = 28
-      BevelOuter = bvNone
-      TabOrder = 3
-      object cbPMTGain3: TComboBox
-        Left = 53
-        Top = 0
-        Width = 49
-        Height = 23
+      object cbLaser: TComboBox
+        Tag = 2
+        Left = 125
+        Top = 20
+        Width = 116
+        Height = 24
         Hint = 'PMT amplifier gain'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Arial Narrow'
+        Font.Height = -13
+        Font.Name = 'Arial'
         Font.Style = []
         ItemIndex = 0
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
-        TabOrder = 0
+        TabOrder = 2
         Text = 'X1'
+        OnChange = cbLaserChange
         Items.Strings = (
           'X1'
           'X2'
           'X5')
       end
-      object edPMTVolts3: TValidatedEdit
-        Left = 108
-        Top = 0
-        Width = 51
+      object TrackBar2: TTrackBar
+        Tag = 3
+        Left = 69
+        Top = 50
+        Width = 124
+        Height = 25
+        Max = 1000
+        Position = 100
+        TabOrder = 3
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit1: TValidatedEdit
+        Tag = 4
+        Left = 190
+        Top = 50
+        Width = 50
         Height = 21
-        Hint = 'PMT voltage (% of maximum)'
-        ParentCustomHint = False
-        Text = ' 1 %'
+        OnKeyPress = ValidatedEdit1KeyPress
+        Text = ' 100 %'
         Value = 1.000000000000000000
-        Scale = 1.000000000000000000
+        Scale = 100.000000000000000000
         Units = '%'
         NumberFormat = '%.0f'
-        LoLimit = -1.000000015047466E30
+        LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
-      object ckEnablePMT3: TCheckBox
-        Left = 0
-        Top = 0
-        Width = 47
+    end
+    object gpPMT3: TGroupBox
+      Left = 8
+      Top = 290
+      Width = 251
+      Height = 86
+      TabOrder = 3
+      object Label21: TLabel
+        Left = 70
+        Top = 6
+        Width = 22
+        Height = 13
+        Caption = 'Gain'
+      end
+      object Label22: TLabel
+        Left = 125
+        Top = 6
+        Width = 26
+        Height = 13
+        Caption = 'Laser'
+      end
+      object Label23: TLabel
+        Left = 24
+        Top = 50
+        Width = 39
+        Height = 13
+        Caption = 'Intensity'
+      end
+      object CheckBox3: TCheckBox
+        Left = 7
+        Top = 22
+        Width = 65
         Height = 17
-        Caption = 'Ch.3'
+        Caption = 'Ch.0'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -12
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 0
         OnClick = ckEnablePMT0Click
       end
-      object udPMTVolts3: TUpDown
-        Left = 158
-        Top = 0
-        Width = 17
-        Height = 23
-        TabOrder = 3
-        OnChangingEx = udPMTVolts3ChangingEx
+      object ComboBox5: TComboBox
+        Tag = 1
+        Left = 70
+        Top = 20
+        Width = 49
+        Height = 24
+        Hint = 'PMT amplifier gain'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+        Text = 'X1'
+        OnChange = cbPMTGain0Change
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
       end
-    end
-  end
-  object LaserGrp: TGroupBox
-    Left = 8
-    Top = 538
-    Width = 217
-    Height = 56
-    Caption = ' Laser '
-    TabOrder = 5
-    object edLaserIntensity: TValidatedEdit
-      Left = 168
-      Top = 16
-      Width = 44
-      Height = 21
-      OnKeyPress = edLaserIntensityKeyPress
-      Text = ' 2 %'
-      Value = 2.000000000000000000
-      Scale = 1.000000000000000000
-      Units = '%'
-      NumberFormat = '%.0f'
-      LoLimit = 0.000000999999997475
-      HiLimit = 100.000000000000000000
-    end
-    object tbLaserIntensity: TTrackBar
-      Left = 48
-      Top = 16
-      Width = 114
-      Height = 25
-      Max = 1000
-      Position = 100
-      TabOrder = 1
-      ThumbLength = 14
-      TickStyle = tsManual
-      OnChange = tbLaserIntensityChange
-    end
-    object rbLaserOn: TRadioButton
-      Left = 12
-      Top = 15
-      Width = 40
-      Height = 17
-      Caption = 'On'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 2
-    end
-    object rbLaserOff: TRadioButton
-      Left = 12
-      Top = 31
-      Width = 40
-      Height = 17
-      Caption = 'Off'
-      Checked = True
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Arial Narrow'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 3
-      TabStop = True
+      object ComboBox6: TComboBox
+        Tag = 2
+        Left = 125
+        Top = 20
+        Width = 116
+        Height = 24
+        Hint = 'PMT amplifier gain'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+        Text = 'X1'
+        OnChange = cbLaserChange
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object TrackBar5: TTrackBar
+        Tag = 3
+        Left = 70
+        Top = 50
+        Width = 124
+        Height = 25
+        Max = 1000
+        Position = 100
+        TabOrder = 3
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit4: TValidatedEdit
+        Tag = 4
+        Left = 190
+        Top = 50
+        Width = 50
+        Height = 21
+        OnKeyPress = ValidatedEdit1KeyPress
+        Text = ' 100 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.0f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
+      end
     end
   end
   object DisplayGrp: TGroupBox
-    Left = 8
-    Top = 600
-    Width = 217
+    Left = 1
+    Top = 834
+    Width = 273
     Height = 165
     Caption = ' Display '
-    TabOrder = 6
+    TabOrder = 4
     object Splitter1: TSplitter
       Left = 2
       Top = 15
@@ -1051,10 +1008,6 @@ object MainFrm: TMainFrm
       object SlidersTab: TTabSheet
         Caption = 'Sliders'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Label9: TLabel
           Left = 14
           Top = 0
@@ -1163,11 +1116,11 @@ object MainFrm: TMainFrm
     end
   end
   object StatusGrp: TGroupBox
-    Left = 8
-    Top = 770
-    Width = 217
+    Left = 1
+    Top = 1039
+    Width = 278
     Height = 81
-    TabOrder = 7
+    TabOrder = 5
     object meStatus: TMemo
       Left = 8
       Top = 10
@@ -1179,28 +1132,174 @@ object MainFrm: TMainFrm
       TabOrder = 0
     end
   end
+  object GroupBox1: TGroupBox
+    Left = 8
+    Top = 8
+    Width = 273
+    Height = 153
+    Caption = ' Image Capture  '
+    TabOrder = 6
+    object bCaptureImage: TButton
+      Left = 8
+      Top = 56
+      Width = 140
+      Height = 27
+      Hint = 'Capture high resolution images'
+      Caption = 'Capture Image'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      OnClick = bCaptureImageClick
+    end
+    object bStopScan: TButton
+      Left = 8
+      Top = 112
+      Width = 140
+      Height = 28
+      Hint = 'Stop scanning'
+      Caption = 'Stop'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      OnClick = bStopImageClick
+    end
+    object ckRepeat: TCheckBox
+      Left = 210
+      Top = 111
+      Width = 60
+      Height = 17
+      Hint = 'Repeated image scanning'
+      Caption = 'Repeat'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+    end
+    object cbImageMode: TComboBox
+      Left = 8
+      Top = 84
+      Width = 140
+      Height = 21
+      Hint = 'Image acquisition mode'
+      Style = csDropDownList
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+      OnChange = cbImageModeChange
+    end
+    object bLiveSCan: TButton
+      Left = 8
+      Top = 20
+      Width = 140
+      Height = 30
+      Hint = 'Acquire high speed low resolution image of full imaging field'
+      Caption = 'Live Image (Fast)'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+      OnClick = bLiveSCanClick
+    end
+    object CCDAreaGrp: TGroupBox
+      Left = 154
+      Top = 15
+      Width = 110
+      Height = 114
+      Caption = ' Scanning Area '
+      TabOrder = 5
+      object bEnterScanArea: TButton
+        Left = 8
+        Top = 70
+        Width = 83
+        Height = 25
+        Hint = 'Specify coordinates of R.O.I.'
+        Caption = 'Set ROI Area'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+      end
+      object bScanFullField: TButton
+        Left = 8
+        Top = 20
+        Width = 96
+        Height = 20
+        Hint = 'Acquire high speed low resolution image of region of interest'
+        Caption = 'Use Full Field'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+        OnClick = bScanFullFieldClick
+      end
+      object bScanROI: TButton
+        Left = 11
+        Top = 44
+        Width = 96
+        Height = 20
+        Hint = 'Acquire high speed low resolution image of region of interest'
+        Caption = 'Use ROI'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+        OnClick = bScanROIClick
+      end
+    end
+  end
   object Timer: TTimer
     Enabled = False
     Interval = 100
     OnTimer = TimerTimer
-    Left = 232
-    Top = 608
+    Left = 296
+    Top = 928
   end
   object ImageFile: TImageFile
     XResolution = 1.000000000000000000
     YResolution = 1.000000000000000000
     ZResolution = 1.000000000000000000
     TResolution = 1.000000000000000000
-    Left = 264
-    Top = 608
+    Left = 328
+    Top = 928
   end
   object SaveDialog: TSaveDialog
-    Left = 336
-    Top = 608
+    Left = 400
+    Top = 928
   end
   object MainMenu1: TMainMenu
-    Left = 296
-    Top = 608
+    Left = 360
+    Top = 928
     object File1: TMenuItem
       Caption = 'File'
       object mnSaveImage: TMenuItem

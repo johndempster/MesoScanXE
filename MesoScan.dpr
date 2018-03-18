@@ -8,7 +8,8 @@ uses
   LabIOUnit in 'LabIOUnit.pas' {LabIO: TDataModule},
   SettingsUnit in 'SettingsUnit.pas' {SettingsFrm},
   ZStageUnit in 'ZStageUnit.pas' {ZStage: TDataModule},
-  LaserUnit in 'LaserUnit.pas' {Laser: TDataModule};
+  LaserUnit in 'LaserUnit.pas' {Laser: TDataModule},
+  PMTUnit in 'PMTUnit.pas' {PMT: TDataModule};
 
 {$R *.res}
 
@@ -19,5 +20,6 @@ begin
   Application.CreateForm(TSettingsFrm, SettingsFrm);
   Application.CreateForm(TZStage, ZStage);
   Application.CreateForm(TLaser, Laser);
+  Application.CreateForm(TPMT, PMT);
   Application.Run;
 end.

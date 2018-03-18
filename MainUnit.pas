@@ -36,6 +36,8 @@ unit MainUnit;
 // V1.6.4 10.05.17 ZPositionMin, ZPositionMax limits added
 // V1.6.5 27.10.17 ZStageUnit: Stage protection interrupt now interrupts Z movement commands before move to zero.
 // V1.6.6 91.11.17 ZStageUnit: OptiScan II now operated in standard (COMP 0) mode
+// V1.6.7 03.11.17 RawImagesFileName folder location can now be changed by user
+// V1.6.8 08.11.17 User interface revised to be more similar to MesoCam
 
 interface
 
@@ -51,6 +53,9 @@ const
     MaxFrameHeight = 30000 ;
     MinFrameWidth = 10 ;
     MinFrameHeight = 10 ;
+    srNoChange = 0 ;
+    srScanFullField = 1 ;
+    srScanROI = 2 ;
 
     MaxFrameType = 2 ;
     MinPaletteColor = 11 ;
@@ -83,15 +88,11 @@ type
 
 
   TMainFrm = class(TForm)
-    ControlGrp: TGroupBox;
-    bScanImage: TButton;
     ImageGrp: TGroupBox;
     ZSectionPanel: TPanel;
     Timer: TTimer;
-    bStopScan: TButton;
     ImageFile: TImageFile;
     SaveDialog: TSaveDialog;
-    ckRepeat: TCheckBox;
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     mnExit: TMenuItem;
@@ -101,10 +102,6 @@ type
     scZSection: TScrollBar;
     lbZSection: TLabel;
     lbReadout: TLabel;
-    rbFastScan: TRadioButton;
-    rbHRScan: TRadioButton;
-    bScanZoomOut: TButton;
-    bScanZoomIn: TButton;
     ImageSizeGrp: TGroupBox;
     Label4: TLabel;
     edNumAverages: TValidatedEdit;
@@ -113,7 +110,6 @@ type
     Label6: TLabel;
     edNumZSections: TValidatedEdit;
     edNumPixelsPerZStep: TValidatedEdit;
-    cbImageMode: TComboBox;
     Label1: TLabel;
     edMicronsPerZStep: TValidatedEdit;
     LineScanGrp: TGroupBox;
@@ -124,11 +120,6 @@ type
     edGotoZPosition: TValidatedEdit;
     bGotoZPosition: TButton;
     PMTGrp: TGroupBox;
-    LaserGrp: TGroupBox;
-    edLaserIntensity: TValidatedEdit;
-    tbLaserIntensity: TTrackBar;
-    rbLaserOn: TRadioButton;
-    rbLaserOff: TRadioButton;
     DisplayGrp: TGroupBox;
     Splitter1: TSplitter;
     cbPalette: TComboBox;
@@ -150,34 +141,11 @@ type
     sbBrightness: TScrollBar;
     StatusGrp: TGroupBox;
     meStatus: TMemo;
-    bScanFull: TButton;
     mnSaveImage: TMenuItem;
     ZoomPanel: TPanel;
     lbZoom: TLabel;
     bZoomIn: TButton;
     bZoomOut: TButton;
-    PanelPMT0: TPanel;
-    cbPMTGain0: TComboBox;
-    edPMTVolts0: TValidatedEdit;
-    Label15: TLabel;
-    Label3: TLabel;
-    ckEnablePMT0: TCheckBox;
-    udPMTVolts0: TUpDown;
-    PanelPMT1: TPanel;
-    cbPMTGain1: TComboBox;
-    edPMTVolts1: TValidatedEdit;
-    ckEnablePMT1: TCheckBox;
-    udPMTVolts1: TUpDown;
-    PanelPMT2: TPanel;
-    cbPMTGain2: TComboBox;
-    edPMTVolts2: TValidatedEdit;
-    ckEnablePMT2: TCheckBox;
-    udPMTVolts2: TUpDown;
-    PanelPMT3: TPanel;
-    cbPMTGain3: TComboBox;
-    edPMTVolts3: TValidatedEdit;
-    ckEnablePMT3: TCheckBox;
-    udPMTVolts3: TUpDown;
     ImagePage: TPageControl;
     TabImage0: TTabSheet;
     Image0: TImage;
@@ -188,6 +156,52 @@ type
     Image2: TImage;
     Image3: TImage;
     SavetoImageJ1: TMenuItem;
+    GroupBox1: TGroupBox;
+    bCaptureImage: TButton;
+    bStopScan: TButton;
+    ckRepeat: TCheckBox;
+    cbImageMode: TComboBox;
+    gpPMT1: TGroupBox;
+    Label8: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    CheckBox1: TCheckBox;
+    ComboBox1: TComboBox;
+    ComboBox2: TComboBox;
+    TrackBar3: TTrackBar;
+    ValidatedEdit2: TValidatedEdit;
+    gpPMT2: TGroupBox;
+    Label18: TLabel;
+    Label19: TLabel;
+    Label20: TLabel;
+    CheckBox2: TCheckBox;
+    ComboBox3: TComboBox;
+    ComboBox4: TComboBox;
+    TrackBar4: TTrackBar;
+    ValidatedEdit3: TValidatedEdit;
+    gpPMT0: TGroupBox;
+    Label15: TLabel;
+    Label3: TLabel;
+    Label7: TLabel;
+    ckEnablePMT0: TCheckBox;
+    cbPMTGain0: TComboBox;
+    cbLaser: TComboBox;
+    TrackBar2: TTrackBar;
+    ValidatedEdit1: TValidatedEdit;
+    gpPMT3: TGroupBox;
+    Label21: TLabel;
+    Label22: TLabel;
+    Label23: TLabel;
+    CheckBox3: TCheckBox;
+    ComboBox5: TComboBox;
+    ComboBox6: TComboBox;
+    TrackBar5: TTrackBar;
+    ValidatedEdit4: TValidatedEdit;
+    bLiveSCan: TButton;
+    CCDAreaGrp: TGroupBox;
+    bEnterScanArea: TButton;
+    bScanFullField: TButton;
+    bScanROI: TButton;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -205,7 +219,6 @@ type
     procedure edYPixelsKeyPress(Sender: TObject; var Key: Char);
     procedure mnScanSettingsClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure tbLaserIntensityChange(Sender: TObject);
     procedure Image0MouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure ckLineScanClick(Sender: TObject);
@@ -218,33 +231,28 @@ type
     procedure Image0MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure scZSectionChange(Sender: TObject);
-    procedure rbFastScanClick(Sender: TObject);
-    procedure rbHRScanClick(Sender: TObject);
-    procedure bScanZoomInClick(Sender: TObject);
-    procedure bScanZoomOutClick(Sender: TObject);
     procedure cbImageModeChange(Sender: TObject);
     procedure edNumPixelsPerZStepKeyPress(Sender: TObject; var Key: Char);
     procedure edMicronsPerZStepKeyPress(Sender: TObject; var Key: Char);
     procedure edGotoZPositionKeyPress(Sender: TObject; var Key: Char);
     procedure Image0DblClick(Sender: TObject);
     procedure sbContrastChange(Sender: TObject);
-    procedure bScanFullClick(Sender: TObject);
     procedure mnSaveImageClick(Sender: TObject);
-    procedure edLaserIntensityKeyPress(Sender: TObject; var Key: Char);
     procedure ckEnablePMT0Click(Sender: TObject);
-    procedure edPMTVolts0KeyPress(Sender: TObject; var Key: Char);
-    procedure udPMTVolts0ChangingEx(Sender: TObject; var AllowChange: Boolean;
-      NewValue: Integer; Direction: TUpDownDirection);
-    procedure udPMTVolts1ChangingEx(Sender: TObject; var AllowChange: Boolean;
-      NewValue: Integer; Direction: TUpDownDirection);
-    procedure udPMTVolts2ChangingEx(Sender: TObject; var AllowChange: Boolean;
-      NewValue: Integer; Direction: TUpDownDirection);
-    procedure udPMTVolts3ChangingEx(Sender: TObject; var AllowChange: Boolean;
-      NewValue: Integer; Direction: TUpDownDirection);
     procedure SavetoImageJ1Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure bStopImageClick(Sender: TObject);
+    procedure bLiveSCanClick(Sender: TObject);
+    procedure bCaptureImageClick(Sender: TObject);
+    procedure TrackBar2Change(Sender: TObject);
+    procedure ValidatedEdit1KeyPress(Sender: TObject; var Key: Char);
+    procedure cbLaserChange(Sender: TObject);
+    procedure cbPMTGain0Change(Sender: TObject);
+    procedure bScanFullFieldClick(Sender: TObject);
+    procedure bScanROIClick(Sender: TObject);
   private
     { Private declarations }
+        FormInitialized : Boolean ;
         BitMap : Array[0..MaxPMT] of TBitMap ;  // Image internal bitmaps
         Image : Array[0..MaxPMT] of TImage ;  // Image internal bitmaps
         procedure DisplayROI( BitMap : TBitmap ) ;
@@ -283,7 +291,7 @@ type
     XWidth : Double ;
     YCentre : Double ;
     YHeight : Double ;
-    ScanArea : Array[0..99] of TDoubleRect ;   // Selected scanning areas
+    ScanArea : TDoubleRect ;                   // Selected scanning area
     iScanZoom : Integer ;                      // Selected area in ScanArea
     PixelsToMicronsX : Double ;                // Image pixel X# to micron scaling factor
     PixelsToMicronsY : Double ;                // Image pixel Y# to micron scaling factor
@@ -315,22 +323,27 @@ type
     FrameWidth : Integer ;                // Width of image on display
     FrameHeight : Integer ;               // Height of image of display
     FullFieldWidth : Integer ;            // Width of full field image
-    HRFrameWidth : Integer ;       // Width of high res. image
-    HRFrameHeight : Integer ;      // Height of image of display
-    FastFrameWidth : Integer ;     // Fast imaging: frame width (pixels)
-    FastFrameHeight : Integer ;    // Fast imaging: frame height (pixels)
-    FrameHeightScale : Double ;    // Fast imaging: Frame height scaling factor
+    HRFrameWidth : Integer ;              // Width of high res. image
+    HRFrameHeight : Integer ;             // Height of image of display
+    HRPixelSize : Double ;                // High res. image pixel size
+    FastFrameWidth : Integer ;            // Fast imaging: frame width (pixels)
+    FastFrameHeight : Integer ;           // Fast imaging: frame height (pixels)
+    FrameHeightScale : Double ;           // Fast imaging: Frame height scaling factor
     ScanInfo : String ;
 
     // PMT setting
     NumPMTs : Integer ;
-    PMTGain : Array[0..MaxPMT] of Double ;
-    PMTVolts : Array[0..MaxPMT] of Double ;
-    PMTControls : Array[0..MaxPMT] of Integer ;
-    PMTMaxVolts : double ;
+//    PMTGain : Array[0..MaxPMT] of Double ;
+//    PMTVolts : Array[0..MaxPMT] of Double ;
+//    PMTControls : Array[0..MaxPMT] of Integer ;
+//    PMTMaxVolts : double ;
     PMTList : Array[0..MaxPMT] of Integer ;
     NumPMTChannels : Integer ;
     ImageNames : Array[0..MaxPMT] of string ;
+
+    // XY galvo control
+    XGalvoControl : Integer ;
+    YGalvoControl : Integer ;
 
     //NumPixelsPerFrame : Integer ;
     NumADCChannels : Integer ;
@@ -408,8 +421,12 @@ type
     procedure InitialiseImage ;
     procedure SetImagePanels ;
     procedure CreateScanWaveform ;
-    procedure StartNewScan( iZoom : Integer ) ;
+    procedure StartNewScan(
+              iScanRegion : Integer ; // Scan region
+              FastScan : Boolean      // TRUE = Fast scan mode
+              ) ;
     procedure StartScan ;
+
     procedure GetImageFromPMT ;
 
     procedure SetDisplayIntensityRange(
@@ -425,9 +442,11 @@ type
 
     procedure UpdateImage ;
     procedure UpdatePMTSettings ;
-    procedure SetPMTVoltage(
-              PMTNum : Integer ;
-              PercentMax : Double ) ;
+
+   procedure ReadWritePMTGroup(
+             Num : Integer ;
+             Group : TGroupBox ;
+             RW : string ) ;
 
     procedure CalculateMaxContrast ;
 
@@ -539,7 +558,7 @@ implementation
 //uses LogUnit;
 
 
-uses SettingsUnit, ZStageUnit, LaserUnit;
+uses SettingsUnit, ZStageUnit, LaserUnit, PMTUnit ;
 
 {$R *.dfm}
 
@@ -571,6 +590,8 @@ begin
      Image[2] := Image2 ;
      Image[3] := Image3 ;
 
+     FormInitialized := False ;
+
      end;
 
 
@@ -583,13 +604,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.6.6 ';
+     Caption := 'MesoScan V1.6.8 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 1/11/17';
+    Caption := Caption + ' 8/11/17';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -643,32 +664,12 @@ begin
      cbPalette.Items.AddObject(' Blue scale', TObject(palBlue)) ;
      cbPalette.ItemIndex := cbPalette.Items.IndexOfObject(TObject(MainFrm.PaletteType)) ;
 
-     // PMT controls
-     cbPMTGain0.Clear ;
-     for i := 0 to LabIO.NumADCVoltageRanges[DeviceNum]-1 do begin
-         Gain := LabIO.ADCVoltageRanges[DeviceNum,0] /
-                 LabIO.ADCVoltageRanges[DeviceNum,i] ;
-         cbPMTGain0.Items.Add(format('X%.4g',[Gain]));
-         end ;
-     if cbPMTGain0.Items.Count <= 0 then begin
-        cbPMTGain0.Items.Add('n/a');
-        end;
+//     PMTMaxVolts := 5.0 ;
 
-     cbPMTGain1.Items.Assign(cbPMTGain0.Items);
-     cbPMTGain2.Items.Assign(cbPMTGain0.Items);
-     cbPMTGain3.Items.Assign(cbPMTGain0.Items);
-     cbPMTGain0.ItemIndex := 0 ;
-     cbPMTGain1.ItemIndex := 0 ;
-     cbPMTGain2.ItemIndex := 0 ;
-     cbPMTGain3.ItemIndex := 0 ;
-     for i := 0 to High(PMTControls) do PMTControls[i] := -1 ;
+     // XY galvo control
+     XGalvoControl := ControlDisabled ;
+     YGalvoControl := ControlDisabled ;
 
-     edPMTVolts0.Value := 1.0 ;
-     edPMTVolts1.Value := 1.0 ;
-     edPMTVolts2.Value := 1.0 ;
-     edPMTVolts3.Value := 1.0 ;
-
-     PMTMaxVolts := 5.0 ;
 
      edDisplayIntensityRange.LoLimit := 0 ;
      edDisplayIntensityRange.HiLimit := ADCMaxValue ;
@@ -714,6 +715,7 @@ begin
      InvertPMTSignal := True ;
 
      HRFrameWidth := 1000 ;
+     HRPixelSize := 1.0 ;
      FastFrameWidth := 500 ;
      FastFrameHeight := 100 ;
      FrameHeightScale := 1.0 ;
@@ -739,6 +741,12 @@ begin
      INIFileName := SettingsDirectory + 'mesoscan settings.xml' ;
      LoadSettingsFromXMLFile( INIFileName ) ;
 
+     // PMT controls
+     ReadWritePMTGroup( 0, gpPMT0, 'W' ) ;
+     ReadWritePMTGroup( 1, gpPMT1, 'W' ) ;
+     ReadWritePMTGroup( 2, gpPMT2, 'W' ) ;
+     ReadWritePMTGroup( 3, gpPMT3, 'W' ) ;
+
      RawImagesFileName := SettingsDirectory + 'mesoscan.raw' ;
 
      // Load normal scan
@@ -751,7 +759,7 @@ begin
         end
      else LaserControlOpen := False ;
      // Ensure laser shutter is closed
-     for i := 0 to MaxLasers-1 do Laser.LaserActive[i] := False ;
+     for i := 0 to MaxLaser do Laser.LaserActive[i] := False ;
 
      UpdateDisplay := False ;
      ScanRequested := 0 ;
@@ -794,6 +802,8 @@ begin
      Width := Screen.Width - 10 - Left ;
      Height := Screen.Height - 50 - Top ;
 
+     FormInitialized := True ;
+
      end;
 
 
@@ -803,18 +813,24 @@ procedure TMainFrm.SetScanZoomToFullField ;
 // ---------------------------
 begin
      iScanZoom := 0 ;
-     ScanArea[iScanZoom].Left := 0.0 ;
-     ScanArea[iScanZoom].Top := 0.0 ;
-     ScanArea[iScanZoom].Right := FullFieldWidthMicrons ;
-     ScanArea[iScanZoom].Bottom := FullFieldWidthMicrons ;
-     ScanArea[iScanZoom].Width := FullFieldWidthMicrons ;
-     ScanArea[iScanZoom].Height := FullFieldWidthMicrons ;
+     ScanArea.Left := 0.0 ;
+     ScanArea.Top := 0.0 ;
+     ScanArea.Right := FullFieldWidthMicrons ;
+     ScanArea.Bottom := FullFieldWidthMicrons ;
+     ScanArea.Width := FullFieldWidthMicrons ;
+     ScanArea.Height := FullFieldWidthMicrons ;
+
+     HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
+     FrameWidth := HRFrameWidth ;
+     FrameHeight := 2*(Round( ScanArea.Height/HRPixelSize ) div 2);
+     FrameHeightScale := 1.0 ;
+
      SelectedRect.Left := 0 ;
      SelectedRect.Top := 0 ;
      SelectedRect.Right := FrameWidth-1 ;
      SelectedRect.Bottom := FrameHeight-1 ;
 
-     edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
+     edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*HRPixelSize ;
 
      end ;
 
@@ -883,13 +899,13 @@ begin
      YImage := Round(Y/YScaleToBM) + YTop ;
      i := YImage*FrameWidth + XImage ;
 
-     PixelsToMicronsX := ScanArea[iScanZoom].Width/FrameWidth ;
+     PixelsToMicronsX := ScanArea.Width/FrameWidth ;
      PixelsToMicronsY := FrameHeightScale*PixelsToMicronsX ;
 
      if (i > 0) and (i < FrameWidth*FrameHeight) then begin
         lbReadout.Caption := format('X=%.2f um, Y=%.2f um, I=%d',
-                           [XImage*PixelsToMicronsX + ScanArea[iScanZoom].Left,
-                            YImage*PixelsToMicronsY + ScanArea[iScanZoom].Top,
+                           [XImage*PixelsToMicronsX + ScanArea.Left,
+                            YImage*PixelsToMicronsY + ScanArea.Top,
                             pImageBuf[TImage(Sender).tag][i]]) ;
          end ;
 
@@ -1157,7 +1173,7 @@ var
 begin
 
      // Close laser shutter
-     for i := 0 to MaxLasers-1 do Laser.LaserActive[i] := False ;
+     for i := 0 to MaxLaser do Laser.LaserActive[i] := False ;
 
      LabIO.Close ;
 
@@ -1266,10 +1282,10 @@ begin
 
     XScale := (LabIO.DACMaxValue[DeviceNum]/VMax)*XVoltsPerMicron ;
     YScale := (LabIO.DACMaxValue[DeviceNum]/VMax)*YVoltsPerMicron ;
-    XAmplitude := (ScanArea[iScanZoom].Right - ScanArea[iScanZoom].Left)*0.5 ;
-    XCentre := (ScanArea[iScanZoom].Left + ScanArea[iScanZoom].Right - FullFieldWidthMicrons)*0.5 ;
-    YHeight := ScanArea[iScanZoom].Bottom - ScanArea[iScanZoom].Top ;
-    YCentre := (ScanArea[iScanZoom].Top + ScanArea[iScanZoom].Bottom - FullFieldWidthMicrons)*0.5 ;
+    XAmplitude := (ScanArea.Right - ScanArea.Left)*0.5 ;
+    XCentre := (ScanArea.Left + ScanArea.Right - FullFieldWidthMicrons)*0.5 ;
+    YHeight := ScanArea.Bottom - ScanArea.Top ;
+    YCentre := (ScanArea.Top + ScanArea.Bottom - FullFieldWidthMicrons)*0.5 ;
     XPeriod := (pi)/NumXPixels ;
 
     case cbImageMode.ItemIndex of
@@ -1535,15 +1551,15 @@ begin
      Bitmap.Canvas.Brush.Style := bsSolid ;
      Bitmap.Canvas.Font.Color := clRed ;
      s := format( '%.2f,%.2f um',
-                  [(XLeft*PixelsToMicronsX) + ScanArea[iScanZoom].Left,
-                   YTop*PixelsToMicronsY + ScanArea[iScanZoom].Top]);
+                  [(XLeft*PixelsToMicronsX) + ScanArea.Left,
+                   YTop*PixelsToMicronsY + ScanArea.Top]);
      Bitmap.Canvas.TextOut( 0,0, s) ;
 
      s := format( '%.2f,%.2f um',
                   [(XLeft +(BitMap.Width/XScaleToBM))*PixelsToMicronsX
-                   + ScanArea[iScanZoom].Left,
+                   + ScanArea.Left,
                    (YTop + (BitMap.Height/YScaleToBM))*PixelsToMicronsY
-                   + ScanArea[iScanZoom].Top]);
+                   + ScanArea.Top]);
      Bitmap.Canvas.TextOut( BitMap.Width - Bitmap.Canvas.TextWidth(s) -1,
                             BitMap.Height - Bitmap.Canvas.TextHeight(s) -1,
                             s ) ;
@@ -1818,61 +1834,54 @@ begin
   end ;
 
 
-procedure TMainFrm.bScanFullClick(Sender: TObject);
-// ----------------
+procedure TMainFrm.bScanFullFieldClick(Sender: TObject);
+// ---------------
 // Scan full field
 // ----------------
 begin
-    StartNewScan(-2) ;
+    StartNewScan( srScanFullField, True ) ;
     end ;
+
 
 procedure TMainFrm.bScanImageClick(Sender: TObject);
 // ----------------------------
 // Scan currently selected area
 // ----------------------------
 begin
-    StartNewScan(0) ;
+    StartNewScan( srNoChange, False ) ;
     end ;
 
 
-procedure TMainFrm.bScanZoomInClick(Sender: TObject);
-// -----------------------------------------------------
-// Start new scan of area defined by selection rectangle
-// -----------------------------------------------------
+procedure TMainFrm.bScanROIClick(Sender: TObject);
+// --------------------------------------------
+// Scan selected region of interest (fast scan)
+// --------------------------------------------
 begin
-    Magnification := 1 ;
-    StartNewScan(1) ;
-    end;
+    StartNewScan( srScanROI, True ) ;
+    end ;
 
-procedure TMainFrm.bScanZoomOutClick(Sender: TObject);
-// --------------------------------------------------------
-// Zoom out to previously selected scan area and start scan
-// --------------------------------------------------------
-begin
-    StartNewScan(-1) ;
-    end;
 
 procedure TMainFrm.StartNewScan(
-          iZoom : Integer ) ;
-// ------------------------------------------------------
-// Start new scan (iZoom > 0 zoom in, iZoom < 0 zoom out)
-// ------------------------------------------------------
+              iScanRegion : Integer ; // Scan region
+              FastScan : Boolean      // TRUE = Fast scan mode
+              ) ;
+// ---------------
+// Start new scan
+// ---------------
 begin
 
     if UnsavedRawImage then begin
        if MessageDlg( 'Current Image not saved! Do you want to overwrite image?',
            mtWarning,[mbYes,mbNo], 0 ) = mrNo then Exit ;
     end;
+    UnsavedRawImage := not FastScan ;
 
     NumAverages := 1 ;
 
     ClearAverage := True ;
 
     //bStopScan.Enabled := True ;
-    bScanImage.Enabled := False ;
-    bScanZoomIn.Enabled := False ;
-    bScanZoomOut.Enabled := False ;
-    bScanFull.Enabled := False ;
+    bCaptureImage.Enabled := False ;
 
     PMTGrp.Enabled := False ;    // Disable changes to PMT settings
 
@@ -1886,45 +1895,34 @@ begin
       // XY and XYZ imaging mode
       XYMode,XYZMode :
        begin
-       case iZoom of
-
-          // Zoom In - Scan area defined by selection rectangle on image
-          1 :
-          Begin
-          iScanZoom := iScanZoom + 1 ;
-             if (SelectedRect.Left > 0) or (SelectedRect.Top > 0) or
-                (SelectedRect.Right < (FrameWidth-1)) or
-                (SelectedRect.Bottom < (FrameHeight-1)) then
-                begin
-                ScanArea[iScanZoom].Left := ScanArea[iScanZoom-1].Left + (SelectedRect.Left*PixelsToMicronsX) ;
-                ScanArea[iScanZoom].Right := ScanArea[iScanZoom-1].Left + (SelectedRect.Right*PixelsToMicronsX) ;
-                ScanArea[iScanZoom].Top := ScanArea[iScanZoom-1].Top + (SelectedRect.Top*PixelsToMicronsY) ;
-                ScanArea[iScanZoom].Bottom := ScanArea[iScanZoom-1].Top + (SelectedRect.Bottom*PixelsToMicronsY) ;
-                ScanArea[iScanZoom].Width := ScanArea[iScanZoom].Right - ScanArea[iScanZoom].Left ;
-                ScanArea[iScanZoom].Height := ScanArea[iScanZoom].Bottom - ScanArea[iScanZoom].Top ;
-                end
-             else iScanZoom := Max(iScanZoom-1,0) ;
-          end ;
-
-          // Zoom out - change to next larger scan area
-          -1 :
+       if iScanRegion = srScanFullField then
           begin
-            iScanZoom := Max(iScanZoom-1,0) ;
-          end ;
-
-          // Zoom out to full scan area
-          -2 :
+          // Scan full area
+          ScanArea.Left := 0.0 ;
+          ScanArea.Right := FullFieldWidthMicrons ;
+          ScanArea.Top := 0.0 ;
+          ScanArea.Bottom := FullFieldWidthMicrons ;
+          ScanArea.Width := ScanArea.Right - ScanArea.Left ;
+          ScanArea.Height := ScanArea.Bottom - ScanArea.Top ;
+          end
+       else if (SelectedRect.Left > 0) or (SelectedRect.Top > 0) or
+          (SelectedRect.Right < (FrameWidth-1)) or
+          (SelectedRect.Bottom < (FrameHeight-1)) then
           begin
-            iScanZoom := 0 ;
-          end;
-
+          // Use ROI as scanning area
+          ScanArea.Left := ScanArea.Left + (SelectedRect.Left*PixelsToMicronsX) ;
+          ScanArea.Right := ScanArea.Left + (SelectedRect.Right*PixelsToMicronsX) ;
+          ScanArea.Top := ScanArea.Top + (SelectedRect.Top*PixelsToMicronsY) ;
+          ScanArea.Bottom := ScanArea.Top + (SelectedRect.Bottom*PixelsToMicronsY) ;
+          ScanArea.Width := ScanArea.Right - ScanArea.Left ;
+          ScanArea.Height := ScanArea.Bottom - ScanArea.Top ;
           end ;
 
-       if rbFastScan.Checked then
+       if FastScan then
           begin
           // Fast scan
           FrameWidth := FastFrameWidth ;
-          FrameHeight := Max(Round(FrameWidth*(ScanArea[iScanZoom].Height/ScanArea[iScanZoom].Width)),1) ;
+          FrameHeight := Max(Round(FrameWidth*(ScanArea.Height/ScanArea.Width)),1) ;
           if FrameHeight > FastFrameHeight then
              begin
              FrameHeightScale := FrameHeight/FastFrameHeight ;
@@ -1935,30 +1933,42 @@ begin
         else
           begin
           // High resolution scan
+          HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
           FrameWidth := HRFrameWidth ;
-          FrameHeight := Max(Round(FrameWidth*(ScanArea[iScanZoom].Height/ScanArea[iScanZoom].Width)),1) ;
+          FrameHeight := 2*(Round( ScanArea.Height/HRPixelSize ) div 2);
           FrameHeightScale := 1.0 ;
           end;
-
        end ;
-
-
 
       // XT line scan mode
       XTMode :
         begin
-        if rbFastScan.Checked then FrameWidth := FastFrameWidth
-                              else  FrameWidth := HRFrameWidth ;
-        FrameHeight := Round(edLineScanFrameHeight.Value) ;
+        if FastScan then
+           begin
+           FrameWidth := FastFrameWidth ;
+           end
+        else
+          begin
+          HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
+          FrameWidth := HRFrameWidth ;
+          FrameHeight := 2*(Round( ScanArea.Height/HRPixelSize ) div 2);
+          end ;
         FrameHeightScale := 1.0 ;
+        FrameHeight := Round(edLineScanFrameHeight.Value) ;
         end ;
 
       // XZ image mode
       XZMode :
         begin
-        if rbFastScan.Checked then FrameWidth := FastFrameWidth
-                              else  FrameWidth := HRFrameWidth ;
-
+        if FastScan then
+           begin
+           FrameWidth := FastFrameWidth ;
+           end
+        else
+           begin
+           HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
+           FrameWidth := HRFrameWidth ;
+           end ;
         FrameHeightScale := 1.0 ;
         FrameHeight := Round(edNumZSections.Value) ;
         end ;
@@ -1968,7 +1978,7 @@ begin
       Outputdebugstring(pchar(format('frameheightscale %.0f',[FrameHeightScale])));
 
     // Image pixel to microns scaling factor
-    PixelsToMicronsX := ScanArea[iScanZoom].Width/FrameWidth ;
+    PixelsToMicronsX := ScanArea.Width/FrameWidth ;
     PixelsToMicronsY := FrameHeightScale*PixelsToMicronsX ;
 
     meStatus.Clear ;
@@ -1983,7 +1993,7 @@ begin
     // Z sections
     ZSection := 0 ;
     NumZSectionsAvailable := 0 ;
-    ZStep := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
+    ZStep := edNumPixelsPerZStep.Value*(ScanArea.Width/HRFrameWidth) ;
     edMicronsPerZStep.Value := ZStep ;
     NumZSections := Round(edNumZSections.Value) ;
 
@@ -2006,6 +2016,7 @@ var
     i,nSamples : Integer ;
     PMTInUse : Array[0..MaxPMT] of Boolean ;
     PMTGain : Array[0..MaxPMT] of Integer ;
+    AOList : Array[0..1] of Integer ;
 begin
 
     // Stop A/D & D/A
@@ -2036,72 +2047,53 @@ begin
 
     ADCPointer := 0 ;
 
-    PMTInUse[0] := ckEnablePMT0.Checked and panelPMT0.visible ;
-    PMTInUse[1] := ckEnablePMT1.Checked and panelPMT1.visible ;
-    PMTInUse[2] := ckEnablePMT2.Checked and panelPMT2.visible ;
-    PMTInUse[3] := ckEnablePMT3.Checked and panelPMT3.visible ;
+    // Update PMT and laser settings
+    UpdatePMTSettings ;
 
-    PMTGain[0] := cbPMTGain0.ItemIndex ;
-    PMTGain[1] := cbPMTGain1.ItemIndex ;
-    PMTGain[2] := cbPMTGain2.ItemIndex ;
-    PMTGain[3] := cbPMTGain3.ItemIndex ;
+    // Set PMT integrator integration time
+    PMT.SetIntegrationTime(PixelDwellTime);
 
-    SetPMTVoltage( 0, edPMTVolts0.Value ) ;
-    SetPMTVoltage( 1, edPMTVolts1.Value ) ;
-    SetPMTVoltage( 2, edPMTVolts2.Value ) ;
-    SetPMTVoltage( 3, edPMTVolts3.Value ) ;
+    // Turn PMTs on
+    PMT.Active := True ;
 
     nSamples := Max(Round(10.0/PixelDwellTime) div NumXPixels,1)*NumXPixels ;
     LabIO.ADCToMemoryExtScan( DeviceNum,
-                              PMTInUse,
-                              PMTGain,
+                              PMT.PMTEnabled,
+                              PMT.ADCGainIndex,
                               PMTList,
                               NumPMTChannels,
                               NumXPixels*NumYPixels,
                               False,
                               DeviceNum ) ;
 
-    LabIO.MemoryToDAC( DeviceNum,
+    AOList[0] := LabIO.Resource[XGalvoControl].StartChannel ;
+    AOList[1] := LabIO.Resource[YGalvoControl].StartChannel ;
+    LabIO.MemoryToDAC( LabIO.Resource[XGalvoControl].Device,
                        DACBuf,
+                       AOList,
                        2,
                        NumPixels,
                        NumPixelsinDACBuf,
                        PixelDwellTime,
                        False,
                        False,
-                       DeviceNum ) ;
+                       LabIO.Resource[XGalvoControl].Device ) ;
 
     bStopScan.Enabled := True ;
-    bScanImage.Enabled := False ;
+    bCaptureImage.Enabled := False ;
     ScanningInProgress := True ;
 
     end;
 
 
-procedure TMainFrm.SetPMTVoltage(
-          PMTNum : Integer ;
-          PercentMax : Double ) ;
-// ---------------
-// Set PMT voltage
-// ---------------
-var
-    iPort,iDev,iChan : Integer ;
-    V : single ;
+procedure TMainFrm.bCaptureImageClick(Sender: TObject);
+// -------------------------------------------------------
+// Capture high resolution imageof currently selected area
+// -------------------------------------------------------
 begin
-
-    V := PercentMax*0.01*PMTMaxVolts ;
-    iPort := 0 ;
-    for iDev := 1 to LabIO.NumDevices do
-        for iChan := 0 to LabIO.NumDACs[iDev]-1 do
-            begin
-            if iPort = PMTControls[PMTNum] then
-               begin
-               LabIO.WriteDAC(iDev,V,iChan);
-               end;
-            inc(iPort) ;
-            end;
-
-    end;
+    ckRepeat.Checked := False ;
+    StartNewScan( srNoChange, False ) ;
+    end ;
 
 
 procedure TMainFrm.bFullScaleClick(Sender: TObject);
@@ -2163,14 +2155,6 @@ begin
         end;
     end;
 
-procedure TMainFrm.edLaserIntensityKeyPress(Sender: TObject; var Key: Char);
-begin
-    if Key = #13 then
-       begin
- //      Laser.Intensity := edLaserIntensity.Value ;
-       tbLaserIntensity.Position := Round(10.0*edLaserIntensity.Value) ;
-       end;
-    end;
 
 procedure TMainFrm.edMicronsPerZStepKeyPress(Sender: TObject; var Key: Char);
 // -------------------------
@@ -2179,9 +2163,8 @@ procedure TMainFrm.edMicronsPerZStepKeyPress(Sender: TObject; var Key: Char);
 begin
       if Key = #13 then
          begin
-//         edNumPixelsPerZStep.Value := Max(Round(edMicronsPerZStep.Value / (ScanArea[iScanZoom].Width/HRFrameWidth)),1) ;
-         edNumPixelsPerZStep.Value := edMicronsPerZStep.Value / (ScanArea[iScanZoom].Width/HRFrameWidth) ;
-         edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
+         edNumPixelsPerZStep.Value := edMicronsPerZStep.Value / HRPixelSize ;
+         edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*HRPixelSize ;
          end;
       end;
 
@@ -2193,21 +2176,11 @@ procedure TMainFrm.edNumPixelsPerZStepKeyPress(Sender: TObject; var Key: Char);
 begin
       if Key = #13 then
          begin
-         edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
+         edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*HRPixelSize ;
          end;
       end;
 
 
-procedure TMainFrm.edPMTVolts0KeyPress(Sender: TObject; var Key: Char);
-begin
-    if Key = #13 then
-       begin
-       udPMTVolts0.Position := Round(edPMTVolts0.Value) ;
-       udPMTVolts1.Position := Round(edPMTVolts1.Value) ;
-       udPMTVolts2.Position := Round(edPMTVolts2.Value) ;
-       udPMTVolts3.Position := Round(edPMTVolts3.Value) ;
-       end;
-    end;
 
 procedure TMainFrm.bGotoZPositionClick(Sender: TObject);
 // -------------------------
@@ -2216,6 +2189,16 @@ procedure TMainFrm.bGotoZPositionClick(Sender: TObject);
 begin
     ZStage.MoveTo( ZStage.XPosition, ZStage.YPosition, edGoToZPosition.Value ) ;
     end;
+
+
+procedure TMainFrm.bLiveSCanClick(Sender: TObject);
+// -----------------------------------------------
+// Start live fast scan of currently selected area
+// -----------------------------------------------
+begin
+    ckRepeat.Checked := True ;
+    StartNewScan( srNoChange, True ) ;
+    end ;
 
 
 procedure TMainFrm.bMaxContrastClick(Sender: TObject);
@@ -2346,37 +2329,21 @@ begin
     end;
 
 
-procedure TMainFrm.udPMTVolts0ChangingEx(Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+
+
+
+procedure TMainFrm.TrackBar2Change(Sender: TObject);
+// --------------------------------
+// Laser intensity trackbar changed
+// --------------------------------
 begin
-    if Direction = updUp then edPMTVolts0.Value := edPMTVolts0.Value + 1.0
-                         else edPMTVolts0.Value := edPMTVolts0.Value - 1.0 ;
+    if not FormInitialized then Exit ;
+    // Read PMT controls, updating laser intensity edit box with trackbar value
+    ReadWritePMTGroup( 0, gpPMT0, 'RT' ) ;
+    ReadWritePMTGroup( 1, gpPMT1, 'RT' ) ;
+    ReadWritePMTGroup( 2, gpPMT2, 'RT' ) ;
+    ReadWritePMTGroup( 3, gpPMT3, 'RT' ) ;
     end;
-
-
-procedure TMainFrm.udPMTVolts1ChangingEx(Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
-begin
-    if Direction = updUp then edPMTVolts1.Value := edPMTVolts1.Value + 1.0
-                         else  edPMTVolts1.Value := edPMTVolts1.Value - 1.0 ;
-    end;
-
-
-procedure TMainFrm.udPMTVolts2ChangingEx(Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
-begin
-    if Direction = updUp then edPMTVolts2.Value := edPMTVolts2.Value + 1.0
-                         else edPMTVolts2.Value := edPMTVolts2.Value - 1.0 ;
-    end;
-
-
-procedure TMainFrm.udPMTVolts3ChangingEx(Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
-begin
-    if Direction = updUp then edPMTVolts3.Value := edPMTVolts3.Value + 1.0
-                         else edPMTVolts3.Value := edPMTVolts3.Value - 1.0 ;
-    end;
-
 
 
 procedure TMainFrm.GetImageFromPMT ;
@@ -2515,7 +2482,7 @@ begin
        else
           begin
           ScanningInProgress := False ;
-          if ckRepeat.Checked and (not bScanImage.Enabled) then
+          if ckRepeat.Checked and (not bCaptureImage.Enabled) then
              begin
              ScanRequested := 1 ;
              NumAverages := 1 ;
@@ -2548,6 +2515,70 @@ begin
     end ;
 
 
+procedure TMainFrm.bStopImageClick(Sender: TObject);
+// -------------
+// Stop scanning
+// -------------
+//var
+//    FileHandle : Integer ;
+begin
+
+
+//    FileHandle := FileCreate(  'ADC.DAT' ) ;
+//    FileWrite( FileHandle, TempBuf^, (ADCPointer-1)*2 ) ;
+//    FileCLose( FileHandle ) ;
+//    FreeMem(TempBuf) ;
+ //   TempBuf := Nil ;
+
+    if LabIO.ADCActive[DeviceNum] then LabIO.StopADC(DeviceNum) ;
+    if LabIO.DACActive[DeviceNum] then LabIO.StopDAC(DeviceNum) ;
+    LabIO.WriteDACs( DeviceNum,[0.0,0.0],2);
+
+    // Turn off voltage to PMTs
+    PMT.Active := False ;
+
+    if AvgBuf <> Nil then
+      begin
+      FreeMem(AvgBuf) ;
+      AvgBuf := Nil ;
+      end;
+
+    if DACBuf <> Nil then
+      begin
+      FreeMem(DACBuf) ;
+      DACBuf := Nil ;
+      end;
+
+    bStopScan.Enabled := False ;
+    bCaptureImage.Enabled := True ;
+    bEnterScanArea.Enabled := True ;
+    PMTGrp.Enabled := True ;    // Enable changes to PMT settings
+
+    ScanRequested := 0 ;
+    ScanningInProgress := False ;
+    LinesAvailableForDisplay := 0 ;
+
+    // Close laser shutter
+ //   Laser.ShutterOpen := False ;
+
+    // Move Z stage back to starting position
+
+    case cbImageMode.ItemIndex of
+       XYZMode :
+         begin
+         //ZStage.MoveTo( ZStartingPosition );
+         scZSection.Position := 0 ;
+         end;
+       XZMode :
+         begin
+         ZStage.MoveTo( ZStage.XPosition,ZStage.YPosition,ZStartingPosition );
+         end;
+    end;
+
+    end;
+
+
+
 procedure TMainFrm.bStopScanClick(Sender: TObject);
 // -------------
 // Stop scanning
@@ -2568,10 +2599,7 @@ begin
     LabIO.WriteDACs( DeviceNum,[0.0,0.0],2);
 
     // Turn off voltage to PMTs
-    SetPMTVoltage( 0, 0.0 ) ;
-    SetPMTVoltage( 1, 0.0 ) ;
-    SetPMTVoltage( 2, 0.0 ) ;
-    SetPMTVoltage( 3, 0.0 ) ;
+    PMT.Active := False ;
 
     if AvgBuf <> Nil then
       begin
@@ -2586,10 +2614,7 @@ begin
       end;
 
     bStopScan.Enabled := False ;
-    bScanImage.Enabled := True ;
-    bScanZoomIn.Enabled := True ;
-    bScanZoomOut.Enabled := True ;
-    bScanFull.Enabled := True ;
+    bEnterScanArea.Enabled := True ;
     PMTGrp.Enabled := True ;    // Enable changes to PMT settings
 
     ScanRequested := 0 ;
@@ -2653,6 +2678,19 @@ begin
 
     end;
 
+procedure TMainFrm.cbLaserChange(Sender: TObject);
+// -----------------
+// PMT Laser changed
+// -----------------
+begin
+    if not FormInitialized then Exit ;
+    // Read PMT controls
+    ReadWritePMTGroup( 0, gpPMT0, 'R' ) ;
+    ReadWritePMTGroup( 1, gpPMT1, 'R' ) ;
+    ReadWritePMTGroup( 2, gpPMT2, 'R' ) ;
+    ReadWritePMTGroup( 3, gpPMT3, 'R' ) ;
+    end;
+
 procedure TMainFrm.cbPaletteChange(Sender: TObject);
 // ------------------------------
 // Display colour palette changed
@@ -2668,11 +2706,26 @@ begin
      end;
 
 
+procedure TMainFrm.cbPMTGain0Change(Sender: TObject);
+// -----------------
+// A/D range changed
+// -----------------
+begin
+    if not FormInitialized then Exit ;
+    // Read PMT controls
+    ReadWritePMTGroup( 0, gpPMT0, 'R' ) ;
+    ReadWritePMTGroup( 1, gpPMT1, 'R' ) ;
+    ReadWritePMTGroup( 2, gpPMT2, 'R' ) ;
+    ReadWritePMTGroup( 3, gpPMT3, 'R' ) ;
+    end;
+
+
 procedure TMainFrm.ckEnablePMT0Click(Sender: TObject);
 // --------------------
 // PMT enabled/disabled
 // --------------------
 begin
+  if not FormInitialized then Exit ;
   UpdatePMTSettings ;
   end;
 
@@ -2699,7 +2752,7 @@ procedure TMainFrm.mnScanSettingsClick(Sender: TObject);
 begin
 
      SettingsFrm.ShowModal ;
-     edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*(ScanArea[iScanZoom].Width/HRFrameWidth) ;
+     edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*HRPixelSize ;
 
      //Re-open control port (if in use)
      if LaserControlEnabled then
@@ -2796,7 +2849,7 @@ begin
                 if not ImageFile.CreateFile( SectionFileName(FileName,iPMT,iSection),
                                              FrameWidth,FrameHeight,
                                              2*8,1,nFrames ) then Exit ;
-                ImageFile.XResolution := ScanArea[iScanZoom].Width/FrameWidth ;
+                ImageFile.XResolution := ScanArea.Width/FrameWidth ;
                 ImageFile.YResolution := ImageFile.XResolution ;
                 ImageFile.ZResolution := ZStep ;
                 ImageFile.SaveFrame( 1, PImageBuf[iPMT] ) ;
@@ -2889,23 +2942,6 @@ begin
   end;
 
 
-procedure TMainFrm.rbFastScanClick(Sender: TObject);
-// ------------------
-// Fast scan selected
-// ------------------
-begin
-     rbHRScan.Checked := False ;
-     end;
-
-procedure TMainFrm.rbHRScanClick(Sender: TObject);
-// ----------------------
-// Hi res. scan selected
-// ----------------------
-begin
-     rbFastScan.Checked := False ;
-     end;
-
-
 procedure TMainFrm.sbContrastChange(Sender: TObject);
 // --------------------------------------------------------
 // Set display grey scale to new contrast slider setting
@@ -2948,17 +2984,6 @@ begin
         end;
      end;
 
-
-procedure TMainFrm.tbLaserIntensityChange(Sender: TObject);
-// --------------------------------------------
-// Laser intensity track bar position changed
-// --------------------------------------------
-begin
-     edLaserIntensity.Value := tbLaserIntensity.Position*0.1 ;
-     tbLaserIntensity.Position := Round(10.*edLaserIntensity.Value) ;
-  //   Laser.Intensity := edLaserIntensity.Value ;
-     UpdateDisplay := True ;
-     end;
 
 
 procedure TMainFrm.SaveRawImage(
@@ -3009,9 +3034,6 @@ begin
           end;
       FileClose(FileHandle) ;
       FreeMem(Buf16) ;
-
-      // Set unsaved flag if image is high res.
-      UnsavedRawImage := rbHRScan.Checked ;
 
       end;
 
@@ -3091,7 +3113,7 @@ var
    iNode,ProtNode : IXMLNode;
    s : TStringList ;
    XMLDoc : IXMLDocument ;
-   ch : Integer ;
+   i,ch : Integer ;
 begin
 
     if FileName = '' then Exit ;
@@ -3108,6 +3130,8 @@ begin
     AddElementInt( ProtNode, 'FASTFRAMEWIDTH', FastFrameWidth ) ;
     AddElementInt( ProtNode, 'FASTFRAMEHEIGHT', FastFrameHeight ) ;
     AddElementInt( ProtNode, 'HRFRAMEWIDTH', HRFrameWidth ) ;
+    AddElementDouble( ProtNode, 'HRPIXELSIZE', HRPixelSize ) ;
+
     AddElementInt( ProtNode, 'LINESCANFRAMEHEIGHT', Round(edLineScanFrameHeight.Value) ) ;
 
     AddElementInt( ProtNode, 'PALETTE', cbPalette.ItemIndex ) ;
@@ -3125,6 +3149,10 @@ begin
 
     AddElementDouble( ProtNode, 'XVOLTSPERMICRON', XVoltsPerMicron ) ;
     AddElementDouble( ProtNode, 'YVOLTSPERMICRON', YVoltsPerMicron ) ;
+
+    AddElementInt( ProtNode, 'XGALVOCONTROL', XGalvoControl ) ;
+    AddElementInt( ProtNode, 'YGALVOCONTROL', YGalvoControl ) ;
+
     AddElementDouble( ProtNode, 'PHASESHIFT', PhaseShift ) ;
     AddElementDouble( ProtNode, 'LASERINTENSITY', LaserIntensity ) ;
     AddElementDouble( ProtNode, 'FULLFIELDWIDTHMICRONS', FullFieldWidthMicrons ) ;
@@ -3137,32 +3165,35 @@ begin
 
     // Laser control
     iNode := ProtNode.AddChild( 'LASER' ) ;
+    AddElementInt( iNode, 'NUMLASERS', Laser.NumLasers ) ;
+    AddElementInt( iNode, 'COMPORT', Laser.ControlPort ) ;
+    AddElementInt( iNode, 'LASERTYPE', Laser.LaserType ) ;
 //    AddElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
 //    AddElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
-//    AddElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
-//    AddElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
-    AddElementInt( iNode, 'COMPORT', Laser.ControlPort ) ;
+    for i := 1 to MaxLaser do
+        begin
+        AddElementText( iNode, format('NAME%d',[i]), Laser.LaserName[i] ) ;
+        AddElementInt( iNode, format('ACTIVECONTROLPORT%d',[i]), Laser.ActiveControlPort[i] ) ;
+        AddElementInt( iNode, format('INTENSITYCONTROLPORT%d',[i]), Laser.IntensityControlPort[i] ) ;
+        AddElementDouble( iNode, format('VMAXINTENSITY%d',[i]), Laser.VMaxIntensity[i] ) ;
+        AddElementDouble( iNode, format('INTENSITY%d',[i]), Laser.Intensity[i] ) ;
+        end;
 
     // PMT settings
-    AddElementInt( ProtNode, 'NUMPMTS', NumPMTs ) ;
+
     iNode := ProtNode.AddChild( 'PMT' ) ;
-    AddElementBool( iNode, 'ENABLED0', ckEnablePMT0.Checked ) ;
-    AddElementBool( iNode, 'ENABLED1', ckEnablePMT1.Checked ) ;
-    AddElementBool( iNode, 'ENABLED2', ckEnablePMT2.Checked ) ;
-    AddElementBool( iNode, 'ENABLED3', ckEnablePMT3.Checked ) ;
-    AddElementINT( iNode, 'GAININDEX0', cbPMTGain0.ItemIndex ) ;
-    AddElementINT( iNode, 'GAININDEX1', cbPMTGain1.ItemIndex ) ;
-    AddElementINT( iNode, 'GAININDEX2', cbPMTGain2.ItemIndex ) ;
-    AddElementINT( iNode, 'GAININDEX3', cbPMTGain3.ItemIndex ) ;
-    AddElementDouble( iNode, 'VOLTS0', edPMTVolts0.Value ) ;
-    AddElementDouble( iNode, 'VOLTS1', edPMTVolts1.Value ) ;
-    AddElementDouble( iNode, 'VOLTS2', edPMTVolts2.Value ) ;
-    AddElementDouble( iNode, 'VOLTS3', edPMTVolts3.Value ) ;
-    for ch := 0 to High(PMTControls) do
+    AddElementInt( iNode, 'NUMPMTS', PMT.NumPMTs ) ;
+    AddElementDouble( iNode, 'PMTGAINVMIN', PMT.GainVMin ) ;
+    AddElementDouble( iNode, 'PMTGAINVMAX', PMT.GainVMax ) ;
+    for i := 0 to MaxPMT do
         begin
-        AddElementINT( iNode, format('CONTROL%d',[ch]), PMTControls[ch] ) ;
-        end ;
-    AddElementDouble( iNode, 'MAXVOLTS', PMTMaxVolts ) ;
+        AddElementBool( iNode, format('ENABLED%d',[i]), PMT.PMTEnabled[i] ) ;
+        AddElementDouble( iNode, format('GAIN%d',[i]), PMT.PMTGain[i] ) ;
+        AddElementText( iNode, format('NAME%d',[i]), PMT.PMTName[i] ) ;
+        AddElementInt( iNode, format('PORT%d',[i]), PMT.PMTPort[i] ) ;
+        AddElementInt( iNode, format('ADCGAININDEX%d',[i]), PMT.ADCGainIndex[i] ) ;
+        AddElementInt( iNode, format('LASERNUM%d',[i]), PMT.LaserNum[i] ) ;
+        end;
 
     // Z stage
     iNode := ProtNode.AddChild( 'ZSTAGE' ) ;
@@ -3178,6 +3209,7 @@ begin
 
     AddElementText( ProtNode, 'IMAGEJPATH', ImageJPath ) ;
     AddElementBool( ProtNode, 'SAVEASMULTIPAGETIFF', SaveAsMultipageTIFF ) ;
+    AddElementText( ProtNode, 'RAWIMAGESFILENAME', RawImagesFileName ) ;
 
      s := TStringList.Create;
      s.Assign(xmlDoc.XML) ;
@@ -3222,6 +3254,7 @@ var
    iNode,ProtNode : IXMLNode;
    ch,NodeIndex : Integer ;
    XMLDoc : IXMLDocument ;
+  i: Integer;
 begin
 
     if not FileExists(FileName) then Exit ;
@@ -3243,6 +3276,8 @@ begin
 
     HRFrameWidth := GetElementInt( ProtNode, 'HRFRAMEWIDTH', HRFrameWidth ) ;
     HRFrameWidth := Min(Max(HRFrameWidth,MinFrameWidth),MaxFrameWidth) ;
+
+    HRPixelSize := GetElementDouble( ProtNode, 'HRPIXELSIZE', HRPixelSize ) ;
 
     edLineScanFrameHeight.Value := GetElementInt( ProtNode, 'LINESCANFRAMEHEIGHT',
                                                   Round(edLineScanFrameHeight.Value) ) ;
@@ -3267,6 +3302,10 @@ begin
 
     XVoltsPerMicron := GetElementDouble( ProtNode, 'XVOLTSPERMICRON', XVoltsPerMicron ) ;
     YVoltsPerMicron := GetElementDouble( ProtNode, 'YVOLTSPERMICRON', YVoltsPerMicron ) ;
+
+    XGalvoControl := GetElementInt( ProtNode, 'XGALVOCONTROL', XGalvoControl ) ;
+    YGalvoControl := GetElementInt( ProtNode, 'YGALVOCONTROL', YGalvoControl ) ;
+
     PhaseShift := GetElementDouble( ProtNode, 'PHASESHIFT', PhaseShift ) ;
     LaserIntensity := GetElementDouble( ProtNode, 'LASERINTENSITY', LaserIntensity ) ;
     FullFieldWidthMicrons := GetElementDouble( ProtNode, 'FULLFIELDWIDTHMICRONS', FullFieldWidthMicrons ) ;
@@ -3282,30 +3321,22 @@ begin
        end ;
 
     // PMT settings
-    NumPMTs := GetElementInt( ProtNode, 'NUMPMTS', NumPMTs ) ;
+
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'PMT',iNode,NodeIndex) do
           begin
-          ckEnablePMT0.Checked := GetElementBool( iNode, 'ENABLED0', ckEnablePMT0.Checked ) ;
-          ckEnablePMT1.Checked := GetElementBool( iNode, 'ENABLED1', ckEnablePMT1.Checked ) ;
-          ckEnablePMT2.Checked := GetElementBool( iNode, 'ENABLED2', ckEnablePMT2.Checked ) ;
-          ckEnablePMT3.Checked := GetElementBool( iNode, 'ENABLED3', ckEnablePMT3.Checked ) ;
-          cbPMTGain0.ItemIndex := Min(Max( GetElementINT( iNode, 'GAININDEX0', cbPMTGain0.ItemIndex )
-                                           ,0),cbPMTGain0.Items.Count-1) ;
-          cbPMTGain1.ItemIndex := Min(Max(GetElementINT( iNode, 'GAININDEX1', cbPMTGain1.ItemIndex )
-                                           ,0),cbPMTGain1.Items.Count-1) ;
-          cbPMTGain2.ItemIndex := Min(Max(GetElementINT( iNode, 'GAININDEX2', cbPMTGain2.ItemIndex )
-                                           , 0),cbPMTGain2.Items.Count-1) ;
-          cbPMTGain3.ItemIndex := Min(Max(GetElementINT( iNode, 'GAININDEX3', cbPMTGain3.ItemIndex )
-                                           , 0),cbPMTGain3.Items.Count-1) ;
-          edPMTVolts0.Value := GetElementDouble( iNode, 'VOLTS0', edPMTVolts0.Value ) ;
-          edPMTVolts1.Value := GetElementDouble( iNode, 'VOLTS1', edPMTVolts1.Value ) ;
-          edPMTVolts2.Value := GetElementDouble( iNode, 'VOLTS2', edPMTVolts2.Value ) ;
-          edPMTVolts3.Value := GetElementDouble( iNode, 'VOLTS3', edPMTVolts3.Value ) ;
-          for ch := 0 to High(PMTControls) do begin
-              PMTControls[ch] := GetElementINT( iNode, format('CONTROL%d',[ch]),PMTControls[ch] ) ;
-              end ;
-          PMTMaxVolts := GetElementDouble( iNode, 'MAXVOLTS', PMTMaxVolts ) ;
+          PMT.NumPMTs := GetElementInt( iNode, 'NUMPMTS', PMT.NumPMTs ) ;
+          PMT.GainVMin := GetElementDouble( iNode, 'PMTGAINVMIN', PMT.GainVMin ) ;
+          PMT.GainVMax := GetElementDouble( iNode, 'PMTGAINVMAX', PMT.GainVMax ) ;
+          for i := 0 to MaxPMT do
+              begin
+              PMT.PMTEnabled[i] := GetElementBool( iNode, format('ENABLED%d',[i]), PMT.PMTEnabled[i] ) ;
+              PMT.PMTGain[i] := GetElementDouble( iNode, format('GAIN%d',[i]), PMT.PMTGain[i] ) ;
+              PMT.PMTName[i] := GetElementText( iNode, format('NAME%d',[i]), PMT.PMTName[i] ) ;
+              PMT.PMTPort[i] := GetElementInt( iNode, format('PORT%d',[i]), PMT.PMTPort[i] ) ;
+              PMT.ADCGainIndex[i] := GetElementInt( iNode, format('ADCGAININDEX%d',[i]), PMT.ADCGainIndex[i] ) ;
+              PMT.LaserNum[i] := GetElementInt( iNode, format('LASERNUM%d',[i]), PMT.LaserNum[i] ) ;
+              end;
           Inc(NodeIndex) ;
           end ;
 
@@ -3313,11 +3344,20 @@ begin
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'LASER',iNode,NodeIndex) do
         begin
-//        Laser.ShutterControlLine := GetElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
-//        Laser.ShutterChangeTime := GetElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
-//        Laser.IntensityControlLine := GetElementInt( iNode, 'INTENSITYCONTROLLINE', Laser.IntensityControlLine ) ;
-//        Laser.VMaxIntensity := GetElementDouble( iNode, 'VMAXINTENSITY', Laser.VMaxIntensity ) ;
+        Laser.NumLasers := GetElementInt( iNode, 'NUMLASERS', Laser.NumLasers ) ;
+        Laser.LaserType := GetElementInt( iNode, 'LASERTYPE', Laser.LaserType ) ;
         Laser.ControlPort := GetElementInt( iNode, 'COMPORT', Laser.ControlPort ) ;
+
+//    AddElementInt( iNode, 'SHUTTERCONTROLLINE', Laser.ShutterControlLine ) ;
+//    AddElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
+        for i := 1 to MaxLaser do
+            begin
+            Laser.LaserName[i] := GetElementText( iNode, format('NAME%d',[i]), Laser.LaserName[i] ) ;
+            Laser.ActiveControlPort[i]:= GetElementInt( iNode, format('ACTIVECONTROLPORT%d',[i]), Laser.ActiveControlPort[i] ) ;
+            Laser.IntensityControlPort[i]:= GetElementInt( iNode, format('INTENSITYCONTROLPORT%d',[i]), Laser.IntensityControlPort[i] ) ;
+            Laser.VMaxIntensity[i]:= GetElementDouble( iNode, format('VMAXINTENSITY%d',[i]), Laser.VMaxIntensity[i] ) ;
+            Laser.Intensity[i] := GetElementDouble( iNode, format('INTENSITY%d',[i]), Laser.Intensity[i] ) ;
+            end;
         Inc(NodeIndex) ;
         end ;
 
@@ -3341,6 +3381,7 @@ begin
     SaveDirectory := GetElementText( ProtNode, 'SAVEDIRECTORY', SaveDirectory ) ;
     ImageJPath := GetElementText( ProtNode, 'IMAGEJPATH', ImageJPath ) ;
     SaveAsMultipageTIFF := GetElementBool( ProtNode, 'SAVEASMULTIPAGETIFF', SaveAsMultipageTIFF ) ;
+    RawImagesFileName := GetElementText( ProtNode, 'RAWIMAGESFILENAME', RawImagesFileName ) ;
 
     XMLDoc.Active := False ;
     XMLDoc := Nil ;
@@ -3353,62 +3394,33 @@ procedure TMainFrm.UpdatePMTSettings ;
 // Enable/disable PMT controls
 // ---------------------------
 var
-  ch : Integer ;
+  ch,NumEnabled,i : Integer ;
 begin
 
+  // Read PMT controls
+  ReadWritePMTGroup( 0, gpPMT0, 'R' ) ;
+  ReadWritePMTGroup( 1, gpPMT1, 'R' ) ;
+  ReadWritePMTGroup( 2, gpPMT2, 'R' ) ;
+  ReadWritePMTGroup( 3, gpPMT3, 'R' ) ;
+
   // Ensure at least one PMT is selected
-  if (not ckEnablePMT0.Checked) and (not ckEnablePMT1.Checked) and
-     (not ckEnablePMT2.Checked) and (not ckEnablePMT3.Checked) then ckEnablePMT0.Checked := True ;
-
-  if NumPMTs <= 3 then PanelPMT3.Visible := false
-                  else PanelPMT3.Visible := true ;
-  if NumPMTs <= 2 then PanelPMT2.Visible := false
-                  else PanelPMT2.Visible := true ;
-  if NumPMTs <= 1 then PanelPMT1.Visible := false
-                  else PanelPMT1.Visible := true ;
-  PanelPMT0.Visible := True ;
-
-  if not PanelPMT0.Visible then ckEnablePMT0.Checked := false ;
-  if not PanelPMT1.Visible then ckEnablePMT1.Checked := false ;
-  if not PanelPMT2.Visible then ckEnablePMT2.Checked := false ;
-  if not PanelPMT3.Visible then ckEnablePMT3.Checked := false ;
+  NumEnabled := 0 ;
+  for i := 0 to PMT.NumPMTs-1 do if PMT.PMTEnabled[i] then Inc(NumEnabled) ;
+  if NumEnabled = 0 then
+     begin
+     PMT.PMTEnabled[0] := True ;
+     ReadWRitePMTGroup( 0, gpPMT0, 'W' ) ;
+     end;
 
   cbPMTGain0.Enabled := ckEnablePMT0.Checked ;
-  edPMTVolts0.Enabled := ckEnablePMT0.Checked ;
-  udPMTVolts0.Enabled := ckEnablePMT0.Checked ;
-  cbPMTGain1.Enabled := ckEnablePMT1.Checked ;
-  edPMTVolts1.Enabled := ckEnablePMT1.Checked ;
-  udPMTVolts1.Enabled := ckEnablePMT1.Checked ;
-  cbPMTGain2.Enabled := ckEnablePMT2.Checked ;
-  edPMTVolts2.Enabled := ckEnablePMT2.Checked ;
-  udPMTVolts2.Enabled := ckEnablePMT2.Checked ;
-  cbPMTGain3.Enabled := ckEnablePMT3.Checked ;
-  edPMTVolts3.Enabled := ckEnablePMT3.Checked ;
-  udPMTVolts3.Enabled := ckEnablePMT3.Checked ;
 
   NumPMTChannels := 0 ;
   for ch := 0 to High(ImageNames) do ImageNames[ch] := '' ;
-
-  if ckEnablePMT0.Checked and PanelPMT0.Visible then
-     begin
-     ImageNames[NumPMTChannels] := 'PMT0' ;
-     Inc(NumPMTChannels) ;
-     end;
-  if ckEnablePMT1.Checked and PanelPMT1.Visible then
-     begin
-     ImageNames[NumPMTChannels] := 'PMT1' ;
-     Inc(NumPMTChannels) ;
-     end;
-  if ckEnablePMT2.Checked and PanelPMT2.Visible then
-     begin
-     ImageNames[NumPMTChannels] := 'PMT2' ;
-     Inc(NumPMTChannels) ;
-     end;
-  if ckEnablePMT3.Checked and PanelPMT3.Visible then
-     begin
-     ImageNames[NumPMTChannels] := 'PMT3' ;
-     Inc(NumPMTChannels) ;
-     end;
+  for i := 0 to PMT.NumPMTs-1 do if PMT.PMTEnabled[i] then
+      Begin
+      ImageNames[NumPMTChannels] := PMT.PMTName[i] ;
+      Inc(NumPMTChannels) ;
+      end ;
 
    TabImage0.Caption := ImageNames[0] ;
    TabImage1.Caption := ImageNames[1] ;
@@ -3471,6 +3483,91 @@ begin
   ImagePage.ActivePage := TabImage0 ;
 
   end;
+
+procedure TMainFrm.ValidatedEdit1KeyPress(Sender: TObject; var Key: Char);
+// --------------------------------
+// Laser intensity edit box changed
+// --------------------------------
+begin
+    if not FormInitialized then Exit ;
+    if Key = #13 then
+       begin
+       // Read PMT controls, updating laser intensity trackbar with edit box value
+       ReadWritePMTGroup( 0, gpPMT0, 'RE' ) ;
+       ReadWritePMTGroup( 1, gpPMT1,'RE' ) ;
+       ReadWritePMTGroup( 2, gpPMT2,'RE' ) ;
+       ReadWritePMTGroup( 3, gpPMT3,'RE' ) ;
+       end;
+
+    end;
+
+
+procedure TMainFrm.ReadWritePMTGroup(
+          Num : Integer ;
+          Group : TGroupBox ;
+          RW : string ) ;
+// -----------------------
+// Read/write PMT controls
+// -----------------------
+var
+    i,iDev : Integer ;
+    ckEnabled : TCheckBox ;
+    cbGain : TComboBox ;
+    cbLaser : TComboBox ;
+    tbLaserIntensity : TTrackBar ;
+    edGain : TValidatedEdit ;
+    edLaserIntensity : TValidatedEdit ;
+begin
+
+      // Display Group if PMT exists
+      if Num < PMT.NumPMTs then Group.Visible := True
+                           else Group.Visible := False ;
+
+      for i := 0 to Group.ControlCount-1 do
+          begin
+          case Group.Controls[i].Tag of
+              0 : ckEnabled:= TCheckBox(Group.Controls[i]) ;
+              1 : cbGain := TComboBox(Group.Controls[i]) ;
+              2 : cbLaser := TComboBox(Group.Controls[i]) ;
+              3 : tbLaserIntensity := TTrackBar(Group.Controls[i]) ;
+              4 : edLaserIntensity := TValidatedEdit(Group.Controls[i]) ;
+              end ;
+          end ;
+
+      if ANSIContainsText( RW, 'W') then
+         begin
+         // Write Group
+         ckEnabled.Caption := PMT.PMTName[Num] ;
+         ckEnabled.Checked := PMT.PMTEnabled[Num] ;
+         PMT.GetADCGainList( cbGain.Items ) ;
+         cbGain.ItemIndex := PMT.ADCGainIndex[Num] ;
+         Laser.GetLaserList( cbLaser.Items ) ;
+         cbLaser.ItemIndex := Min(Max(PMT.LaserNum[Num],0),Laser.NumLasers) ;
+         tbLaserIntensity.Position := Round(Laser.Intensity[PMT.LaserNum[Num]]*tbLaserIntensity.Max);
+         edLaserIntensity.Value :=  Laser.Intensity[PMT.LaserNum[Num]] ;
+         end
+      else begin
+         // Read Group
+         PMT.PMTEnabled[Num] := ckEnabled.Checked ;
+         PMT.ADCGainIndex[Num] := cbGain.ItemIndex ;
+         PMT.LaserNum[Num] := cbLaser.ItemIndex ;
+         if ANSIContainsText( RW, 'RT') then
+            begin
+            // Read intensity track bar
+            Laser.Intensity[PMT.LaserNum[Num]] := tbLaserIntensity.Position / tbLaserIntensity.Max ;
+            edLaserIntensity.Value :=  Laser.Intensity[PMT.LaserNum[Num]] ;
+            end
+         else
+            begin
+            // Read intensity edit box
+            Laser.Intensity[PMT.LaserNum[Num]] := edLaserIntensity.Value ;
+            tbLaserIntensity.Position := Round(Laser.Intensity[PMT.LaserNum[Num]]*tbLaserIntensity.Max);
+            end;
+         end ;
+
+      end;
+
+
 
 
 procedure TMainFrm.FormDestroy(Sender: TObject);

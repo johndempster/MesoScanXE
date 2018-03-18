@@ -7,13 +7,15 @@ unit SettingsUnit;
 // 27.06.16 Enabled property removed
 // 26.10.16 Frame height/widths limited to 10-30K
 // 10.05.17 ZPositionMin, ZPositionMax limits added
+// 03.11.17 raw images folder can be changed by user
+// 04.12.17 HRPixelSize added
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ValidatedEdit, math,
-  Vcl.ComCtrls, Vcl.ExtCtrls ;
+  Vcl.ComCtrls, Vcl.ExtCtrls, strutils, Vcl.Samples.Spin ;
 
 type
   TSettingsFrm = class(TForm)
@@ -21,7 +23,7 @@ type
     bCancel: TButton;
     StageTab: TPageControl;
     ScanTab: TTabSheet;
-    PMTTab: TTabSheet;
+    gpIntegrator: TTabSheet;
     LasersTab: TTabSheet;
     TabSheet1: TTabSheet;
     MiscTab: TTabSheet;
@@ -30,16 +32,12 @@ type
     edHRFrameWidth: TValidatedEdit;
     ScanGrp: TGroupBox;
     Label3: TLabel;
-    xscalelab: TLabel;
-    Label5: TLabel;
     Label6: TLabel;
     Label9: TLabel;
     Label11: TLabel;
     Label24: TLabel;
     ckCorrectSineWaveDistortion: TCheckBox;
     edPhaseShift: TValidatedEdit;
-    edXVoltsPerMicron: TValidatedEdit;
-    edYVoltsPerMicron: TValidatedEdit;
     edMaxScanRate: TValidatedEdit;
     ckBidirectionalScan: TCheckBox;
     edMinPixelDwellTime: TValidatedEdit;
@@ -49,22 +47,12 @@ type
     edFastFrameWidth: TValidatedEdit;
     Label12: TLabel;
     edFastFrameHeight: TValidatedEdit;
-    PMTgrp: TGroupBox;
+    gpPMTs: TGroupBox;
     Label2: TLabel;
     Label18: TLabel;
-    Label19: TLabel;
-    Label20: TLabel;
-    Label21: TLabel;
-    Label22: TLabel;
     Label23: TLabel;
-    edNumPMTs: TValidatedEdit;
     ckInvertPMTsignal: TCheckBox;
     edBlackLevel: TValidatedEdit;
-    cbPMTControl0: TComboBox;
-    cbPMTControl1: TComboBox;
-    cbPMTControl2: TComboBox;
-    cbPMTControl3: TComboBox;
-    edPMTMaxVolts: TValidatedEdit;
     GroupBox2: TGroupBox;
     Label8: TLabel;
     Label10: TLabel;
@@ -78,82 +66,108 @@ type
     edImageJPath: TEdit;
     ckSaveAsMultipageTIFF: TCheckBox;
     cbLaserType: TComboBox;
-    GroupBox4: TGroupBox;
-    edLaserName0: TEdit;
-    Label28: TLabel;
-    lbLaser0: TLabel;
-    Label29: TLabel;
-    edLaserName1: TEdit;
-    Label30: TLabel;
-    edLaserName2: TEdit;
-    Label31: TLabel;
-    edLaserName3: TEdit;
-    Label32: TLabel;
-    edLaserName4: TEdit;
-    Label33: TLabel;
-    edLaserName5: TEdit;
-    Label34: TLabel;
-    edLaserName6: TEdit;
-    Label35: TLabel;
-    edLaserName7: TEdit;
-    LaserExternalControlPanel: TPanel;
-    Label27: TLabel;
-    Label26: TLabel;
-    Label36: TLabel;
-    cbLaserActiveControl0: TComboBox;
-    cbLaserActiveControl1: TComboBox;
-    cbLaserActiveControl2: TComboBox;
-    cbLaserActiveControl3: TComboBox;
-    cbLaserActiveControl4: TComboBox;
-    cbLaserActiveControl5: TComboBox;
-    cbLaserActiveControl6: TComboBox;
-    cbLaserActiveControl7: TComboBox;
-    cbLaserIntensityControl0: TComboBox;
-    cbLaserIntensityControl1: TComboBox;
-    cbLaserIntensityControl2: TComboBox;
-    cbLaserIntensityControl3: TComboBox;
-    cbLaserIntensityControl4: TComboBox;
-    cbLaserIntensityControl5: TComboBox;
-    cbLaserIntensityControl6: TComboBox;
-    cbLaserIntensityControl7: TComboBox;
-    edLaserVMax0: TValidatedEdit;
-    edLaserVMax1: TValidatedEdit;
-    edLaserVMax2: TValidatedEdit;
-    edLaserVMax3: TValidatedEdit;
-    edLaserVMax4: TValidatedEdit;
-    edLaserVMax5: TValidatedEdit;
-    edLaserVMax6: TValidatedEdit;
-    edLaserVMax7: TValidatedEdit;
-    Label15: TLabel;
-    edLaserShutterChangeTime: TValidatedEdit;
-    ckLaserControlEnabled: TCheckBox;
-    Panel1: TPanel;
-    Label7: TLabel;
+    grpUSBLaser: TPanel;
     cbLaserControlComPort: TComboBox;
     Label14: TLabel;
     edZpositionMin: TValidatedEdit;
     Label16: TLabel;
     edZPositionMax: TValidatedEdit;
+    Label17: TLabel;
+    edRawFileFolder: TEdit;
+    Label37: TLabel;
+    edHRPixelSize: TValidatedEdit;
+    GroupBox1: TGroupBox;
+    Label40: TLabel;
+    Label41: TLabel;
+    cbXGalvo: TComboBox;
+    cbYGalvo: TComboBox;
+    xscalelab: TLabel;
+    edXVoltsPerMicron: TValidatedEdit;
+    Label5: TLabel;
+    edYVoltsPerMicron: TValidatedEdit;
+    pnPMT0: TPanel;
+    Edit1: TEdit;
+    ComboBox1: TComboBox;
+    ValidatedEdit1: TValidatedEdit;
+    spNumPMTs: TSpinEdit;
+    pnPMT1: TPanel;
+    Edit2: TEdit;
+    ComboBox2: TComboBox;
+    ValidatedEdit2: TValidatedEdit;
+    pnPMT2: TPanel;
+    Edit3: TEdit;
+    ComboBox3: TComboBox;
+    ValidatedEdit3: TValidatedEdit;
+    pnPMT3: TPanel;
+    Edit4: TEdit;
+    ComboBox4: TComboBox;
+    ValidatedEdit4: TValidatedEdit;
+    Label19: TLabel;
+    GroupBox5: TGroupBox;
+    cbIntegratorType: TComboBox;
+    edPMTGainVMin: TValidatedEdit;
+    Label20: TLabel;
+    Label21: TLabel;
+    edPMTGainVMax: TValidatedEdit;
+    grpLaserExternal: TGroupBox;
+    Label28: TLabel;
+    Label15: TLabel;
+    edLaserShutterChangeTime: TValidatedEdit;
+    ckLaserControlEnabled: TCheckBox;
+    pnLaser0: TPanel;
+    Edit6: TEdit;
+    ComboBox5: TComboBox;
+    ComboBox6: TComboBox;
+    ValidatedEdit5: TValidatedEdit;
+    pnLaser1: TPanel;
+    Edit7: TEdit;
+    ComboBox7: TComboBox;
+    ComboBox8: TComboBox;
+    ValidatedEdit6: TValidatedEdit;
+    pnLaser2: TPanel;
+    Edit8: TEdit;
+    ComboBox9: TComboBox;
+    ComboBox10: TComboBox;
+    ValidatedEdit7: TValidatedEdit;
+    pnLaser3: TPanel;
+    Edit9: TEdit;
+    ComboBox11: TComboBox;
+    ComboBox12: TComboBox;
+    ValidatedEdit8: TValidatedEdit;
+    pnLaser4: TPanel;
+    Edit10: TEdit;
+    ComboBox13: TComboBox;
+    ComboBox14: TComboBox;
+    ValidatedEdit9: TValidatedEdit;
+    Label7: TLabel;
+    Label22: TLabel;
+    Label26: TLabel;
+    Label27: TLabel;
+    spNumLasers: TSpinEdit;
+    GroupBox6: TGroupBox;
+    cbPMTADCPort: TComboBox;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
     procedure cbZStageTypeChange(Sender: TObject);
+    procedure spNumPMTsChange(Sender: TObject);
+    procedure spNumLasersChange(Sender: TObject);
+    procedure cbLaserTypeChange(Sender: TObject);
   private
     { Private declarations }
-    procedure SetLaser(
-          iLaser : Integer ;                  // Laser #
-          edName : TEdit ;                 // Laser name
-          cbLaserActive :TComboBox ;     // Laser on/off control line menu
-          cbLaserIntensity :TComboBox ;  // Laser intensity control line menu
-          edVMax : TValidatedEdit ) ;        // Voltage at 100%
 
-    procedure GetLaser(
-          iLaser : Integer ;                  // Laser #
-          edName : TEdit ;                   // Laser name
-          cbLaserActive : TComboBox ;        // Laser on/off control line menu
-          cbLaserIntensity : TComboBox ;     // Laser intensity control line menu
-          edVMax : TValidatedEdit ) ;        // Voltage at 100%
+    procedure ShowPMTPanels ;
+    procedure ReadWritePMTPanel(
+              Num : Integer ;
+              Panel : TPanel ;
+              RW : string ) ;
 
+    procedure ShowLaserPanels ;
+    procedure ReadWriteLaserPanel(
+              Num : Integer ;
+              Panel : TPanel ;
+              RW : string ) ;
+   procedure DisplayLaserPanel ;
 
   public
     { Public declarations }
@@ -166,7 +180,7 @@ implementation
 
 {$R *.dfm}
 
-uses MainUnit, ZStageUnit, LaserUnit, LabIOUnit;
+uses MainUnit, ZStageUnit, LaserUnit, LabIOUnit, PMTUnit;
 
 procedure TSettingsFrm.bCancelClick(Sender: TObject);
 // ---------------------
@@ -180,8 +194,11 @@ procedure TSettingsFrm.bOKClick(Sender: TObject);
 // --------------------------
 // Update program settings
 // --------------------------
+var
+    i : Integer ;
 begin
     MainFrm.HRFRameWidth := Round(edHRFRameWidth.Value) ;
+    MainFrm.HRPixelSize := edHRPixelSize.Value ;
     MainFrm.FastFRameWidth := Round(edFastFRameWidth.Value) ;
     MainFrm.FastFRameHeight := Round(edFastFRameHeight.Value) ;
     MainFrm.BidirectionalScan := ckBidirectionalScan.Checked ;
@@ -193,12 +210,17 @@ begin
     MainFrm.CorrectSineWaveDistortion := ckCorrectSineWaveDistortion.Checked ;
     MainFrm.BlackLevel := Round(edBlackLevel.Value) ;
 
-    MainFrm.NumPMTs := Round(edNumPMTs.Value) ;
-    MainFrm.PMTControls[0] := cbPMTControl0.ItemIndex - 1 ;
-    MainFrm.PMTControls[1] := cbPMTControl1.ItemIndex - 1 ;
-    MainFrm.PMTControls[2] := cbPMTControl2.ItemIndex - 1 ;
-    MainFrm.PMTControls[3] := cbPMTControl3.ItemIndex - 1 ;
-    MainFrm.PMTMaxVolts := edPMTMaxVolts.Value ;
+    // PMTs & Integrator
+    PMT.IntegratorType := cbIntegratorType.ItemIndex ;
+    PMT.NumPMTs := spNumPMTs.Value ;
+    PMT.GainVMin := edPMTGainVMin.Value ;
+    PMT.GainVMax := edPMTGainVMax.Value ;
+
+    ReadWritePMTPanel( 0, pnPMT0, 'R' ) ;
+    ReadWritePMTPanel( 1, pnPMT1, 'R' ) ;
+    ReadWritePMTPanel( 2, pnPMT2, 'R' ) ;
+    ReadWritePMTPanel( 3, pnPMT3, 'R' ) ;
+
     MainFrm.UpdatePMTSettings ;
 
     if (MainFrm.FullFieldWidthMicrons <> edFullFieldWidthMicrons.Value) or
@@ -211,17 +233,21 @@ begin
 
     MainFrm.InvertPMTSignal := ckInvertPMTSignal.Checked ;
 
+    Laser.LaserType := cbLaserType.ItemIndex ;
+
     // Set laser control line menus (for external control)
-    GetLaser( 0, edLaserName0, cbLaserActiveControl0, cbLaserIntensityControl0, edLaserVMax0 ) ;
-    GetLaser( 1, edLaserName1, cbLaserActiveControl1, cbLaserIntensityControl1, edLaserVMax1 ) ;
-    GetLaser( 2, edLaserName2, cbLaserActiveControl2, cbLaserIntensityControl2, edLaserVMax2 ) ;
-    GetLaser( 3, edLaserName3, cbLaserActiveControl3, cbLaserIntensityControl3, edLaserVMax3 ) ;
-    GetLaser( 4, edLaserName4, cbLaserActiveControl4, cbLaserIntensityControl4, edLaserVMax4 ) ;
-    GetLaser( 5, edLaserName5, cbLaserActiveControl5, cbLaserIntensityControl5, edLaserVMax5 ) ;
-    GetLaser( 6, edLaserName6, cbLaserActiveControl6, cbLaserIntensityControl6, edLaserVMax6 ) ;
-    GetLaser( 7, edLaserName7, cbLaserActiveControl7, cbLaserIntensityControl7, edLaserVMax7 ) ;
+    Laser.NumLasers := spNumLasers.Value ;
+    ReadWriteLaserPanel( 1, pnLaser0, 'R' ) ;
+    ReadWriteLaserPanel( 2, pnLaser1, 'R' ) ;
+    ReadWriteLaserPanel( 3, pnLaser2, 'R' ) ;
+    ReadWriteLaserPanel( 4, pnLaser3, 'R' ) ;
+    ReadWriteLaserPanel( 5, pnLaser4, 'R' ) ;
 
     Laser.ShutterChangeTime := edLaserShutterChangeTime.Value ;
+
+    // XY galvo control
+    MainFrm.XGalvoControl := Integer(cbXGalvo.Items.Objects[cbXGalvo.ItemIndex]);
+    MainFrm.YGalvoControl := Integer(cbYGalvo.Items.Objects[cbYGalvo.ItemIndex]);
 
     ZStage.ControlPort := cbZStagePort.ItemIndex ;
     ZStage.ZScaleFactor := edZScaleFactor.Value ;
@@ -232,7 +258,20 @@ begin
     MainFrm.ImageJPath := edImageJPath.Text ;
     MainFrm.SaveAsMultipageTIFF := ckSaveAsMultipageTIFF.Checked ;
 
+    MainFrm.RawImagesFileName := edRawFileFolder.Text + '\mesoscan.raw' ;
+    // Ensure no duplications of \
+    for i := 1 to 3 do MainFrm.RawImagesFileName := ANSIReplaceStr(  MainFrm.RawImagesFileName, '\\', '\');
+
+
     Close ;
+    end;
+
+procedure TSettingsFrm.cbLaserTypeChange(Sender: TObject);
+// ------------------
+// Laser type changed
+// ------------------
+begin
+    DisplayLaserPanel ;
     end;
 
 procedure TSettingsFrm.cbZStageTypeChange(Sender: TObject);
@@ -261,7 +300,6 @@ begin
     edFastFrameWidth.Value := MainFrm.FastFrameWidth ;
     edFastFrameHeight.Value := MainFrm.FastFrameHeight ;
 
-    edNumPMTs.Value := MainFrm.NumPMTs ;
     edPhaseShift.Value := MainFrm.PhaseShift ;
     ckBidirectionalScan.Checked :=  MainFrm.BidirectionalScan ;
     edMaxScanRate.Value := MainFrm.MaxScanRate ;
@@ -273,38 +311,54 @@ begin
     edFullFieldWidthMicrons.Value := MainFrm.FullFieldWidthMicrons ;
     edFieldEdge.Value := MainFrm.FieldEdge ;
     ckInvertPMTSignal.Checked := MainFrm.InvertPMTSignal ;
+    edHRPixelSize.Value := MainFrm.HRPixelSize ;
 
-    // PMT control lines
-    cbPMTControl0.Clear ;
-    cbPMTControl0.Items.Add('None') ;
-    for iDev := 1 to LabIO.NumDevices do
-        for i := 0 to LabIO.NumDACs[iDev]-1 do
-        begin
-        cbPMTControl0.Items.Add(Format('Dev%d:AO%d',[iDev,i])) ;
-        end;
-    cbPMTControl1.Items.Assign(cbPMTControl0.Items);
-    cbPMTControl2.Items.Assign(cbPMTControl0.Items);
-    cbPMTControl3.Items.Assign(cbPMTControl0.Items);
-    cbPMTControl0.ItemIndex := MainFrm.PMTControls[0] + 1 ;
-    cbPMTControl1.ItemIndex := MainFrm.PMTControls[1] + 1 ;
-    cbPMTControl2.ItemIndex := MainFrm.PMTControls[2] + 1 ;
-    cbPMTControl3.ItemIndex := MainFrm.PMTControls[3] + 1 ;
+    // Integrator type
+    PMT.GetIntegratorTypes( cbIntegratorType.Items ) ;
+    cbIntegratorType.ItemIndex := PMT.IntegratorType ;
 
-    edPMTMaxVolts.Value := MainFrm.PMTMaxVolts ;
+    // PMT A/D input port
+    LabIO.GetAIPorts( cbPMTADCPort.Items ) ;
+    cbPMTADCPort.ItemIndex := PMT.ADCDevice ;
+
+    spNumPMTs.MaxValue := MaxPMT ;
+    spNumPMTs.Value := PMT.NumPMTs ;
+
+    edPMTGainVMin.Value := PMT.GainVMin ;
+    edPMTGainVMax.Value := PMT.GainVMax ;
+
+    ShowPMTPanels ;
+    ReadWritePMTPanel( 0, pnPMT0, 'W' ) ;
+    ReadWritePMTPanel( 1, pnPMT1, 'W' ) ;
+    ReadWritePMTPanel( 2, pnPMT2, 'W' ) ;
+    ReadWritePMTPanel( 3, pnPMT3, 'W' ) ;
+
+    // Get type of laser installed
+    Laser.GetLaserTypes(cbLaserType.Items) ;
+    cbLaserType.ItemIndex := Laser.LaserType ;
+    DisplayLaserPanel ;
 
     // Laser control
-    Laser.GetLaserTypes(cbLaserType.Items);
+    spNumLasers.MaxValue := MaxLaser ;
+    spNumLasers.Value :=  Laser.NumLasers;
     Laser.GetCOMPorts( cbLaserControlComPort.Items ) ;
 
     // Set laser control line menus (for external control)
-    SetLaser( 0, edLaserName0, cbLaserActiveControl0, cbLaserIntensityControl0, edLaserVMax0 ) ;
-    SetLaser( 1, edLaserName1, cbLaserActiveControl1, cbLaserIntensityControl1, edLaserVMax1 ) ;
-    SetLaser( 2, edLaserName2, cbLaserActiveControl2, cbLaserIntensityControl2, edLaserVMax2 ) ;
-    SetLaser( 3, edLaserName3, cbLaserActiveControl3, cbLaserIntensityControl3, edLaserVMax3 ) ;
-    SetLaser( 4, edLaserName4, cbLaserActiveControl4, cbLaserIntensityControl4, edLaserVMax4 ) ;
-    SetLaser( 5, edLaserName5, cbLaserActiveControl5, cbLaserIntensityControl5, edLaserVMax5 ) ;
-    SetLaser( 6, edLaserName6, cbLaserActiveControl6, cbLaserIntensityControl6, edLaserVMax6 ) ;
-    SetLaser( 7, edLaserName7, cbLaserActiveControl7, cbLaserIntensityControl7, edLaserVMax7 ) ;
+
+    ShowLaserPanels ;
+    ReadWriteLaserPanel( 1, pnLaser0, 'W' ) ;
+    ReadWriteLaserPanel( 2, pnLaser1, 'W' ) ;
+    ReadWriteLaserPanel( 3, pnLaser2, 'W' ) ;
+    ReadWriteLaserPanel( 4, pnLaser3, 'W' ) ;
+    ReadWriteLaserPanel( 5, pnLaser4, 'W' ) ;
+
+    // Galvanometer control
+    cbXGalvo.Clear ;
+    LabIO.GetAOPorts(cbXGalvo.Items);
+    cbXGalvo.ItemIndex := cbXGalvo.Items.IndexOfObject(Tobject(MainFrm.XGalvoControl));
+    LabIO.GetAOPorts(cbYGalvo.Items);
+    cbYGalvo.ItemIndex := cbYGalvo.Items.IndexOfObject(Tobject(MainFrm.YGalvoControl));
+
 
     // Z stage control
     ZStage.GetZStageTypes(cbZStageType.Items);
@@ -322,41 +376,169 @@ begin
     edImageJPath.Text := MainFrm.ImageJPath ;
     ckSaveAsMultipageTIFF.Checked := MainFrm.SaveAsMultipageTIFF ;
 
+    edRawFileFolder.Text := ExtractFilePath(MainFrm.RawImagesFileName) ;
+
     end;
 
-procedure TSettingsFrm.SetLaser(
-          iLaser : Integer ;                  // Laser #
-          edName : TEdit ;                   // Laser name
-          cbLaserActive : TComboBox ;        // Laser on/off control line menu
-          cbLaserIntensity : TComboBox ;     // Laser intensity control line menu
-          edVMax : TValidatedEdit ) ;        // Voltage at 100%
-// ----------------------------------
-// Update laser control line settings
-// ----------------------------------
-begin
-     edName.Text := Laser.LaserName[iLaser] ;
-     Laser.GetActiveControlLines(cbLaserActive.Items);
-     cbLaserActive.ItemIndex := cbLaserActive.items.IndexOfObject(TObject(Laser.ActiveControlPort[iLaser]));
-     Laser.GetIntensityControlLines(cbLaserIntensity.Items);
-     cbLaserIntensity.ItemIndex := cbLaserIntensity.items.IndexOfObject(TObject(Laser.IntensityControlPort[iLaser]));
-     edVMax.Value := Laser.VMaxIntensity[iLaser] ;
-     end ;
 
-procedure TSettingsFrm.GetLaser(
-          iLaser : Integer ;                  // Laser #
-          edName : TEdit ;                   // Laser name
-          cbLaserActive : TComboBox ;        // Laser on/off control line menu
-          cbLaserIntensity : TComboBox ;     // Laser intensity control line menu
-          edVMax : TValidatedEdit ) ;        // Voltage at 100%
+procedure TSettingsFrm.ReadWritePMTPanel(
+          Num : Integer ;
+          Panel : TPanel ;
+          RW : string ) ;
+// -----------------------------------------
+// Read PMT settings panel controls
+// -----------------------------------------
+var
+    i,iDev : Integer ;
+    edName : TEdit ;
+    cbPort : TComboBox ;
+    edGain : TValidatedEdit ;
+begin
+
+      for i := 0 to Panel.ControlCount-1 do
+          begin
+          case Panel.Controls[i].Tag of
+              0 : edName := TEdit(Panel.Controls[i]) ;
+              1 : cbPort := TComboBox(Panel.Controls[i]) ;
+              2 : edGain := TValidatedEdit(Panel.Controls[i]) ;
+              end ;
+          end ;
+
+      if ANSIContainsText( RW, 'W') then
+         begin
+         // Write panel
+         edName.Text := PMT.PMTName[Num] ;
+         LabIO.GetAOPorts( cbPort.Items ) ;
+         cbPort.ItemIndex := Max(cbPort.Items.IndexofObject(TObject(PMT.PMTPort[Num])),0) ;
+         edGain.Value := PMT.PMTGain[Num] ;
+         end
+      else begin
+         // Read panel
+         PMT.PMTName[Num] := edName.Text ;
+         PMT.PMTPort[Num] := Integer(cbPort.Items.Objects[cbPort.ItemIndex]) ;
+         PMT.PMTGain[Num] := edGain.Value ;
+         end ;
+
+      end;
+
+
+procedure TSettingsFrm.DisplayLaserPanel ;
+// ----------------------------
+// Display laser settings panel
+// ----------------------------
+begin
+    grpLaserExternal.Visible := False ;
+    grpUSBLaser.Visible := False ;
+    case cbLaserType.ItemIndex of
+         lsExternal : grpLaserExternal.Visible := True ;
+         lsObis : grpUSBLaser.Visible := True ;
+    end;
+end;
+
+
+procedure TSettingsFrm.ShowPMTPanels ;
 // ----------------------------------
-// Get laser control line settings
+// Make installed PMT panels visible
 // ----------------------------------
 begin
-     Laser.LaserName[iLaser] := edName.Text ;
-//     Laser.ActiveControlPort[iLaser] := Integer(cbLaserActive.Items.Objects[cbLaserActive.ItemIndex]);
-//     Laser.IntensityControlPort[iLaser] := Integer(cbLaserIntensity.Items.Objects[cbLaserIntensity.ItemIndex]);
-     Laser.VMaxIntensity[iLaser] := edVMax.Value ;
-     end ;
+
+    pnPMT0.Visible := False ;
+    pnPMT1.Visible := False ;
+    pnPMT2.Visible := False ;
+    pnPMT3.Visible := False ;
+
+    if spNumPMTs.Value >= 4 then pnPMT3.Visible := True ;
+    if spNumPMTs.Value >= 3 then pnPMT2.Visible := True ;
+    if spNumPMTs.Value >= 2 then pnPMT1.Visible := True ;
+    if spNumPMTs.Value >= 1 then pnPMT0.Visible := True ;
+
+    end;
+
+
+
+procedure TSettingsFrm.spNumLasersChange(Sender: TObject);
+// ----------------
+// No. lasers changed
+// ----------------
+begin
+    // Make installed makes visible
+    ShowLaserPanels ;
+    end;
+
+
+procedure TSettingsFrm.spNumPMTsChange(Sender: TObject);
+// ----------------
+// No. PMTs changed
+// ----------------
+begin
+    // Make installed makes visible
+    ShowPMTPanels ;
+    end;
+
+procedure TSettingsFrm.ReadWriteLaserPanel(
+          Num : Integer ;
+          Panel : TPanel ;
+          RW : string ) ;
+// -----------------------------------------
+// Read/write laser settings panel controls
+// -----------------------------------------
+var
+    i,iDev : Integer ;
+    edName : TEdit ;
+    cbOnOffPort,cbIntensityPort : TComboBox ;
+    edVMax : TValidatedEdit ;
+begin
+
+      for i := 0 to Panel.ControlCount-1 do
+          begin
+          case Panel.Controls[i].Tag of
+              0 : edName := TEdit(Panel.Controls[i]) ;
+              1 : cbOnOffPort := TComboBox(Panel.Controls[i]) ;
+              2 : cbIntensityPort := TComboBox(Panel.Controls[i]) ;
+              3 : edVMax := TValidatedEdit(Panel.Controls[i]) ;
+              end ;
+          end ;
+
+      if ANSIContainsText( RW, 'W') then
+         begin
+         // Write panel
+         edName.Text := Laser.LaserName[Num] ;
+         LabIO.GetPOPorts( cbOnOffPort.Items ) ;
+         cbOnOffPort.ItemIndex := Max(cbOnOffPort.Items.IndexofObject(TObject(Laser.ActiveControlPort[Num])),0) ;
+         LabIO.GetAOPorts( cbIntensityPort.Items ) ;
+         cbIntensityPort.ItemIndex := Max(cbIntensityPort.Items.IndexofObject(TObject(Laser.IntensityControlPort[Num])),0) ;
+         edVMax.Value := Laser.VMaxIntensity[Num] ;
+         end
+      else begin
+         // Read panel
+         Laser.LaserName[Num] := edName.Text ;
+         Laser.ActiveControlPort[Num] := Integer(cbOnOffPort.Items.Objects[cbOnOffPort.ItemIndex]) ;
+         Laser.IntensityControlPort[Num] := Integer(cbIntensityPort.Items.Objects[cbIntensityPort.ItemIndex]) ;
+         Laser.VMaxIntensity[Num] := edVMax.Value ;
+         end ;
+
+      end;
+
+
+procedure TSettingsFrm.ShowLaserPanels ;
+// ----------------------------------
+// Make installed laser panels visible
+// ----------------------------------
+begin
+
+    pnLaser0.Visible := False ;
+    pnLaser1.Visible := False ;
+    pnLaser2.Visible := False ;
+    pnLaser3.Visible := False ;
+    pnLaser4.Visible := False ;
+
+    if spNumLasers.Value >= 5 then pnLaser4.Visible := True ;
+    if spNumLasers.Value >= 4 then pnLaser3.Visible := True ;
+    if spNumLasers.Value >= 3 then pnLaser2.Visible := True ;
+    if spNumLasers.Value >= 2 then pnLaser1.Visible := True ;
+    if spNumLasers.Value >= 1 then pnLaser0.Visible := True ;
+
+    end;
 
 
 end.

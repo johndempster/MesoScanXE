@@ -48,6 +48,7 @@ const
     MaxVRanges = 16 ;
     MaxDACChannels = 16 ;
     MaxResources = 200 ;
+    ControlDisabled = MaxResources ;
     ClockSync_RTSI0 = 0 ;
     ClockSync_PFI5 = 1 ;
     DefaultTimeOut = 1.0 ;
@@ -286,10 +287,10 @@ type
 
     function ADCToMemoryExtScan(
           Device : SmallInt ;
-          ChannelInUse : Array of Boolean ;      // Channels to be used (IN)
+          ChannelInUse : Array of Boolean ;          // Channels to be used (IN)
           ChannelVoltageRange : Array of Integer ;   // Index number of channel A/D voltage range
-          var ChannelNums : Array of Integer ;   // Returns channel nos. in use
-          var nChannels : Integer ;              // Return number of A/D channels
+          var ChannelNums : Array of Integer ;       // Returns channel nos. in use
+          var nChannels : Integer ;                  // Return number of A/D channels
           nSamples : Integer ;               { Number of A/D samples ( per channel) (IN) }
           CircularBuffer : Boolean ;          { Repeated sampling into buffer (IN) }
           TimingDevice : SmallInt            // Device supply ADC/DAC timing pulses
@@ -319,6 +320,7 @@ type
     function MemoryToDAC(
              Device : SmallInt ;
              DACBufIn : PBig16bitArray  ;
+             AOList : Array of Integer ;   // Analog output channel list
              nChannels : SmallInt ;
              nPoints : Cardinal ;
              nPointsInDACBuffer : Cardinal ;
@@ -923,7 +925,7 @@ begin
     for i := 0 to High(Resource) do
         if (Resource[i].ResourceType = ADCIn) then
         begin
-        List.AddObject( Resource[i].Name[i],TObject(i));
+        List.AddObject( Resource[i].Name,TObject(i));
         end;
 end;
 
@@ -940,7 +942,7 @@ begin
     for i := 0 to High(Resource) do
         if (Resource[i].ResourceType = DACOut) then
         begin
-        List.AddObject( Resource[i].Name[i],TObject(i));
+        List.AddObject( Resource[i].Name,TObject(i));
         end;
 end;
 
@@ -957,7 +959,7 @@ begin
     for i := 0 to High(Resource) do
         if (Resource[i].ResourceType = DigOut) then
         begin
-        List.AddObject( Resource[i].Name[i],TObject(i));
+        List.AddObject( Resource[i].Name,TObject(i));
         end;
 end;
 
@@ -1453,7 +1455,7 @@ begin
      // Set timing
      ClockSource := '/' + DeviceName[TimingDevice] + '/ao/sampleclock' ;
      SamplingRate := {500.0 ;//} 1100000.0 ;// (nChannels+1) ;
-    //  SamplingRate := 500.0 /nChannels ;
+     SamplingRate := 250000.0 /(nChannels+1) ;
      CheckError( DAQmxCfgSampClkTiming( ADCTask[Device],
                                         PANSIChar(ClockSource),
                                         SamplingRate,
@@ -1704,8 +1706,9 @@ begin
 
 function TLabIO.MemoryToDAC(
           Device : SmallInt ;
-          DACBufIn : PBig16bitArray ;   { D/A output data buffer (IN) }
-          nChannels : SmallInt ;            { No. of D/A channels (IN) }
+          DACBufIn : PBig16bitArray ;   //  D/A output data buffer (IN)
+          AOList : Array of Integer ;   // Analog output channel list
+          nChannels : SmallInt ;        // No. of AO channels
           nPoints : Cardinal ;               { No. of D/A output values (IN) }
           nPointsInDACBuffer : Cardinal ;    // No. of points in internal DAC buffer
           UpdateInterval : Double ;          { D/A output interval (s) (IN) }
@@ -1719,7 +1722,7 @@ function TLabIO.MemoryToDAC(
 var
     ClockSource : ANSIString ;
     ChannelList : ANSIString ;
-    NumSamplesWritten : Integer ;
+    NumSamplesWritten,i : Integer ;
     VScale : Double ;
     UpdateRate : Double ;
 begin
@@ -1743,7 +1746,13 @@ begin
 
      // Select D/A output channels
      DACNumChannels := nChannels ;
-     ChannelList := format( DeviceName[Device] + '/AO0:%d', [nChannels-1] ) ;
+     ChannelList := '' ;
+     for i := 0 to nChannels-1 do
+         begin
+         ChannelList := ChannelList + DeviceName[Device]  + '/AO' + format('%d',[i]) ;
+         if i < (nChannels-1) then ChannelList := ChannelList + ',';
+         end;
+
      CheckError( DAQmxCreateAOVoltageChan( DACTask[Device],
                                            PANSIChar(ChannelList),
                                            nil ,
