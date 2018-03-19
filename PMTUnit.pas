@@ -11,6 +11,30 @@ uses
 
 const
   MaxPMT = 3 ;
+  // Com port control flags
+  dcb_Binary = $00000001;
+  dcb_ParityCheck = $00000002;
+  dcb_OutxCtsFlow = $00000004;
+  dcb_OutxDsrFlow = $00000008;
+  dcb_DtrControlMask = $00000030;
+  dcb_DtrControlDisable = $00000000;
+  dcb_DtrControlEnable = $00000010;
+  dcb_DtrControlHandshake = $00000020;
+  dcb_DsrSensivity = $00000040;
+  dcb_TXContinueOnXoff = $00000080;
+  dcb_OutX = $00000100;
+  dcb_InX = $00000200;
+  dcb_ErrorChar = $00000400;
+  dcb_NullStrip = $00000800;
+  dcb_RtsControlMask = $00003000;
+  dcb_RtsControlDisable = $00000000;
+  dcb_RtsControlEnable = $00001000;
+  dcb_RtsControlHandshake = $00002000;
+  dcb_RtsControlToggle = $00003000;
+  dcb_AbortOnError = $00004000;
+  dcb_Reserveds = $FFFF8000;
+  CoolLEDRequestWavelengthsAtTick = 10 ;
+
 
 type
   TPMT = class(TDataModule)
@@ -24,6 +48,7 @@ type
     FControlPort : DWord ;    // Control port number
     FBaudRate : DWord ;       // Com port baud rate
     ControlState : Integer ;  // Z stage control state
+    ComFailed : Boolean ;
     Status : String ;         // Z stage status report
     FNumPMTs : Integer ;
     FGainVMin : double ;      // PMT control voltage (V) at minimum gain
@@ -117,6 +142,7 @@ begin
     FGainVMin := 0.5 ;
     FGainVMax := 2.5 ;
     FADCDevice := 1 ;
+    ComFailed := False ;
 
     for i := 0 to MaxPMT do
         begin
@@ -144,6 +170,7 @@ begin
         itgSIM965 :
           begin
           OpenComPort ;
+          S :=
           end;
         end;
     end;
@@ -199,7 +226,7 @@ var
    CommTimeouts : TCommTimeouts ;
 begin
 
-     ComPortOpen := False ;
+     if ComPortOpen then Exit ;
 
      { Open com port  }
      ComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort+1])),
@@ -212,17 +239,20 @@ begin
 
      if Integer(ComHandle) < 0 then
         begin
-        ShowMessage( format('PMT Integrator: Unable to open port COM%d',[FControlPort+1]));
+        ComPortOpen := False ;
+        ShowMessage(format('CoolLED: Unable to open serial port: COM%d',[FControlPort+1]));
         Exit ;
         end;
 
      { Get current state of COM port and fill device control block }
      GetCommState( ComHandle, DCB ) ;
-     { Change settings to those required for 1902 }
+     { Change settings to those required for CoolLED }
      DCB.BaudRate := CBR_9600 ;
      DCB.ByteSize := 8 ;
      DCB.Parity := NOPARITY ;
      DCB.StopBits := ONESTOPBIT ;
+     // Settings required to activate remote mode of CoolLED
+     DCB.Flags := dcb_Binary or dcb_DtrControlEnable or dcb_RtsControlEnable ;
 
      { Update COM port }
      SetCommState( ComHandle, DCB ) ;
@@ -240,10 +270,11 @@ begin
      SetCommTimeouts( ComHandle, CommTimeouts ) ;
 
      ComPortOpen := True ;
-     Status := '' ;
-     ControlState := csIdle ;
+      Status := '' ;
+    ControlState := csIdle ;
+    ComFailed := False ;
 
-     end ;
+    end ;
 
 
 procedure TPMT.ResetCOMPort ;
@@ -319,6 +350,7 @@ begin
 
      Result := False ;
      if not ComPortOpen then Exit ;
+     if ComFailed then Exit ;
 
      { Copy command line to be sent to xMit buffer and and a CR character }
      nC := Length(Line) ;
@@ -454,7 +486,7 @@ begin
     SendCommand( format('SNDT %d, "COUP DC"',[iChan]));
     // Cutoff frequency
     Freq3dBCutOff := 1.0 / (2.0*pi()*(IntegrationTime/3.0)) ;
-    SendCommand( format('SNDT %d, "FILTER FREQ %.0f"',[iChan]));
+    SendCommand( format('SNDT %d, "FILTER FREQ %.0f"',[iChan,Freq3dBCutOff]));
 
     end;
 
