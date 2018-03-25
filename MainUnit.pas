@@ -754,12 +754,7 @@ begin
      if FullFieldWidthMicrons <= 0.0 then FullFieldWidthMicrons := 1E4 ;
 
      // Open laser control
-     if LaserControlEnabled then begin
-        //LaserControlOpen := OpenComPort( LaserControlCOMHandle, LaserControlCOMPort, CBR_9600 ) ;
-        end
-     else LaserControlOpen := False ;
-     // Ensure laser shutter is closed
-     for i := 0 to MaxLaser do Laser.LaserActive[i] := False ;
+     Laser.Open ;
 
      UpdateDisplay := False ;
      ScanRequested := 0 ;
@@ -1173,7 +1168,7 @@ var
 begin
 
      // Close laser shutter
-     for i := 0 to MaxLaser do Laser.LaserActive[i] := False ;
+     Laser.Close ;
 
      LabIO.Close ;
 
@@ -3173,7 +3168,7 @@ begin
     for i := 1 to MaxLaser do
         begin
         AddElementText( iNode, format('NAME%d',[i]), Laser.LaserName[i] ) ;
-        AddElementInt( iNode, format('ACTIVECONTROLPORT%d',[i]), Laser.ActiveControlPort[i] ) ;
+        AddElementInt( iNode, format('ENABLEDCONTROLPORT%d',[i]), Laser.EnabledControlPort[i] ) ;
         AddElementInt( iNode, format('INTENSITYCONTROLPORT%d',[i]), Laser.IntensityControlPort[i] ) ;
         AddElementDouble( iNode, format('VMAXINTENSITY%d',[i]), Laser.VMaxIntensity[i] ) ;
         AddElementDouble( iNode, format('INTENSITY%d',[i]), Laser.Intensity[i] ) ;
@@ -3185,6 +3180,9 @@ begin
     AddElementInt( iNode, 'NUMPMTS', PMT.NumPMTs ) ;
     AddElementDouble( iNode, 'PMTGAINVMIN', PMT.GainVMin ) ;
     AddElementDouble( iNode, 'PMTGAINVMAX', PMT.GainVMax ) ;
+    AddElementInt( iNode, 'INTEGRATORTYPE', PMT.IntegratorType ) ;
+    AddElementInt( iNode, 'INTEGRATORPORT', PMT.IntegratorPort ) ;
+
     for i := 0 to MaxPMT do
         begin
         AddElementBool( iNode, format('ENABLED%d',[i]), PMT.PMTEnabled[i] ) ;
@@ -3322,12 +3320,16 @@ begin
 
     // PMT settings
 
+
+
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'PMT',iNode,NodeIndex) do
           begin
           PMT.NumPMTs := GetElementInt( iNode, 'NUMPMTS', PMT.NumPMTs ) ;
           PMT.GainVMin := GetElementDouble( iNode, 'PMTGAINVMIN', PMT.GainVMin ) ;
           PMT.GainVMax := GetElementDouble( iNode, 'PMTGAINVMAX', PMT.GainVMax ) ;
+          PMT.IntegratorType := GetElementInt( iNode, 'INTEGRATORTYPE', PMT.IntegratorType ) ;
+          PMT.IntegratorPort := GetElementInt( iNode, 'INTEGRATORPORT', PMT.IntegratorPort ) ;
           for i := 0 to MaxPMT do
               begin
               PMT.PMTEnabled[i] := GetElementBool( iNode, format('ENABLED%d',[i]), PMT.PMTEnabled[i] ) ;
@@ -3353,7 +3355,7 @@ begin
         for i := 1 to MaxLaser do
             begin
             Laser.LaserName[i] := GetElementText( iNode, format('NAME%d',[i]), Laser.LaserName[i] ) ;
-            Laser.ActiveControlPort[i]:= GetElementInt( iNode, format('ACTIVECONTROLPORT%d',[i]), Laser.ActiveControlPort[i] ) ;
+            Laser.EnabledControlPort[i]:= GetElementInt( iNode, format('ENABLEDCONTROLPORT%d',[i]), Laser.EnabledControlPort[i] ) ;
             Laser.IntensityControlPort[i]:= GetElementInt( iNode, format('INTENSITYCONTROLPORT%d',[i]), Laser.IntensityControlPort[i] ) ;
             Laser.VMaxIntensity[i]:= GetElementDouble( iNode, format('VMAXINTENSITY%d',[i]), Laser.VMaxIntensity[i] ) ;
             Laser.Intensity[i] := GetElementDouble( iNode, format('INTENSITY%d',[i]), Laser.Intensity[i] ) ;

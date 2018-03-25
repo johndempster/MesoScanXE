@@ -9,37 +9,48 @@ unit LaserUnit;
 interface
 
 uses
-  System.SysUtils, System.Classes, Windows, FMX.Dialogs, math ;
+  System.SysUtils, System.Classes, Windows, FMX.Dialogs, math, Vcl.ExtCtrls ;
 
 const
     MaxLaser = 5 ;
     lsNone = 0 ;
-    lsExternal  = 1 ;
-    lsOBIS = 2 ;
+    lsOBIS = 1 ;
 
 type
   TLaser = class(TDataModule)
+    Timer: TTimer;
     procedure DataModuleCreate(Sender: TObject);
+    procedure TimerTimer(Sender: TObject);
   private
     { Private declarations }
+
+    Initialized : Boolean ;           // Laser controller initialized
+    InitCounter : Integer ;           // Initialisation state counter
+    FActive : Boolean ;               // Lasers active flag
     FLaserType : Integer ;            // Type of laser unit
     FComPort : Integer ;              // Com port #
     FComHandle : THandle ;     // Com port handle
     FControlPort : DWord ;    // Control port number
     FComPortOpen : Boolean ;          // Com port open flag
     FBaudRate : DWord ;       // Com port baud rate
+    ComFailed : Boolean ;
     FShutterOpen : Boolean ;
     FShutterChangeTime : Double ;
     FNumLasers : Integer ;
+
 
     Status : String ;         // Laser status report
     FControlState : Integer ;  // Laser control state
     FIntensityControlPort : Array[0..MaxLaser] of Integer ;      // Laser intensity control port
     FIntensity : Array[0..MaxLaser] of Double ;                  // Laser intensity
     FVMaxIntensity: Array[0..MaxLaser] of Double ;               // Voltage at 100% intensity
-    FActiveControlPort : Array[0..MaxLaser] of Integer ;         // Laser on/off control port
-    FLaserActive : Array[0..MaxLaser] of Boolean ;               // Laser On/Off status
+    FEnabledControlPort : Array[0..MaxLaser] of Integer ;         // Laser on/off control port
+    FLaserEnabled : Array[0..MaxLaser] of Boolean ;               // Laser On/Off status
     FName : Array[0..MaxLaser] of string ;                       // Laser name
+    FDescription : Array[0..MaxLaser] of string ;                // Laser description
+
+    OverLapStructure : POVERLAPPED ;
+    ReplyMessage : string ;
 
     procedure OpenCOMPort ;
     procedure CloseCOMPort ;
@@ -48,6 +59,16 @@ type
     procedure SetControlPort( Value : DWord ) ;
     procedure SetBaudRate( Value : DWord ) ;
     procedure UpdateLasersExternal ;
+    procedure OBISInitializer ;
+    function SendCommand( const Line : string ) : Boolean ;
+    function ReceiveBytes( var EndOfLine : Boolean ) : string ;
+    function WaitForMessage : string ;
+    procedure WaitforCompletion ;
+    function WaitforResponse(
+             ResponseRequired : string
+             ) : Boolean ;
+
+
     procedure SetIntensity(
               i : Integer ;
               Value : Double ) ;
@@ -60,10 +81,10 @@ type
     function GetIntensity(
              i : Integer
              ) :Double  ;
-    procedure SetLaserActive(
+    procedure SetLaserEnabled(
               i : Integer ;
               Value : Boolean ) ;
-    function GetLaserActive(
+    function GetLaserEnabled(
              i : Integer
              ) : Boolean  ;
     procedure SetLaserName(
@@ -78,34 +99,39 @@ type
     function GetIntensityControlPort(
              i : Integer
              ) : Integer  ;
-    procedure SetActiveControlPort(
+    procedure SetEnabledControlPort(
               i : Integer ;
               Value : Integer ) ;
-    function GetActiveControlPort(
+    function GetEnabledControlPort(
              i : Integer
              ) : Integer  ;
+    procedure SetActive( Value : Boolean ) ;
 
   public
     { Public declarations }
+    ControllerID : String ;                       // Laser controller ID
+    LaserID : Array[0..MaxLaser] of String ;      // Laser IDs
     procedure GetLaserTypes( List : TStrings ) ;
-    procedure GetActiveControlLines( List : TStrings ) ;
+    procedure GetEnabledControlLines( List : TStrings ) ;
     procedure GetIntensityControlLines( List : TStrings ) ;
     procedure GetCOMPorts( List : TStrings ) ;
     procedure Open ;
     procedure Close ;
-    procedure UpdateLasers ;
     procedure GetLaserList( List : TStrings ) ;
+    function ControlPortRequired : Boolean ;
+
     Property LaserType : Integer read FLaserType write SetLaserType ;
     Property ControlPort : DWORD read FControlPort write SetControlPort ;
     Property BaudRate : DWORD read FBaudRate write SetBaudRate ;
     Property NumLasers : Integer read FNumLasers write FNumLasers ;
     Property ShutterChangeTime : Double read FShutterChangeTime write FShutterChangeTime ;
     Property IntensityControlPort[Laser : Integer] : Integer read GetIntensityControlPort write SetIntensityControlPort ;
-    Property ActiveControlPort[Laser : Integer] : Integer read GetActiveControlPort write SetActiveControlPort ;
+    Property EnabledControlPort[Laser : Integer] : Integer read GetEnabledControlPort write SetEnabledControlPort ;
     Property VMaxIntensity[i : Integer] : Double read GetVMaxIntensity write SetVMaxIntensity ;
     Property Intensity[i : Integer] : Double read GetIntensity write SetIntensity ;
-    Property LaserActive[i : Integer] : Boolean read GetLaserActive write SetLaserActive ;
+    Property LaserEnabled[i : Integer] : Boolean read GetLaserEnabled write SetLaserEnabled ;
     Property LaserName[i : Integer] : String read GetLaserName write SetLaserName ;
+    Property Active : Boolean read FActive write SetActive ;
   end;
 
 var
@@ -115,12 +141,35 @@ implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
-uses LabIOUnit;
+uses LabIOUnit, mmsystem ;
 
 {$R *.dfm}
 const
 
     csIdle = 0 ;
+  // Com port control flags
+  dcb_Binary = $00000001;
+  dcb_ParityCheck = $00000002;
+  dcb_OutxCtsFlow = $00000004;
+  dcb_OutxDsrFlow = $00000008;
+  dcb_DtrControlMask = $00000030;
+  dcb_DtrControlDisable = $00000000;
+  dcb_DtrControlEnable = $00000010;
+  dcb_DtrControlHandshake = $00000020;
+  dcb_DsrSensivity = $00000040;
+  dcb_TXContinueOnXoff = $00000080;
+  dcb_OutX = $00000100;
+  dcb_InX = $00000200;
+  dcb_ErrorChar = $00000400;
+  dcb_NullStrip = $00000800;
+  dcb_RtsControlMask = $00003000;
+  dcb_RtsControlDisable = $00000000;
+  dcb_RtsControlEnable = $00001000;
+  dcb_RtsControlHandshake = $00002000;
+  dcb_RtsControlToggle = $00003000;
+  dcb_AbortOnError = $00004000;
+  dcb_Reserveds = $FFFF8000;
+
 
 procedure TLaser.DataModuleCreate(Sender: TObject);
 //
@@ -134,14 +183,18 @@ begin
   FShutterOpen := False ;
   FShutterChangeTime := 0.5 ;
   FNumLasers := 1 ;
+  ComFailed := False ;
+  Initialized := False ;
+  InitCounter := 0 ;
 
   for i := 0 to MaxLaser do
       begin
       FIntensity[i] := 0.0 ;
-      FLaserActive[i] := False ;
+      FLaserEnabled[i] := False ;
       if i = 0 then FName[i] := 'None'
                else FName[i] := format('Laser %d',[i]);
       FIntensityControlPort[i] := ControlDisabled ;
+      FDescription[i] := '' ;
       FVMaxIntensity[i] := 5.0 ;
       end;
   end;
@@ -153,12 +206,24 @@ procedure TLaser.GetLaserTypes( List : TStrings ) ;
 begin
       List.Clear ;
       List.Add('None') ;
-      List.Add('External Analogue/Digital Control') ;
       List.Add('Coherent OBIS (USB)') ;
       end;
 
 
-procedure TLaser.GetActiveControlLines( List : TStrings ) ;
+function TLaser.ControlPortRequired : Boolean ;
+// ---------------------------------
+// Integrator control port required
+// ---------------------------------
+begin
+    case FLaserType of
+        lsOBIS : Result := True ;
+        else Result := False ;
+        end ;
+    end;
+
+
+
+procedure TLaser.GetEnabledControlLines( List : TStrings ) ;
 // -----------------------------------
 // Get list of available control ports
 // -----------------------------------
@@ -219,7 +284,7 @@ begin
 
 
 
-procedure  TLaser.OpenCOMPort ;
+procedure TLaser.OpenCOMPort ;
 // ----------------------------------------
 // Establish communications with COM port
 // ----------------------------------------
@@ -227,7 +292,11 @@ var
    DCB : TDCB ;           { Device control block for COM port }
    CommTimeouts : TCommTimeouts ;
 begin
+
      if FComPortOpen then Exit ;
+
+     ComFailed := True ;
+     if FControlPort < 1 then Exit ;
 
      { Open com port  }
      FComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort+1])),
@@ -238,15 +307,22 @@ begin
                      FILE_ATTRIBUTE_NORMAL,
                      0) ;
 
-     if FComHandle < 0 then Exit ;
+     if Integer(FComHandle) < 0 then
+        begin
+        FComPortOpen := False ;
+        ShowMessage(format('CoolLED: Unable to open serial port: COM%d',[FControlPort+1]));
+        Exit ;
+        end;
 
      { Get current state of COM port and fill device control block }
      GetCommState( FComHandle, DCB ) ;
-     { Change settings to those required for 1902 }
+     { Change settings to those required for CoolLED }
      DCB.BaudRate := CBR_9600 ;
      DCB.ByteSize := 8 ;
      DCB.Parity := NOPARITY ;
      DCB.StopBits := ONESTOPBIT ;
+     // Settings required to activate remote mode of CoolLED
+     DCB.Flags := dcb_Binary or dcb_DtrControlEnable or dcb_RtsControlEnable ;
 
      { Update COM port }
      SetCommState( FComHandle, DCB ) ;
@@ -264,10 +340,12 @@ begin
      SetCommTimeouts( FComHandle, CommTimeouts ) ;
 
      FComPortOpen := True ;
-      Status := '' ;
-    FControlState := csIdle ;
+     Status := '' ;
+     ComFailed := False ;
+     InitCounter := 0 ;
+     Initialized := False ;
 
-end ;
+     end ;
 
 
 procedure  TLaser.CloseCOMPort ;
@@ -328,7 +406,6 @@ procedure TLaser.SetIntensity(
 begin
      if (i < 0) and (i > MaxLaser) then Exit ;
      FIntensity[i] := Value ;
-     UpdateLasers ;
 end ;
 
 
@@ -353,8 +430,65 @@ procedure TLaser.SetVMaxIntensity(
 begin
      if (i < 0) and (i > MaxLaser) then Exit ;
      FVMaxIntensity[i] := Value ;
-     UpdateLasers ;
-end ;
+     end ;
+
+
+procedure TLaser.TimerTimer(Sender: TObject);
+// -------------------
+// COM Message monitor
+// -------------------
+begin
+    case FLaserType of
+        lsOBIS : OBISInitializer ;
+    end;
+end;
+
+
+procedure TLaser.OBISInitializer ;
+// ----------------------------------------------
+// Handles messages received from OBIS controller
+// ----------------------------------------------
+var
+    EndOfLine : Boolean ;
+begin
+
+      if InitCounter >= 11 then Initialized := True ;
+      if Initialized then Exit ;
+      if not FComPortOpen then Exit ;
+
+
+      // Send command
+      case InitCounter of
+           0 : SendCommand('*IDN0?');
+           2 : SendCommand('*IDN1?');
+           4 : SendCommand('*IDN2?');
+           6 : SendCommand('*IDN3?');
+           8 : SendCommand('*IDN4?');
+           10 : SendCommand('*IDN5?');
+           end ;
+
+      if (InitCounter and 1) = 0 then
+         begin
+         Inc(InitCounter) ;
+         ReplyMessage := '' ;
+         end
+       else begin
+         ReplyMessage := ReceiveBytes( EndOfLine ) ;
+         if EndOfLine then
+            begin
+            case InitCounter of
+                 0 : ControllerID := ReplyMessage ;
+                 2 : LaserID[0] := ReplyMessage ;
+                 4 : LaserID[1] := ReplyMessage ;
+                 6 : LaserID[2] := ReplyMessage ;
+                 8 : LaserID[3] := ReplyMessage ;
+                 10 : LaserID[4] := ReplyMessage ;
+                 end ;
+            Inc(InitCounter) ;
+            end;
+         end;
+
+       end;
 
 
 function TLaser.GetVMaxIntensity(
@@ -366,10 +500,10 @@ function TLaser.GetVMaxIntensity(
 begin
      if (i >= 0) and (i <= MaxLaser) then Result := FVMaxIntensity[i]
                                      else Result := 0.0 ;
-end ;
+     end ;
 
 
-procedure TLaser.SetLaserActive(
+procedure TLaser.SetLaserEnabled(
           i : Integer ;    // Laser # (0..
           Value : Boolean ) ;  // True=ON,False=OFF
 // -----------------
@@ -377,24 +511,23 @@ procedure TLaser.SetLaserActive(
 // -----------------
 begin
      if (i < 0) and (i > MaxLaser) then Exit ;
-     FLaserActive[i] := Value ;
-     UpdateLasers ;
-end ;
+     FLaserEnabled[i] := Value ;
+     end ;
 
 
-function TLaser.GetLaserActive(
+function TLaser.GetLaserEnabled(
           i : Integer // Laser # 0..
           ) : Boolean ;   // True=ON,False=OFF
 // ----------------------
 // Get laser on/off state
 // ----------------------
 begin
-     if (i >= 0) and (i <= MaxLaser) then Result := FLaserActive[i]
+     if (i >= 0) and (i <= MaxLaser) then Result := FLaserEnabled[i]
                                      else Result := False ;
-end ;
+     end ;
 
 
-procedure TLaser.SetActiveControlPort(
+procedure TLaser.SetEnabledControlPort(
           i : Integer ;    // Laser # (0..
           Value : Integer ) ;  // Control line #
 // -----------------------------
@@ -402,21 +535,20 @@ procedure TLaser.SetActiveControlPort(
 // -----------------------------
 begin
      if (i < 0) and (i > MaxLaser) then Exit ;
-     FActiveControlPort[i] := Value ;
-     UpdateLasers ;
-end ;
+     FEnabledControlPort[i] := Value ;
+     end ;
 
 
-function TLaser.GetActiveControlPort(
+function TLaser.GetEnabledControlPort(
           i : Integer // Laser # 0..
           ) : Integer ;   // Control line #
 // -----------------------------
 // Get laser on/off control port
 // -----------------------------
 begin
-     if (i >= 0) and (i <= MaxLaser) then Result := FActiveControlPort[i]
+     if (i >= 0) and (i <= MaxLaser) then Result := FEnabledControlPort[i]
                                      else Result := MaxResources ;
-end ;
+     end ;
 
 
 procedure TLaser.SetIntensityControlPort(
@@ -428,8 +560,7 @@ procedure TLaser.SetIntensityControlPort(
 begin
      if (i < 0) and (i >= MaxLaser) then Exit ;
      FIntensityControlPort[i] := Value ;
-     UpdateLasers ;
-end ;
+     end ;
 
 
 function TLaser.GetIntensityControlPort(
@@ -441,7 +572,7 @@ function TLaser.GetIntensityControlPort(
 begin
      if (i >= 0) and (i <= MaxLaser) then Result := FIntensityControlPort[i]
                                      else Result := MaxResources ;
-end ;
+     end ;
 
 
 procedure TLaser.SetLaserName(
@@ -453,7 +584,7 @@ procedure TLaser.SetLaserName(
 begin
      if (i < 0) and (i > MaxLaser) then Exit ;
      FName[i] := Value ;
-end ;
+     end ;
 
 
 function TLaser.GetLaserName(
@@ -467,17 +598,6 @@ begin
                                        else Result := 'Error' ;
 end ;
 
-
-procedure TLaser.UpdateLasers ;
-// ---------------------
-// Update laser settings
-// ---------------------
-begin
-    case FLaserType of
-//        lsOBIS :
-        lsExternal : UpdateLasersExternal ;
-    end;
-end;
 
 procedure TLaser.UpdateLasersExternal ;
 // ----------------------------------------
@@ -494,7 +614,7 @@ begin
       i := FIntensityControlPort[iLaser] ;
       if  i < MaxResources then
           begin
-          if FLaserActive[iLaser] then V := FIntensity[iLaser]*VMaxIntensity[iLaser]
+          if FLaserEnabled[iLaser] then V := FIntensity[iLaser]*VMaxIntensity[iLaser]
                                   else V := 0.0 ;
           LabIO.WriteDAC( LabIO.Resource[i].Device,V,LabIO.Resource[i].StartChannel);
           end;
@@ -502,9 +622,9 @@ begin
       // On/off control
       if i < MaxResources then
           begin
-          i := FActiveControlPort[iLaser] ;
+          i := FEnabledControlPort[iLaser] ;
           LabIO.WriteBit( LabIO.Resource[i].Device,
-                          FLaserActive[iLaser],
+                          FLaserEnabled[iLaser],
                           LabIO.Resource[i].StartChannel);
           end;
       end ;
@@ -540,6 +660,170 @@ begin
          end;
 
     end;
+
+
+procedure TLaser.SetActive( Value : Boolean ) ;
+// -----------------------------------------------------
+// Activate/inactivate enabled lasers and set intensity
+// -----------------------------------------------------
+var
+    i,iDev,AOCHan : Integer ;
+    V : Single ;
+begin
+      // If PMT is enabled and an AO control port is defined,
+      // apply selected gain control voltage to PMT
+{      for i := 0 to NumPMTs-1 do if FEnabled[i] and (PMTPort[i] <> ControlDisabled) then
+          begin
+          if Value = TRUE then V := FGainVMin + (FGainVMax - FGainVMin)*PMTGain[i]
+                          else V := FGainVMin ;
+          iDev := LabIO.Resource[PMTPort[i]].Device ;
+          AOChan := LabIO.Resource[PMTPort[i]].StartChannel ;
+          LabIO.WriteDAC(iDev,V,AOChan);
+          end;}
+      end;
+
+
+
+function TLaser.SendCommand(
+          const Line : string   { Text to be sent to Com port }
+          ) : Boolean ;
+{ --------------------------------------
+  Write a line of ASCII text to Com port
+  --------------------------------------}
+var
+   i : Integer ;
+   nWritten,nC : DWORD ;
+   xBuf : array[0..258] of ansichar ;
+   Overlapped : Pointer ;
+   OK : Boolean ;
+begin
+
+     Result := False ;
+     if not FComPortOpen then Exit ;
+     if ComFailed then Exit ;
+
+     { Copy command line to be sent to xMit buffer and and a CR character }
+     nC := Length(Line) ;
+     for i := 1 to nC do xBuf[i-1] := ANSIChar(Line[i]) ;
+     xBuf[nC] := #13 ;
+     Inc(nC) ;
+
+    Overlapped := Nil ;
+    OK := WriteFile( FComHandle, xBuf, nC, nWritten, Overlapped ) ;
+    if (not OK) or (nWRitten <> nC) then
+        begin
+ //      ShowMessage( ' Error writing to COM port ' ) ;
+        Result := False ;
+        end
+     else Result := True ;
+
+     end ;
+
+
+procedure TLaser.WaitforCompletion ;
+var
+  Status : string ;
+  Timeout : Cardinal ;
+  EndOfLine : Boolean ;
+begin
+
+   if not FComPortOpen then Exit ;
+   TimeOut := timegettime + 5000 ;
+   repeat
+     Status := ReceiveBytes( EndOfLine ) ;
+     Until EndOfLine or (timegettime > TimeOut) ;
+     if not EndOfLine then outputDebugstring(pchar('Time out'));
+
+     end ;
+
+
+function TLaser.WaitforResponse(
+         ResponseRequired : string
+          ) : Boolean ;
+var
+  Response : string ;
+  EndOfLine : Boolean ;
+  Timeout : Cardinal ;
+begin
+
+   if not FComPortOpen then Exit ;
+
+   Response := '' ;
+   TimeOut := timegettime + 5000 ;
+
+   repeat
+     Response := Response + ReceiveBytes( EndOfLine ) ;
+   until EndOfLine or (TimeGetTime > TimeOut) ;
+
+   // Check if required response received
+   if not EndOfLine then Result := False
+   else if ResponseRequired = '' then Result := True
+   else if Response = ResponseRequired then Result := True ;
+
+   end ;
+
+
+function TLaser.WaitForMessage : string ;
+// ------------------------------
+// Wait for message from COM port
+// ------------------------------
+var
+  Response : string ;
+  EndOfLine : Boolean ;
+  Timeout : Cardinal ;
+begin
+
+   Result := '' ;
+   if not FComPortOpen then Exit ;
+
+   TimeOut := timegettime + 5000 ;
+   repeat
+     Result := Result + ReceiveBytes( EndOfLine ) ;
+   until EndOfLine or (TimeGetTime > TimeOut) ;
+
+   end ;
+
+
+
+function TLaser.ReceiveBytes(
+          var EndOfLine : Boolean
+          ) : string ;          { bytes received }
+{ -------------------------------------------------------
+  Read bytes from Com port until a line has been received
+  -------------------------------------------------------}
+var
+   Line : string ;
+   rBuf : array[0..255] of ansichar ;
+   ComState : TComStat ;
+   PComState : PComStat ;
+   NumBytesRead,ComError,NumRead : DWORD ;
+begin
+
+     if not FComPortOpen then Exit ;
+
+     PComState := @ComState ;
+     Line := '' ;
+     rBuf[0] := ' ' ;
+     NumRead := 0 ;
+     EndOfLine := False ;
+     Result := '' ;
+
+     { Find out if there are any characters in receive buffer }
+     ClearCommError( FComHandle, ComError, PComState )  ;
+
+     // Read characters until CR is encountered
+     while (NumRead < ComState.cbInQue) and (RBuf[0] <> #13) do
+         begin
+         ReadFile( FComHandle,rBuf,1,NumBytesRead,OverlapStructure ) ;
+         if rBuf[0] <> #13 then Line := Line + String(rBuf[0])
+                           else EndOfLine := True ;
+         //outputdebugstring(pwidechar(RBuf[0]));
+         Inc( NumRead ) ;
+         end ;
+
+     Result := Line ;
+
+     end ;
 
 
 

@@ -7,37 +7,16 @@ unit PMTUnit;
 interface
 
 uses
-    System.SysUtils, System.Classes, Windows, FMX.Dialogs, math, strutils ;
+    System.SysUtils, System.Classes, Windows, FMX.Dialogs, math, strutils,
+  Vcl.ExtCtrls ;
 
 const
   MaxPMT = 3 ;
-  // Com port control flags
-  dcb_Binary = $00000001;
-  dcb_ParityCheck = $00000002;
-  dcb_OutxCtsFlow = $00000004;
-  dcb_OutxDsrFlow = $00000008;
-  dcb_DtrControlMask = $00000030;
-  dcb_DtrControlDisable = $00000000;
-  dcb_DtrControlEnable = $00000010;
-  dcb_DtrControlHandshake = $00000020;
-  dcb_DsrSensivity = $00000040;
-  dcb_TXContinueOnXoff = $00000080;
-  dcb_OutX = $00000100;
-  dcb_InX = $00000200;
-  dcb_ErrorChar = $00000400;
-  dcb_NullStrip = $00000800;
-  dcb_RtsControlMask = $00003000;
-  dcb_RtsControlDisable = $00000000;
-  dcb_RtsControlEnable = $00001000;
-  dcb_RtsControlHandshake = $00002000;
-  dcb_RtsControlToggle = $00003000;
-  dcb_AbortOnError = $00004000;
-  dcb_Reserveds = $FFFF8000;
-  CoolLEDRequestWavelengthsAtTick = 10 ;
 
 
 type
   TPMT = class(TDataModule)
+    Timer: TTimer;
     procedure DataModuleCreate(Sender: TObject);
   private
     { Private declarations }
@@ -56,7 +35,7 @@ type
     FEnabled : Array[0..MaxPMT] of Boolean ;
     FLaserNum : Array[0..MaxPMT] of Integer ;
     FADCDevice : Integer ;    // NI device used for A/D conversion of PMT signal
-
+    ReplyBuf : String ;       // COM channel reply message buf
 
     OverLapStructure : POVERLAPPED ;
 
@@ -65,6 +44,7 @@ type
     procedure ResetCOMPort ;
     function SendCommand( const Line : string ) : Boolean ;
     function ReceiveBytes( var EndOfLine : Boolean ) : string ;
+    function WaitForMessage : string ;
     procedure SetControlPort( Value : DWord ) ;
     procedure SetBaudRate( Value : DWord ) ;
     procedure SetIntegratorType( Value : Integer ) ;
@@ -84,17 +64,22 @@ type
     PMTGain : Array[0..MaxPMT] of Double ;
 
     ADCGainIndex : Array[0..MaxPMT] of Integer ;
+    IntegratorID : string ;
+
     procedure GetADCGainList( List : TStrings ) ;
     procedure SetSIM965(
               iChan : Integer ;             // Filter channel
               IntegrationTime : double ) ;  // Integration time (s)
 
     procedure GetIntegratorTypes( List : TStrings ) ;
+    procedure GetIntegratorPorts( List : TStrings ) ;
+    function IntegratorPortRequired : Boolean ;
+
     procedure Close ;
     procedure Open ;
     procedure SetIntegrationTime( IntegrationTime : double ) ;
     property IntegratorType : Integer read FIntegratorType write SetIntegratorType ;
-    Property ControlPort : DWORD read FControlPort write SetControlPort ;
+    Property IntegratorPort : DWORD read FControlPort write SetControlPort ;
     Property BaudRate : DWORD read FBaudRate write SetBaudRate ;
     Property NumPMTs : Integer read FNumPMTs write FNumPMTs ;
     Property GainVMin : double read FGainVMax write FGainVMax ;
@@ -119,9 +104,33 @@ const
     csIdle = 0 ;
     csWaitingForPosition = 1 ;
     csWaitingForCompletion = 2 ;
-
     itgNone = 0 ;
     itgSIM965 = 1 ;
+
+  // Com port control flags
+  dcb_Binary = $00000001;
+  dcb_ParityCheck = $00000002;
+  dcb_OutxCtsFlow = $00000004;
+  dcb_OutxDsrFlow = $00000008;
+  dcb_DtrControlMask = $00000030;
+  dcb_DtrControlDisable = $00000000;
+  dcb_DtrControlEnable = $00000010;
+  dcb_DtrControlHandshake = $00000020;
+  dcb_DsrSensivity = $00000040;
+  dcb_TXContinueOnXoff = $00000080;
+  dcb_OutX = $00000100;
+  dcb_InX = $00000200;
+  dcb_ErrorChar = $00000400;
+  dcb_NullStrip = $00000800;
+  dcb_RtsControlMask = $00003000;
+  dcb_RtsControlDisable = $00000000;
+  dcb_RtsControlEnable = $00001000;
+  dcb_RtsControlHandshake = $00002000;
+  dcb_RtsControlToggle = $00003000;
+  dcb_AbortOnError = $00004000;
+  dcb_Reserveds = $FFFF8000;
+
+
 
 
 
@@ -143,6 +152,8 @@ begin
     FGainVMax := 2.5 ;
     FADCDevice := 1 ;
     ComFailed := False ;
+    ReplyBuf := '' ;
+    IntegratorID := '' ;
 
     for i := 0 to MaxPMT do
         begin
@@ -156,6 +167,17 @@ begin
 
     end;
 
+function TPMT.IntegratorPortRequired : Boolean ;
+// ---------------------------------
+// Integrator control port required
+// ---------------------------------
+begin
+    case FIntegratorType of
+        itgSIM965 : Result := True ;
+        else Result := False ;
+        end ;
+    end;
+
 
 procedure TPMT.Open ;
 // --------------------------------------
@@ -166,11 +188,12 @@ begin
     // Close COM port (if open)
     if ComPortOpen then CloseComPort ;
 
+    IntegratorID := '' ;
+
     case FIntegratorType of
         itgSIM965 :
           begin
           OpenComPort ;
-          S :=
           end;
         end;
     end;
@@ -200,6 +223,20 @@ begin
       end;
 
 
+procedure TPMT.GetIntegratorPorts( List : TStrings ) ;
+// -----------------------------------
+// Get list of available control ports
+// -----------------------------------
+var
+    i : Integer ;
+begin
+     List.Clear ;
+     // COM ports
+     List.Add('None');
+     for i := 1 to 16 do List.Add(format('COM%d',[i]));
+     end;
+
+
 procedure TPMT.GetADCGainList( List : TStrings ) ;
 // -------------------------------
 // Get type of available ADC gains
@@ -227,6 +264,9 @@ var
 begin
 
      if ComPortOpen then Exit ;
+
+     ComFailed := True ;
+     if FControlPort < 1 then Exit ;
 
      { Open com port  }
      ComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort+1])),
@@ -270,11 +310,15 @@ begin
      SetCommTimeouts( ComHandle, CommTimeouts ) ;
 
      ComPortOpen := True ;
-      Status := '' ;
-    ControlState := csIdle ;
-    ComFailed := False ;
+     Status := '' ;
+     ControlState := csIdle ;
+     ComFailed := False ;
 
-    end ;
+     // Ask for integrator identification string
+     SendCommand( '*IDN?' ) ;
+     IntegratorID := WaitForMessage ;
+
+     end ;
 
 
 procedure TPMT.ResetCOMPort ;
@@ -400,14 +444,39 @@ begin
 
    Response := '' ;
    TimeOut := timegettime + 5000 ;
-   if not ComPortOpen then Exit ;
+
    repeat
      Response := Response + ReceiveBytes( EndOfLine ) ;
    until EndOfLine or (TimeGetTime > TimeOut) ;
 
-   if Response = ResponseRequired then Result := True
-                                  else Result := False ;
+   // Check if required response received
+   if not EndOfLine then Result := False
+   else if ResponseRequired = '' then Result := True
+   else if Response = ResponseRequired then Result := True ;
+
    end ;
+
+
+function TPMT.WaitForMessage : string ;
+// ------------------------------
+// Wait for message from COM port
+// ------------------------------
+var
+  Response : string ;
+  EndOfLine : Boolean ;
+  Timeout : Cardinal ;
+begin
+
+   Result := '' ;
+   if not ComPortOpen then Exit ;
+
+   TimeOut := timegettime + 5000 ;
+   repeat
+     Result := Result + ReceiveBytes( EndOfLine ) ;
+   until EndOfLine or (TimeGetTime > TimeOut) ;
+
+   end ;
+
 
 
 function TPMT.ReceiveBytes(

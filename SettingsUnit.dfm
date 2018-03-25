@@ -18,7 +18,7 @@ object SettingsFrm: TSettingsFrm
   TextHeight = 13
   object bOK: TButton
     Left = 8
-    Top = 431
+    Top = 479
     Width = 65
     Height = 25
     Caption = 'OK'
@@ -34,7 +34,7 @@ object SettingsFrm: TSettingsFrm
   end
   object bCancel: TButton
     Left = 79
-    Top = 434
+    Top = 482
     Width = 72
     Height = 20
     Caption = 'Cancel'
@@ -52,8 +52,8 @@ object SettingsFrm: TSettingsFrm
     Left = 8
     Top = 6
     Width = 761
-    Height = 419
-    ActivePage = ScanTab
+    Height = 467
+    ActivePage = LasersTab
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
@@ -531,6 +531,7 @@ object SettingsFrm: TSettingsFrm
             Scale = 100.000000000000000000
             Units = '%'
             NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
             HiLimit = 1.000000000000000000
           end
         end
@@ -595,6 +596,7 @@ object SettingsFrm: TSettingsFrm
             Scale = 100.000000000000000000
             Units = '%'
             NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
             HiLimit = 1.000000000000000000
           end
         end
@@ -639,6 +641,7 @@ object SettingsFrm: TSettingsFrm
             Scale = 100.000000000000000000
             Units = '%'
             NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
             HiLimit = 1.000000000000000000
           end
         end
@@ -683,6 +686,7 @@ object SettingsFrm: TSettingsFrm
             Scale = 100.000000000000000000
             Units = '%'
             NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
             HiLimit = 1.000000000000000000
           end
         end
@@ -721,7 +725,7 @@ object SettingsFrm: TSettingsFrm
         Left = 8
         Top = 8
         Width = 233
-        Height = 57
+        Height = 120
         Caption = ' PMT Integrator '
         TabOrder = 1
         object cbIntegratorType: TComboBox
@@ -731,11 +735,45 @@ object SettingsFrm: TSettingsFrm
           Height = 24
           TabOrder = 0
           Text = 'cbIntegratorType'
+          OnChange = cbIntegratorTypeChange
+        end
+        object pnIntegratorControlPort: TPanel
+          Left = 8
+          Top = 48
+          Width = 217
+          Height = 30
+          BevelOuter = bvNone
+          TabOrder = 1
+          object Label29: TLabel
+            Left = 45
+            Top = 0
+            Width = 69
+            Height = 16
+            Alignment = taRightJustify
+            Caption = 'Control Port'
+          end
+          object cbIntegratorPort: TComboBox
+            Left = 120
+            Top = 0
+            Width = 97
+            Height = 24
+            Style = csDropDownList
+            TabOrder = 0
+            OnChange = cbIntegratorPortChange
+          end
+        end
+        object edIntegratorID: TEdit
+          Left = 8
+          Top = 80
+          Width = 217
+          Height = 24
+          ReadOnly = True
+          TabOrder = 2
         end
       end
       object GroupBox6: TGroupBox
         Left = 8
-        Top = 72
+        Top = 130
         Width = 233
         Height = 56
         Caption = ' A/D Converter '
@@ -753,48 +791,19 @@ object SettingsFrm: TSettingsFrm
     object LasersTab: TTabSheet
       Caption = 'Lasers '
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object cbLaserType: TComboBox
-        Left = 11
-        Top = 32
-        Width = 209
-        Height = 21
-        TabOrder = 0
-        Text = 'cbZStageType'
-        OnChange = cbLaserTypeChange
-      end
-      object grpUSBLaser: TPanel
-        Left = 403
-        Top = 54
-        Width = 297
-        Height = 137
-        Caption = 'grpUSBLaser'
-        TabOrder = 1
-        object cbLaserControlComPort: TComboBox
-          Left = 88
-          Top = 11
-          Width = 97
-          Height = 21
-          Style = csDropDownList
-          TabOrder = 0
-        end
-      end
       object grpLaserExternal: TGroupBox
         Left = 3
-        Top = 59
-        Width = 382
+        Top = 142
+        Width = 370
         Height = 294
-        Caption = ' Extrenal Analogue/Digital Laser Control'
+        Caption = ' External Analogue/Digital Laser Control'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 0
         object Label28: TLabel
           Left = 8
           Top = 56
@@ -1154,17 +1163,63 @@ object SettingsFrm: TSettingsFrm
           OnChange = spNumLasersChange
         end
       end
+      object GroupBox4: TGroupBox
+        Left = 3
+        Top = 8
+        Width = 370
+        Height = 120
+        Caption = ' Laser Control Unit '
+        TabOrder = 1
+        object cbLaserType: TComboBox
+          Left = 8
+          Top = 21
+          Width = 350
+          Height = 21
+          Style = csDropDownList
+          TabOrder = 0
+          OnChange = cbIntegratorTypeChange
+        end
+        object pnLaserControlPort: TPanel
+          Left = 138
+          Top = 48
+          Width = 217
+          Height = 30
+          BevelOuter = bvNone
+          TabOrder = 1
+          object Label30: TLabel
+            Left = 56
+            Top = 0
+            Width = 58
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'Control Port'
+          end
+          object cbLaserControlPort: TComboBox
+            Left = 120
+            Top = 0
+            Width = 97
+            Height = 21
+            Style = csDropDownList
+            TabOrder = 0
+            OnChange = cbIntegratorPortChange
+          end
+        end
+        object edLaserControllerID: TEdit
+          Left = 8
+          Top = 80
+          Width = 350
+          Height = 21
+          ReadOnly = True
+          TabOrder = 2
+        end
+      end
     end
     object TabSheet1: TTabSheet
       Caption = 'XYZ Stage Control'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 8
-        Top = 10
+        Top = 3
         Width = 230
         Height = 191
         Caption = ' Z position Control'
@@ -1283,10 +1338,6 @@ object SettingsFrm: TSettingsFrm
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10

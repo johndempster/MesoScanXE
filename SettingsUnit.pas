@@ -65,9 +65,6 @@ type
     Label25: TLabel;
     edImageJPath: TEdit;
     ckSaveAsMultipageTIFF: TCheckBox;
-    cbLaserType: TComboBox;
-    grpUSBLaser: TPanel;
-    cbLaserControlComPort: TComboBox;
     Label14: TLabel;
     edZpositionMin: TValidatedEdit;
     Label16: TLabel;
@@ -146,6 +143,16 @@ type
     spNumLasers: TSpinEdit;
     GroupBox6: TGroupBox;
     cbPMTADCPort: TComboBox;
+    pnIntegratorControlPort: TPanel;
+    Label29: TLabel;
+    cbIntegratorPort: TComboBox;
+    edIntegratorID: TEdit;
+    GroupBox4: TGroupBox;
+    cbLaserType: TComboBox;
+    pnLaserControlPort: TPanel;
+    Label30: TLabel;
+    cbLaserControlPort: TComboBox;
+    edLaserControllerID: TEdit;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -153,6 +160,8 @@ type
     procedure spNumPMTsChange(Sender: TObject);
     procedure spNumLasersChange(Sender: TObject);
     procedure cbLaserTypeChange(Sender: TObject);
+    procedure cbIntegratorPortChange(Sender: TObject);
+    procedure cbIntegratorTypeChange(Sender: TObject);
   private
     { Private declarations }
 
@@ -167,7 +176,7 @@ type
               Num : Integer ;
               Panel : TPanel ;
               RW : string ) ;
-   procedure DisplayLaserPanel ;
+
 
   public
     { Public declarations }
@@ -212,6 +221,7 @@ begin
 
     // PMTs & Integrator
     PMT.IntegratorType := cbIntegratorType.ItemIndex ;
+    PMT.IntegratorPort := cbIntegratorPort.ItemIndex ;
     PMT.NumPMTs := spNumPMTs.Value ;
     PMT.GainVMin := edPMTGainVMin.Value ;
     PMT.GainVMax := edPMTGainVMax.Value ;
@@ -266,12 +276,33 @@ begin
     Close ;
     end;
 
+
+procedure TSettingsFrm.cbIntegratorPortChange(Sender: TObject);
+// -----------------------
+// Integrator port changed
+// -----------------------
+begin
+    PMT.IntegratorPort := cbIntegratorPort.ItemIndex ;
+    edIntegratorID.Text := PMT.IntegratorID ;
+    end;
+
+
+procedure TSettingsFrm.cbIntegratorTypeChange(Sender: TObject);
+// -----------------------
+// Integrator type changed
+// -----------------------
+begin
+    PMT.IntegratorType := cbIntegratorType.ItemIndex ;
+    pnIntegratorControlPort.Visible := PMT.IntegratorPortRequired ;
+
+    end;
+
 procedure TSettingsFrm.cbLaserTypeChange(Sender: TObject);
 // ------------------
 // Laser type changed
 // ------------------
 begin
-    DisplayLaserPanel ;
+    pnLaserControlPort.Visible := Laser.ControlPortRequired ;
     end;
 
 procedure TSettingsFrm.cbZStageTypeChange(Sender: TObject);
@@ -316,6 +347,10 @@ begin
     // Integrator type
     PMT.GetIntegratorTypes( cbIntegratorType.Items ) ;
     cbIntegratorType.ItemIndex := PMT.IntegratorType ;
+    PMT.GetIntegratorPorts( cbIntegratorPort.Items ) ;
+    cbIntegratorPort.ItemIndex := PMT.IntegratorPort ;
+    edIntegratorID.Text := PMT.IntegratorID ;
+    pnIntegratorControlPort.Visible := PMT.IntegratorPortRequired ;
 
     // PMT A/D input port
     LabIO.GetAIPorts( cbPMTADCPort.Items ) ;
@@ -336,12 +371,13 @@ begin
     // Get type of laser installed
     Laser.GetLaserTypes(cbLaserType.Items) ;
     cbLaserType.ItemIndex := Laser.LaserType ;
-    DisplayLaserPanel ;
+    cbLaserControlPort.ItemIndex := Laser.ControlPort ;
 
     // Laser control
     spNumLasers.MaxValue := MaxLaser ;
     spNumLasers.Value :=  Laser.NumLasers;
-    Laser.GetCOMPorts( cbLaserControlComPort.Items ) ;
+    Laser.GetCOMPorts( cbLaserControlPort.Items ) ;
+    pnLaserControlPort.Visible := Laser.ControlPortRequired ;
 
     // Set laser control line menus (for external control)
 
@@ -422,20 +458,6 @@ begin
       end;
 
 
-procedure TSettingsFrm.DisplayLaserPanel ;
-// ----------------------------
-// Display laser settings panel
-// ----------------------------
-begin
-    grpLaserExternal.Visible := False ;
-    grpUSBLaser.Visible := False ;
-    case cbLaserType.ItemIndex of
-         lsExternal : grpLaserExternal.Visible := True ;
-         lsObis : grpUSBLaser.Visible := True ;
-    end;
-end;
-
-
 procedure TSettingsFrm.ShowPMTPanels ;
 // ----------------------------------
 // Make installed PMT panels visible
@@ -504,7 +526,7 @@ begin
          // Write panel
          edName.Text := Laser.LaserName[Num] ;
          LabIO.GetPOPorts( cbOnOffPort.Items ) ;
-         cbOnOffPort.ItemIndex := Max(cbOnOffPort.Items.IndexofObject(TObject(Laser.ActiveControlPort[Num])),0) ;
+         cbOnOffPort.ItemIndex := Max(cbOnOffPort.Items.IndexofObject(TObject(Laser.EnabledControlPort[Num])),0) ;
          LabIO.GetAOPorts( cbIntensityPort.Items ) ;
          cbIntensityPort.ItemIndex := Max(cbIntensityPort.Items.IndexofObject(TObject(Laser.IntensityControlPort[Num])),0) ;
          edVMax.Value := Laser.VMaxIntensity[Num] ;
@@ -512,7 +534,7 @@ begin
       else begin
          // Read panel
          Laser.LaserName[Num] := edName.Text ;
-         Laser.ActiveControlPort[Num] := Integer(cbOnOffPort.Items.Objects[cbOnOffPort.ItemIndex]) ;
+         Laser.EnabledControlPort[Num] := Integer(cbOnOffPort.Items.Objects[cbOnOffPort.ItemIndex]) ;
          Laser.IntensityControlPort[Num] := Integer(cbIntensityPort.Items.Objects[cbIntensityPort.ItemIndex]) ;
          Laser.VMaxIntensity[Num] := edVMax.Value ;
          end ;
