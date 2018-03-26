@@ -68,7 +68,6 @@ type
 
     procedure GetADCGainList( List : TStrings ) ;
     procedure SetSIM965(
-              iChan : Integer ;             // Filter channel
               IntegrationTime : double ) ;  // Integration time (s)
 
     procedure GetIntegratorTypes( List : TStrings ) ;
@@ -269,7 +268,7 @@ begin
      if FControlPort < 1 then Exit ;
 
      { Open com port  }
-     ComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort+1])),
+     ComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort])),
                      GENERIC_READ or GENERIC_WRITE,
                      0,
                      Nil,
@@ -280,7 +279,7 @@ begin
      if Integer(ComHandle) < 0 then
         begin
         ComPortOpen := False ;
-        ShowMessage(format('CoolLED: Unable to open serial port: COM%d',[FControlPort+1]));
+        ShowMessage(format('CoolLED: Unable to open serial port: COM%d',[FControlPort]));
         Exit ;
         end;
 
@@ -317,6 +316,9 @@ begin
      // Ask for integrator identification string
      SendCommand( '*IDN?' ) ;
      IntegratorID := WaitForMessage ;
+
+     // Enable Channels 1 - 4 for broadcasts
+     SendCommand( format('BRER %d',[2 or 4 or 8 or 16]));
 
      end ;
 
@@ -396,10 +398,12 @@ begin
      if not ComPortOpen then Exit ;
      if ComFailed then Exit ;
 
-     { Copy command line to be sent to xMit buffer and and a CR character }
+     { Copy command line to be sent to xMit buffer and and a CR + lf character }
      nC := Length(Line) ;
      for i := 1 to nC do xBuf[i-1] := ANSIChar(Line[i]) ;
      xBuf[nC] := #13 ;
+     Inc(nC) ;
+     xBuf[nC] := #10 ;
      Inc(nC) ;
 
     Overlapped := Nil ;
@@ -528,16 +532,12 @@ var
 begin
 
     case FIntegratorType of
-        itgSIM965 :
-          begin
-          for I := 1 to 4 do SetSIM965( i, IntegrationTime ) ;
-          end;
+        itgSIM965 : SetSIM965( IntegrationTime ) ;
         end;
 
 end;
 
 procedure TPMT.SetSIM965(
-          iChan : Integer ;             // Filter channel
           IntegrationTime : double ) ;  // Integration time (s)
 // -----------------------
 // Set SIM965 filter unit
@@ -545,17 +545,18 @@ procedure TPMT.SetSIM965(
 var
     Freq3dBCutOff : double ;
 begin
-    // Filter type
-    SendCommand( format('SNDT %d, "FILTER BESSEL"',[iChan]));
+
+    // Bessel filter
+    SendCommand('BRDT "TYPE BESSEL"');
     // Low/pass
-    SendCommand( format('SNDT %d, "PASS LOWPASS"',[iChan]));
-    // roll-off
-    SendCommand( format('SNDT %d, "SLOPE 12"',[iChan]));
-    // AC/DC coupling
-    SendCommand( format('SNDT %d, "COUP DC"',[iChan]));
+    SendCommand( 'BRDT "PASS LOWPASS"');
+    // 12 dB roll-off
+    SendCommand( 'BRDT "SLPE 12"');
+    // DC coupling
+    SendCommand( 'BRDT "COUP DC"');
     // Cutoff frequency
     Freq3dBCutOff := 1.0 / (2.0*pi()*(IntegrationTime/3.0)) ;
-    SendCommand( format('SNDT %d, "FILTER FREQ %.0f"',[iChan,Freq3dBCutOff]));
+    SendCommand( format('BRDT "FREQ %.0f"',[Freq3dBCutOff]));
 
     end;
 

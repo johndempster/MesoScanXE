@@ -38,6 +38,7 @@ unit MainUnit;
 // V1.6.6 91.11.17 ZStageUnit: OptiScan II now operated in standard (COMP 0) mode
 // V1.6.7 03.11.17 RawImagesFileName folder location can now be changed by user
 // V1.6.8 08.11.17 User interface revised to be more similar to MesoCam
+//        26.03.18 PMT and SRS900 integrator control added
 
 interface
 
@@ -610,7 +611,7 @@ begin
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 8/11/17';
+    Caption := Caption + ' 26/03/18';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -627,7 +628,6 @@ begin
 
      ADCMaxValue := LabIO.ADCMaxValue[DeviceNum] ;
      DACMaxValue := LabIO.DACMaxValue[DeviceNum] ;
-     LabIO.WriteDACs( 1,[0.0,0.0],2);
 
      ADCPointer := 0 ;
 
@@ -640,7 +640,7 @@ begin
      DeviceNum := 1 ;
      for ch  := 0 to High(GreyLo) do GreyLo[ch] := 0 ;
      for ch  := 0 to High(GreyLo) do GreyHi[ch] := LabIO.ADCMaxValue[DeviceNum] ;
-     LabIO.WriteDACs( 1,[0.0,0.0],2);
+
      SnapNum := 0 ;
 
      //StatusBar.SimpleText := LabIO.DeviceName[1] ;
@@ -740,6 +740,9 @@ begin
      // Load last used settings
      INIFileName := SettingsDirectory + 'mesoscan settings.xml' ;
      LoadSettingsFromXMLFile( INIFileName ) ;
+
+     // Open PMT and integrator control
+     PMT.Open ;
 
      // PMT controls
      ReadWritePMTGroup( 0, gpPMT0, 'W' ) ;
@@ -1177,6 +1180,9 @@ begin
      if AvgBuf <> Nil then FreeMem(AvgBuf) ;
      if DACBuf <> Nil then FreeMem(DACBuf) ;
 //     if XZLineAverage <> Nil then FreeMem(XZLineAverage) ;
+
+     // Close PMT and integrators
+     PMT.Close ;
 
      SaveSettingsToXMLFile( INIFileName ) ;
 
