@@ -162,6 +162,7 @@ type
     procedure cbLaserTypeChange(Sender: TObject);
     procedure cbIntegratorPortChange(Sender: TObject);
     procedure cbIntegratorTypeChange(Sender: TObject);
+    procedure cbLaserControlPortChange(Sender: TObject);
   private
     { Private declarations }
 
@@ -297,6 +298,14 @@ begin
 
     end;
 
+procedure TSettingsFrm.cbLaserControlPortChange(Sender: TObject);
+// --------------------------
+// Laser control port changed
+// --------------------------
+begin
+    Laser.ControlPort := cbLaserControlPort.ItemIndex ;
+    end;
+
 procedure TSettingsFrm.cbLaserTypeChange(Sender: TObject);
 // ------------------
 // Laser type changed
@@ -304,6 +313,7 @@ procedure TSettingsFrm.cbLaserTypeChange(Sender: TObject);
 begin
     pnLaserControlPort.Visible := Laser.ControlPortRequired ;
     end;
+
 
 procedure TSettingsFrm.cbZStageTypeChange(Sender: TObject);
 //

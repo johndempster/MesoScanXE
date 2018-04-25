@@ -299,7 +299,7 @@ begin
      if FControlPort < 1 then Exit ;
 
      { Open com port  }
-     FComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort+1])),
+     FComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort])),
                      GENERIC_READ or GENERIC_WRITE,
                      0,
                      Nil,
@@ -322,7 +322,7 @@ begin
      DCB.Parity := NOPARITY ;
      DCB.StopBits := ONESTOPBIT ;
      // Settings required to activate remote mode of CoolLED
-     DCB.Flags := dcb_Binary or dcb_DtrControlEnable or dcb_RtsControlEnable ;
+     DCB.Flags := dcb_Binary ;//or dcb_DtrControlEnable or dcb_RtsControlEnable ;
 
      { Update COM port }
      SetCommState( FComHandle, DCB ) ;
@@ -344,6 +344,9 @@ begin
      ComFailed := False ;
      InitCounter := 0 ;
      Initialized := False ;
+
+     SendCommand('*idn?');
+     WaitForResponse('OK');
 
      end ;
 
@@ -387,11 +390,8 @@ begin
     case FLaserType of
         lsOBIS :
           begin
-          if FComPortOpen then
-             begin
-             CloseComPort ;
-             OpenComPort ;
-             end;
+          if FComPortOpen then CloseComPort ;
+          OpenComPort ;
           end;
         end;
     end;
@@ -731,6 +731,7 @@ begin
    TimeOut := timegettime + 5000 ;
    repeat
      Status := ReceiveBytes( EndOfLine ) ;
+
      Until EndOfLine or (timegettime > TimeOut) ;
      if not EndOfLine then outputDebugstring(pchar('Time out'));
 
@@ -753,6 +754,7 @@ begin
 
    repeat
      Response := Response + ReceiveBytes( EndOfLine ) ;
+          outputdebugstring(pchar(response));
    until EndOfLine or (TimeGetTime > TimeOut) ;
 
    // Check if required response received

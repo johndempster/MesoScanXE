@@ -1177,7 +1177,7 @@ object SettingsFrm: TSettingsFrm
           Height = 21
           Style = csDropDownList
           TabOrder = 0
-          OnChange = cbIntegratorTypeChange
+          OnChange = cbLaserTypeChange
         end
         object pnLaserControlPort: TPanel
           Left = 138
@@ -1201,7 +1201,7 @@ object SettingsFrm: TSettingsFrm
             Height = 21
             Style = csDropDownList
             TabOrder = 0
-            OnChange = cbIntegratorPortChange
+            OnChange = cbLaserControlPortChange
           end
         end
         object edLaserControllerID: TEdit
