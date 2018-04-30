@@ -48,9 +48,11 @@ type
     FLaserEnabled : Array[0..MaxLaser] of Boolean ;               // Laser On/Off status
     FName : Array[0..MaxLaser] of string ;                       // Laser name
     FDescription : Array[0..MaxLaser] of string ;                // Laser description
+    LaserNum : Integer ;
 
     OverLapStructure : POVERLAPPED ;
     ReplyMessage : string ;
+    WaitingForReply : Boolean ;
 
     procedure OpenCOMPort ;
     procedure CloseCOMPort ;
@@ -143,7 +145,7 @@ implementation
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
-uses LabIOUnit, mmsystem ;
+uses LabIOUnit, mmsystem, strutils ;
 
 {$R *.dfm}
 const
@@ -301,7 +303,7 @@ begin
      if FControlPort < 1 then Exit ;
 
      { Open com port  }
-     FComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort+1])),
+     FComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort])),
                      GENERIC_READ or GENERIC_WRITE,
                      0,
                      Nil,
@@ -340,6 +342,8 @@ begin
      CommTimeouts.WriteTotalTimeoutMultiplier := 0 ;
      CommTimeouts.WriteTotalTimeoutConstant := 5000 ;
      SetCommTimeouts( FComHandle, CommTimeouts ) ;
+
+     ClearCommBreak( FComHandle ) ;
 
      FComPortOpen := True ;
      Status := '' ;
@@ -452,43 +456,51 @@ procedure TLaser.OBISInitialize ;
 // ----------------------------------------------
 var
     EndOfLine : Boolean ;
+    i0,nc : Integer ;
 begin
 
-      if InitCounter >= 11 then Initialized := True ;
+//      if InitCounter >= 11 then Initialized := True ;
       if Initialized then Exit ;
       if not FComPortOpen then Exit ;
 
-
-      // Send command
-      case InitCounter of
-           0 : SendCommand('*IDN0?');
-           2 : SendCommand('*IDN1?');
-           4 : SendCommand('*IDN2?');
-           6 : SendCommand('*IDN3?');
-           8 : SendCommand('*IDN4?');
-           10 : SendCommand('*IDN5?');
-           end ;
-
-      if (InitCounter and 1) = 0 then
+      if InitCounter = 0 then
          begin
-         Inc(InitCounter) ;
-         ReplyMessage := '' ;
+         LaserNum := 1 ;
+         WaitingForReply := False ;
+         Inc(InitCounter);
+         end;
+
+      if not WaitingForReply then
+         begin
+         // Send command
+         SendCommand(format('*idn%d?',[LaserNum]));
+         WaitingForReply := true ;
          end
-       else begin
+      else
+         begin
+         // Process reply
          ReplyMessage := ReceiveBytes( EndOfLine ) ;
          if EndOfLine then
             begin
-            case InitCounter of
-                 0 : ControllerID := ReplyMessage ;
-                 2 : LaserID[0] := ReplyMessage ;
-                 4 : LaserID[1] := ReplyMessage ;
-                 6 : LaserID[2] := ReplyMessage ;
-                 8 : LaserID[3] := ReplyMessage ;
-                 10 : LaserID[4] := ReplyMessage ;
-                 end ;
-            Inc(InitCounter) ;
-            end;
-         end;
+            if ContainsText(ReplyMessage,'OK') or ContainsText(ReplyMessage,'ERR') then
+               begin
+               WaitingForReply := false ;
+               Inc(LaserNum) ;
+               if LaserNum > 6 then Initialized := True ;
+               outputdebugstring(pchar('rx: ' + ReplyMessage));
+               end
+            else
+               begin
+               outputdebugstring(pchar('rx: ' + ReplyMessage));
+               LaserID[FNumLasers] := ReplyMessage ;
+               i0 := Pos('Inc - ',ReplyMessage) + 6 ;
+               nc := Pos(' - V',ReplyMessage) - i0 ;
+               FName[FNumLasers] := MidStr(ReplyMessage,i0,nc);
+               Inc(FNumLasers) ;
+               end ;
+            end ;
+         end ;
+
 
        end;
 
@@ -762,6 +774,8 @@ begin
      if not FComPortOpen then Exit ;
      if ComFailed then Exit ;
 
+     outputdebugstring(pchar('tx: ' + Line));
+
      { Copy command line to be sent to xMit buffer and and a CR character }
      nC := Length(Line) ;
      for i := 1 to nC do xBuf[i-1] := ANSIChar(Line[i]) ;
@@ -811,7 +825,7 @@ begin
    if not FComPortOpen then Exit ;
 
    Result := '' ;
-   TimeOut := timegettime + 1000 ;
+   TimeOut := timegettime + 5000 ;
 
    repeat
      Result := Result + ReceiveBytes( EndOfLine ) ;
@@ -868,11 +882,11 @@ begin
      ClearCommError( FComHandle, ComError, PComState )  ;
 
      // Read characters until CR is encountered
-     while (NumRead < ComState.cbInQue) and (RBuf[0] <> #13) do
+     while (NumRead < ComState.cbInQue) and (RBuf[0] <> #10) and (RBuf[0] <> #13) do
          begin
          ReadFile( FComHandle,rBuf,1,NumBytesRead,OverlapStructure ) ;
-         if rBuf[0] <> #13 then Line := Line + String(rBuf[0])
-                           else EndOfLine := True ;
+         if (rBuf[0] <> #10) and (rBuf[0] <> #13) then Line := Line + String(rBuf[0])
+                                                  else EndOfLine := True ;
          //outputdebugstring(pwidechar(RBuf[0]));
          Inc( NumRead ) ;
          end ;
