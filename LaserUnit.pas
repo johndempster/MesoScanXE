@@ -29,14 +29,14 @@ type
     FActive : Boolean ;               // Lasers active flag
     FLaserType : Integer ;            // Type of laser unit
     FComPort : Integer ;              // Com port #
-    FComHandle : THandle ;     // Com port handle
-    FControlPort : DWord ;    // Control port number
+    FComHandle : THandle ;            // Com port handle
+    FControlPort : DWord ;            // Control port number
     FComPortOpen : Boolean ;          // Com port open flag
-    FBaudRate : DWord ;       // Com port baud rate
-    ComFailed : Boolean ;
+    FBaudRate : DWord ;               // Com port baud rate
+    ComFailed : Boolean ;             // COM port communications failed flag
     FShutterOpen : Boolean ;
     FShutterChangeTime : Double ;
-    FNumLasers : Integer ;
+    FNumLasers : Integer ;            // No. lasers in use
 
 
     Status : String ;         // Laser status report
@@ -59,7 +59,7 @@ type
     procedure SetControlPort( Value : DWord ) ;
     procedure SetBaudRate( Value : DWord ) ;
     procedure UpdateLasersExternal ;
-    procedure OBISInitializer ;
+    procedure OBISInitialize ;
     function SendCommand( const Line : string ) : Boolean ;
     function ReceiveBytes( var EndOfLine : Boolean ) : string ;
     function WaitForMessage : string ;
@@ -67,7 +67,7 @@ type
     function WaitforResponse(
              ResponseRequired : string
              ) : Boolean ;
-
+    function WaitforReply : string ;
 
     procedure SetIntensity(
               i : Integer ;
@@ -106,6 +106,8 @@ type
              i : Integer
              ) : Integer  ;
     procedure SetActive( Value : Boolean ) ;
+
+    procedure OBISSetActive( Value : Boolean ) ;
 
   public
     { Public declarations }
@@ -299,7 +301,7 @@ begin
      if FControlPort < 1 then Exit ;
 
      { Open com port  }
-     FComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort])),
+     FComHandle :=  CreateFile( PCHar(format('COM%d',[FControlPort+1])),
                      GENERIC_READ or GENERIC_WRITE,
                      0,
                      Nil,
@@ -310,7 +312,7 @@ begin
      if Integer(FComHandle) < 0 then
         begin
         FComPortOpen := False ;
-        ShowMessage(format('CoolLED: Unable to open serial port: COM%d',[FControlPort+1]));
+        ShowMessage(format('OBIS: Unable to open serial port: COM%d',[FControlPort+1]));
         Exit ;
         end;
 
@@ -322,7 +324,7 @@ begin
      DCB.Parity := NOPARITY ;
      DCB.StopBits := ONESTOPBIT ;
      // Settings required to activate remote mode of CoolLED
-     DCB.Flags := dcb_Binary ;//or dcb_DtrControlEnable or dcb_RtsControlEnable ;
+     DCB.Flags := dcb_Binary or dcb_DtrControlEnable or dcb_RtsControlEnable ;
 
      { Update COM port }
      SetCommState( FComHandle, DCB ) ;
@@ -344,9 +346,6 @@ begin
      ComFailed := False ;
      InitCounter := 0 ;
      Initialized := False ;
-
-     SendCommand('*idn?');
-     WaitForResponse('OK');
 
      end ;
 
@@ -390,8 +389,11 @@ begin
     case FLaserType of
         lsOBIS :
           begin
-          if FComPortOpen then CloseComPort ;
-          OpenComPort ;
+          if FComPortOpen then
+             begin
+             CloseComPort ;
+             OpenComPort ;
+             end;
           end;
         end;
     end;
@@ -439,12 +441,12 @@ procedure TLaser.TimerTimer(Sender: TObject);
 // -------------------
 begin
     case FLaserType of
-        lsOBIS : OBISInitializer ;
+        lsOBIS : OBISInitialize ;
     end;
 end;
 
 
-procedure TLaser.OBISInitializer ;
+procedure TLaser.OBISInitialize ;
 // ----------------------------------------------
 // Handles messages received from OBIS controller
 // ----------------------------------------------
@@ -554,9 +556,9 @@ begin
 procedure TLaser.SetIntensityControlPort(
           i : Integer ;    // Laser # (0..
           Value : Integer ) ;  // Control line #
-// -----------------------------
+// --------------------------------
 // Set laser intensity control port
-// -----------------------------
+// --------------------------------
 begin
      if (i < 0) and (i >= MaxLaser) then Exit ;
      FIntensityControlPort[i] := Value ;
@@ -650,7 +652,6 @@ procedure TLaser.GetLaserList( List : TStrings ) ;
 // Get type of available ADC gains
 // -------------------------------
 var
-    Gain : Integer ;
     i : Integer ;
 begin
      List.Clear ;
@@ -666,22 +667,81 @@ procedure TLaser.SetActive( Value : Boolean ) ;
 // -----------------------------------------------------
 // Activate/inactivate enabled lasers and set intensity
 // -----------------------------------------------------
-var
-    i,iDev,AOCHan : Integer ;
-    V : Single ;
 begin
-      // If PMT is enabled and an AO control port is defined,
-      // apply selected gain control voltage to PMT
-{      for i := 0 to NumPMTs-1 do if FEnabled[i] and (PMTPort[i] <> ControlDisabled) then
-          begin
-          if Value = TRUE then V := FGainVMin + (FGainVMax - FGainVMin)*PMTGain[i]
-                          else V := FGainVMin ;
-          iDev := LabIO.Resource[PMTPort[i]].Device ;
-          AOChan := LabIO.Resource[PMTPort[i]].StartChannel ;
-          LabIO.WriteDAC(iDev,V,AOChan);
-          end;}
-      end;
 
+    case FLaserType of
+        lsOBIS : OBISSetActive(Value) ;
+        end ;
+
+    // Update external analogue and/or digital control of lasers (if ports are enabled)
+    UpdateLasersExternal
+
+    end;
+
+
+procedure TLaser.OBISSetActive( Value : Boolean ) ;
+// -----------------------------------------------------
+// Activate/inactivate enabled OBIS lasers and set intensity
+// -----------------------------------------------------
+var
+    i,iCode : Integer ;
+    Power,MinPower,MaxPower : single ;
+    s : string ;
+begin
+
+    // Set laser power
+    for i := 0 to NumLasers do if FLaserEnabled[i] then
+        begin
+        // Get max. power
+        SendCommand( format('SOUR%d:POW:LIM:HIGH',[i+1]) ) ;
+        s := WaitForReply ;
+        Val(s,MaxPower,iCode) ;
+        // Get min. power
+        SendCommand( format('SOUR%d:POW:LIM:LOW',[i+1])) ;
+        s := WaitForReply ;
+        Val(s,MinPower,iCode) ;
+        // Set power
+        Power := Max(FIntensity[i]*MaxPower,MinPower);
+        SendCommand( format('SOUR%d:POW:LEV:IMM:AMPL %.2f',[i+1,Power])) ;
+        WaitForResponse( 'OK' ) ;
+        end;
+
+    // Enable lasers
+    for i := 0 to NumLasers do
+        begin
+        if FLaserEnabled[i] and Value then SendCommand( format('SOUR%d:STAT ON',[i+1]))
+                                      else SendCommand( format('SOUR%d:STAT OFF',[i+1]));
+        WaitForResponse( 'OK' ) ;
+        end;
+
+    end;
+
+
+function TLaser.WaitforResponse(
+         ResponseRequired : string
+          ) : Boolean ;
+var
+  Response : string ;
+  EndOfLine : Boolean ;
+  Timeout : Cardinal ;
+begin
+
+   Result := False ;
+   if not FComPortOpen then Exit ;
+
+   Response := '' ;
+   TimeOut := timegettime + 5000 ;
+
+   repeat
+     Response := Response + ReceiveBytes( EndOfLine ) ;
+   until EndOfLine or (TimeGetTime > TimeOut) ;
+
+   // Check if required response received
+   if not EndOfLine then Result := False
+   else if ResponseRequired = '' then Result := True
+   else if Response = ResponseRequired then Result := True ;
+
+   end ;
 
 
 function TLaser.SendCommand(
@@ -707,6 +767,8 @@ begin
      for i := 1 to nC do xBuf[i-1] := ANSIChar(Line[i]) ;
      xBuf[nC] := #13 ;
      Inc(nC) ;
+     xBuf[nC] := #10 ;
+     Inc(nC) ;
 
     Overlapped := Nil ;
     OK := WriteFile( FComHandle, xBuf, nC, nWritten, Overlapped ) ;
@@ -731,36 +793,29 @@ begin
    TimeOut := timegettime + 5000 ;
    repeat
      Status := ReceiveBytes( EndOfLine ) ;
-
      Until EndOfLine or (timegettime > TimeOut) ;
      if not EndOfLine then outputDebugstring(pchar('Time out'));
 
      end ;
 
 
-function TLaser.WaitforResponse(
-         ResponseRequired : string
-          ) : Boolean ;
+function TLaser.WaitforReply : string ;
+// -------------------------------
+// Wait for message to be returned
+// -------------------------------
 var
-  Response : string ;
   EndOfLine : Boolean ;
   Timeout : Cardinal ;
 begin
 
    if not FComPortOpen then Exit ;
 
-   Response := '' ;
-   TimeOut := timegettime + 5000 ;
+   Result := '' ;
+   TimeOut := timegettime + 1000 ;
 
    repeat
-     Response := Response + ReceiveBytes( EndOfLine ) ;
-          outputdebugstring(pchar(response));
+     Result := Result + ReceiveBytes( EndOfLine ) ;
    until EndOfLine or (TimeGetTime > TimeOut) ;
-
-   // Check if required response received
-   if not EndOfLine then Result := False
-   else if ResponseRequired = '' then Result := True
-   else if Response = ResponseRequired then Result := True ;
 
    end ;
 
@@ -770,7 +825,6 @@ function TLaser.WaitForMessage : string ;
 // Wait for message from COM port
 // ------------------------------
 var
-  Response : string ;
   EndOfLine : Boolean ;
   Timeout : Cardinal ;
 begin

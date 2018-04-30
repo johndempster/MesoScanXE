@@ -304,6 +304,7 @@ procedure TSettingsFrm.cbLaserControlPortChange(Sender: TObject);
 // --------------------------
 begin
     Laser.ControlPort := cbLaserControlPort.ItemIndex ;
+    edLaserControllerID.Text := Laser.ControllerID ;
     end;
 
 procedure TSettingsFrm.cbLaserTypeChange(Sender: TObject);
@@ -311,6 +312,7 @@ procedure TSettingsFrm.cbLaserTypeChange(Sender: TObject);
 // Laser type changed
 // ------------------
 begin
+    Laser.LaserType := cbLaserType.ItemIndex ;
     pnLaserControlPort.Visible := Laser.ControlPortRequired ;
     end;
 
@@ -378,15 +380,13 @@ begin
     ReadWritePMTPanel( 2, pnPMT2, 'W' ) ;
     ReadWritePMTPanel( 3, pnPMT3, 'W' ) ;
 
-    // Get type of laser installed
+    // Laser control
     Laser.GetLaserTypes(cbLaserType.Items) ;
     cbLaserType.ItemIndex := Laser.LaserType ;
-    cbLaserControlPort.ItemIndex := Laser.ControlPort ;
-
-    // Laser control
     spNumLasers.MaxValue := MaxLaser ;
-    spNumLasers.Value :=  Laser.NumLasers;
+    spNumLasers.Value :=  Laser.NumLasers ;
     Laser.GetCOMPorts( cbLaserControlPort.Items ) ;
+    cbLaserControlPort.ItemIndex := Laser.ControlPort ;
     pnLaserControlPort.Visible := Laser.ControlPortRequired ;
 
     // Set laser control line menus (for external control)

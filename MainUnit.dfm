@@ -1275,7 +1275,7 @@ object MainFrm: TMainFrm
         OnClick = bScanFullFieldClick
       end
       object bScanROI: TButton
-        Left = 11
+        Left = 8
         Top = 44
         Width = 96
         Height = 20

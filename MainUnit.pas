@@ -1840,6 +1840,7 @@ procedure TMainFrm.bScanFullFieldClick(Sender: TObject);
 // Scan full field
 // ----------------
 begin
+    if bStopScan.Enabled then bStopScan.Click ;
     StartNewScan( srScanFullField, True ) ;
     end ;
 
@@ -1849,6 +1850,7 @@ procedure TMainFrm.bScanImageClick(Sender: TObject);
 // Scan currently selected area
 // ----------------------------
 begin
+    if bStopScan.Enabled then bStopScan.Click ;
     StartNewScan( srNoChange, False ) ;
     end ;
 
@@ -1858,6 +1860,7 @@ procedure TMainFrm.bScanROIClick(Sender: TObject);
 // Scan selected region of interest (fast scan)
 // --------------------------------------------
 begin
+    if bStopScan.Enabled then bStopScan.Click ;
     StartNewScan( srScanROI, True ) ;
     end ;
 
