@@ -794,9 +794,9 @@ object SettingsFrm: TSettingsFrm
       object grpLaserExternal: TGroupBox
         Left = 3
         Top = 142
-        Width = 370
+        Width = 534
         Height = 294
-        Caption = ' External Analogue/Digital Laser Control'
+        Caption = ' Lasers '
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -826,7 +826,7 @@ object SettingsFrm: TSettingsFrm
           Caption = 'Shutter Change Time'
         end
         object Label7: TLabel
-          Left = 113
+          Left = 216
           Top = 56
           Width = 36
           Height = 15
@@ -839,7 +839,7 @@ object SettingsFrm: TSettingsFrm
           ParentFont = False
         end
         object Label22: TLabel
-          Left = 209
+          Left = 312
           Top = 56
           Width = 48
           Height = 15
@@ -852,7 +852,7 @@ object SettingsFrm: TSettingsFrm
           ParentFont = False
         end
         object Label26: TLabel
-          Left = 305
+          Left = 408
           Top = 56
           Width = 46
           Height = 15
@@ -865,7 +865,7 @@ object SettingsFrm: TSettingsFrm
           ParentFont = False
         end
         object Label27: TLabel
-          Left = 191
+          Left = 8
           Top = 20
           Width = 108
           Height = 16
@@ -876,6 +876,19 @@ object SettingsFrm: TSettingsFrm
           Font.Height = -13
           Font.Name = 'Arial Narrow'
           Font.Style = []
+          ParentFont = False
+        end
+        object Label31: TLabel
+          Left = 113
+          Top = 56
+          Width = 67
+          Height = 15
+          Caption = 'Max. Power'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
           ParentFont = False
         end
         object edLaserShutterChangeTime: TValidatedEdit
@@ -905,7 +918,7 @@ object SettingsFrm: TSettingsFrm
         object pnLaser0: TPanel
           Left = 8
           Top = 75
-          Width = 353
+          Width = 500
           Height = 27
           BevelOuter = bvNone
           TabOrder = 2
@@ -918,27 +931,27 @@ object SettingsFrm: TSettingsFrm
             Text = 'edLaserName0'
           end
           object ComboBox5: TComboBox
-            Tag = 1
-            Left = 105
-            Top = 0
+            Tag = 2
+            Left = 209
+            Top = 2
             Width = 90
             Height = 24
             Style = csDropDownList
             TabOrder = 1
           end
           object ComboBox6: TComboBox
-            Tag = 2
-            Left = 201
-            Top = 0
+            Tag = 3
+            Left = 305
+            Top = 2
             Width = 90
             Height = 24
             Style = csDropDownList
             TabOrder = 2
           end
           object ValidatedEdit5: TValidatedEdit
-            Tag = 3
-            Left = 297
-            Top = 0
+            Tag = 4
+            Left = 401
+            Top = 2
             Width = 50
             Height = 24
             Text = ' 5 V'
@@ -949,11 +962,24 @@ object SettingsFrm: TSettingsFrm
             LoLimit = -1.000000015047466E30
             HiLimit = 10.000000000000000000
           end
+          object edMaxPower: TValidatedEdit
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 81
+            Height = 24
+            Text = ' 1E004 mW'
+            Value = 10.000000000000000000
+            Scale = 1000.000000000000000000
+            Units = 'mW'
+            NumberFormat = '%.4g'
+            HiLimit = 1.000000015047466E30
+          end
         end
         object pnLaser1: TPanel
           Left = 8
           Top = 108
-          Width = 353
+          Width = 500
           Height = 27
           BevelOuter = bvNone
           TabOrder = 3
@@ -966,8 +992,8 @@ object SettingsFrm: TSettingsFrm
             Text = 'edLaserName0'
           end
           object ComboBox7: TComboBox
-            Tag = 1
-            Left = 105
+            Tag = 2
+            Left = 209
             Top = 0
             Width = 90
             Height = 24
@@ -975,8 +1001,8 @@ object SettingsFrm: TSettingsFrm
             TabOrder = 1
           end
           object ComboBox8: TComboBox
-            Tag = 2
-            Left = 201
+            Tag = 3
+            Left = 305
             Top = 0
             Width = 90
             Height = 24
@@ -984,8 +1010,8 @@ object SettingsFrm: TSettingsFrm
             TabOrder = 2
           end
           object ValidatedEdit6: TValidatedEdit
-            Tag = 3
-            Left = 297
+            Tag = 4
+            Left = 401
             Top = 0
             Width = 50
             Height = 24
@@ -997,11 +1023,25 @@ object SettingsFrm: TSettingsFrm
             LoLimit = -1.000000015047466E30
             HiLimit = 10.000000000000000000
           end
+          object ValidatedEdit10: TValidatedEdit
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 81
+            Height = 24
+            Text = ' 1E004 mW'
+            Value = 10.000000000000000000
+            Scale = 1000.000000000000000000
+            Units = 'mW'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 1.000000015047466E30
+          end
         end
         object pnLaser2: TPanel
           Left = 8
           Top = 141
-          Width = 353
+          Width = 500
           Height = 27
           BevelOuter = bvNone
           TabOrder = 4
@@ -1014,8 +1054,8 @@ object SettingsFrm: TSettingsFrm
             Text = 'edLaserName0'
           end
           object ComboBox9: TComboBox
-            Tag = 1
-            Left = 105
+            Tag = 2
+            Left = 208
             Top = 0
             Width = 90
             Height = 24
@@ -1023,8 +1063,8 @@ object SettingsFrm: TSettingsFrm
             TabOrder = 1
           end
           object ComboBox10: TComboBox
-            Tag = 2
-            Left = 201
+            Tag = 3
+            Left = 304
             Top = 0
             Width = 90
             Height = 24
@@ -1032,8 +1072,8 @@ object SettingsFrm: TSettingsFrm
             TabOrder = 2
           end
           object ValidatedEdit7: TValidatedEdit
-            Tag = 3
-            Left = 297
+            Tag = 4
+            Left = 400
             Top = 0
             Width = 50
             Height = 24
@@ -1045,11 +1085,25 @@ object SettingsFrm: TSettingsFrm
             LoLimit = -1.000000015047466E30
             HiLimit = 10.000000000000000000
           end
+          object ValidatedEdit11: TValidatedEdit
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 81
+            Height = 24
+            Text = ' 1E004 mW'
+            Value = 10.000000000000000000
+            Scale = 1000.000000000000000000
+            Units = 'mW'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 1.000000015047466E30
+          end
         end
         object pnLaser3: TPanel
           Left = 8
           Top = 174
-          Width = 353
+          Width = 500
           Height = 27
           BevelOuter = bvNone
           TabOrder = 5
@@ -1062,8 +1116,8 @@ object SettingsFrm: TSettingsFrm
             Text = 'edLaserName0'
           end
           object ComboBox11: TComboBox
-            Tag = 1
-            Left = 105
+            Tag = 2
+            Left = 209
             Top = 0
             Width = 90
             Height = 24
@@ -1071,8 +1125,8 @@ object SettingsFrm: TSettingsFrm
             TabOrder = 1
           end
           object ComboBox12: TComboBox
-            Tag = 2
-            Left = 201
+            Tag = 3
+            Left = 305
             Top = 0
             Width = 90
             Height = 24
@@ -1080,8 +1134,8 @@ object SettingsFrm: TSettingsFrm
             TabOrder = 2
           end
           object ValidatedEdit8: TValidatedEdit
-            Tag = 3
-            Left = 297
+            Tag = 4
+            Left = 401
             Top = 0
             Width = 50
             Height = 24
@@ -1093,11 +1147,25 @@ object SettingsFrm: TSettingsFrm
             LoLimit = -1.000000015047466E30
             HiLimit = 10.000000000000000000
           end
+          object ValidatedEdit12: TValidatedEdit
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 81
+            Height = 24
+            Text = ' 1E004 mW'
+            Value = 10.000000000000000000
+            Scale = 1000.000000000000000000
+            Units = 'mW'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 1.000000015047466E30
+          end
         end
         object pnLaser4: TPanel
           Left = 8
           Top = 204
-          Width = 353
+          Width = 500
           Height = 27
           BevelOuter = bvNone
           TabOrder = 6
@@ -1110,8 +1178,8 @@ object SettingsFrm: TSettingsFrm
             Text = 'edLaserName0'
           end
           object ComboBox13: TComboBox
-            Tag = 1
-            Left = 105
+            Tag = 2
+            Left = 209
             Top = 0
             Width = 90
             Height = 24
@@ -1119,8 +1187,8 @@ object SettingsFrm: TSettingsFrm
             TabOrder = 1
           end
           object ComboBox14: TComboBox
-            Tag = 2
-            Left = 201
+            Tag = 3
+            Left = 305
             Top = 0
             Width = 90
             Height = 24
@@ -1128,8 +1196,8 @@ object SettingsFrm: TSettingsFrm
             TabOrder = 2
           end
           object ValidatedEdit9: TValidatedEdit
-            Tag = 3
-            Left = 297
+            Tag = 4
+            Left = 401
             Top = 0
             Width = 50
             Height = 24
@@ -1141,9 +1209,23 @@ object SettingsFrm: TSettingsFrm
             LoLimit = -1.000000015047466E30
             HiLimit = 10.000000000000000000
           end
+          object ValidatedEdit13: TValidatedEdit
+            Tag = 1
+            Left = 105
+            Top = 0
+            Width = 81
+            Height = 24
+            Text = ' 1E004 mW'
+            Value = 10.000000000000000000
+            Scale = 1000.000000000000000000
+            Units = 'mW'
+            NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
+            HiLimit = 1.000000015047466E30
+          end
         end
         object spNumLasers: TSpinEdit
-          Left = 305
+          Left = 129
           Top = 20
           Width = 50
           Height = 26

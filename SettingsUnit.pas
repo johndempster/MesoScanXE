@@ -153,6 +153,12 @@ type
     Label30: TLabel;
     cbLaserControlPort: TComboBox;
     edLaserControllerID: TEdit;
+    edMaxPower: TValidatedEdit;
+    ValidatedEdit10: TValidatedEdit;
+    ValidatedEdit11: TValidatedEdit;
+    ValidatedEdit12: TValidatedEdit;
+    ValidatedEdit13: TValidatedEdit;
+    Label31: TLabel;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -244,7 +250,7 @@ begin
 
     MainFrm.InvertPMTSignal := ckInvertPMTSignal.Checked ;
 
-    Laser.LaserType := cbLaserType.ItemIndex ;
+    //Laser.LaserType := cbLaserType.ItemIndex ;
 
     // Set laser control line menus (for external control)
     Laser.NumLasers := spNumLasers.Value ;
@@ -518,16 +524,17 @@ var
     i,iDev : Integer ;
     edName : TEdit ;
     cbOnOffPort,cbIntensityPort : TComboBox ;
-    edVMax : TValidatedEdit ;
+    edVMax,edMaxPower : TValidatedEdit ;
 begin
 
       for i := 0 to Panel.ControlCount-1 do
           begin
           case Panel.Controls[i].Tag of
               0 : edName := TEdit(Panel.Controls[i]) ;
-              1 : cbOnOffPort := TComboBox(Panel.Controls[i]) ;
-              2 : cbIntensityPort := TComboBox(Panel.Controls[i]) ;
-              3 : edVMax := TValidatedEdit(Panel.Controls[i]) ;
+              1 : edMaxPower := TValidatedEdit(Panel.Controls[i]) ;
+              2 : cbOnOffPort := TComboBox(Panel.Controls[i]) ;
+              3 : cbIntensityPort := TComboBox(Panel.Controls[i]) ;
+              4 : edVMax := TValidatedEdit(Panel.Controls[i]) ;
               end ;
           end ;
 
@@ -540,6 +547,7 @@ begin
          LabIO.GetAOPorts( cbIntensityPort.Items ) ;
          cbIntensityPort.ItemIndex := Max(cbIntensityPort.Items.IndexofObject(TObject(Laser.IntensityControlPort[Num])),0) ;
          edVMax.Value := Laser.VMaxIntensity[Num] ;
+         edMaxPower.Value := Laser.MaxPower[Num] ;
          end
       else begin
          // Read panel
@@ -547,6 +555,7 @@ begin
          Laser.EnabledControlPort[Num] := Integer(cbOnOffPort.Items.Objects[cbOnOffPort.ItemIndex]) ;
          Laser.IntensityControlPort[Num] := Integer(cbIntensityPort.Items.Objects[cbIntensityPort.ItemIndex]) ;
          Laser.VMaxIntensity[Num] := edVMax.Value ;
+         Laser.MaxPower[Num] := edMaxPower.Value ;
          end ;
 
       end;

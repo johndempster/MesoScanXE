@@ -2758,6 +2758,12 @@ begin
      SettingsFrm.ShowModal ;
      edMicronsPerZStep.Value := edNumPixelsPerZStep.Value*HRPixelSize ;
 
+     // PMT controls
+     ReadWritePMTGroup( 0, gpPMT0, 'W' ) ;
+     ReadWritePMTGroup( 1, gpPMT1, 'W' ) ;
+     ReadWritePMTGroup( 2, gpPMT2, 'W' ) ;
+     ReadWritePMTGroup( 3, gpPMT3, 'W' ) ;
+
      //Re-open control port (if in use)
      if LaserControlEnabled then
         begin

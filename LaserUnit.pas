@@ -44,10 +44,12 @@ type
     FIntensityControlPort : Array[0..MaxLaser] of Integer ;      // Laser intensity control port
     FIntensity : Array[0..MaxLaser] of Double ;                  // Laser intensity
     FVMaxIntensity: Array[0..MaxLaser] of Double ;               // Voltage at 100% intensity
+    FMaxPower: Array[0..MaxLaser] of Double ;                    // Max. laser power (mW)
     FEnabledControlPort : Array[0..MaxLaser] of Integer ;         // Laser on/off control port
     FLaserEnabled : Array[0..MaxLaser] of Boolean ;               // Laser On/Off status
     FName : Array[0..MaxLaser] of string ;                       // Laser name
     FDescription : Array[0..MaxLaser] of string ;                // Laser description
+    FLaserNum : Array[0..MaxLaser] of Integer ;                  // Laser ID number
     LaserNum : Integer ;
 
     OverLapStructure : POVERLAPPED ;
@@ -74,39 +76,40 @@ type
     procedure SetIntensity(
               i : Integer ;
               Value : Double ) ;
-    function GetVMaxIntensity(
-             i : Integer
-             ) :Double  ;
-    procedure SetVMaxIntensity(
-              i : Integer ;
-              Value : Double ) ;
     function GetIntensity(
              i : Integer
              ) :Double  ;
-    procedure SetLaserEnabled(
-              i : Integer ;
-              Value : Boolean ) ;
-    function GetLaserEnabled(
-             i : Integer
-             ) : Boolean  ;
+
+    function GetVMaxIntensity( i : Integer ) :Double  ;
+    procedure SetVMaxIntensity( i : Integer ; Value : Double ) ;
+
+    procedure SetLaserEnabled( i : Integer ; Value : Boolean ) ;
+    function GetLaserEnabled( i : Integer) : Boolean  ;
+
     procedure SetLaserName(
               i : Integer ;
               Value : string ) ;
     function GetLaserName(
              i : Integer
              ) : string  ;
+
     procedure SetIntensityControlPort(
               i : Integer ;
               Value : Integer ) ;
     function GetIntensityControlPort(
              i : Integer
              ) : Integer  ;
+
     procedure SetEnabledControlPort(
               i : Integer ;
               Value : Integer ) ;
     function GetEnabledControlPort(
              i : Integer
              ) : Integer  ;
+
+    function GetMaxPower(i : Integer ) :Double  ;
+    procedure SetMaxPower( i : Integer ; Value : Double ) ;
+
     procedure SetActive( Value : Boolean ) ;
 
     procedure OBISSetActive( Value : Boolean ) ;
@@ -135,6 +138,7 @@ type
     Property Intensity[i : Integer] : Double read GetIntensity write SetIntensity ;
     Property LaserEnabled[i : Integer] : Boolean read GetLaserEnabled write SetLaserEnabled ;
     Property LaserName[i : Integer] : String read GetLaserName write SetLaserName ;
+    Property MaxPower[i : Integer] : Double read GetMaxPower write SetMaxPower ;
     Property Active : Boolean read FActive write SetActive ;
   end;
 
@@ -186,9 +190,9 @@ begin
   FCOMPort := 0 ;
   FShutterOpen := False ;
   FShutterChangeTime := 0.5 ;
-  FNumLasers := 1 ;
+  FNumLasers := 0 ;
   ComFailed := False ;
-  Initialized := False ;
+  Initialized := True ;
   InitCounter := 0 ;
 
   for i := 0 to MaxLaser do
@@ -200,6 +204,8 @@ begin
       FIntensityControlPort[i] := ControlDisabled ;
       FDescription[i] := '' ;
       FVMaxIntensity[i] := 5.0 ;
+      FMaxPower[i] := 0.0 ;
+      FLaserNum[i] := 0 ;
       end;
   end;
 
@@ -350,6 +356,7 @@ begin
      ComFailed := False ;
      InitCounter := 0 ;
      Initialized := False ;
+     FNumLasers := 0 ;
 
      end ;
 
@@ -438,6 +445,31 @@ begin
      FVMaxIntensity[i] := Value ;
      end ;
 
+function TLaser.GetMaxPower(
+          i : Integer      // Laser # 0..
+          ) : Double ;     // Intensity (0-1.0)
+// -------------------
+// Get laser max power
+// -------------------
+begin
+     if (i >= 0) and (i <= MaxLaser) then Result := FMaxPower[i]
+                                     else Result := 0.0 ;
+     end ;
+
+
+procedure TLaser.SetMaxPower(
+          i : Integer ;       // Laser # (0..
+          Value : Double ) ;  // Max. Power (mW)
+// -----------------------------
+// Set maximum laser power (mW)
+// -----------------------------
+begin
+    if (i < 0) and (i > MaxLaser) then Exit ;
+    case FLaserType of
+        lsNone : FMaxPower[i] := Value ;
+        end;
+    end ;
+
 
 procedure TLaser.TimerTimer(Sender: TObject);
 // -------------------
@@ -456,7 +488,8 @@ procedure TLaser.OBISInitialize ;
 // ----------------------------------------------
 var
     EndOfLine : Boolean ;
-    i0,nc : Integer ;
+    i0,nc,iCode : Integer ;
+    s : string ;
 begin
 
 //      if InitCounter >= 11 then Initialized := True ;
@@ -492,11 +525,16 @@ begin
             else
                begin
                outputdebugstring(pchar('rx: ' + ReplyMessage));
+               Inc(FNumLasers) ;
                LaserID[FNumLasers] := ReplyMessage ;
                i0 := Pos('Inc - ',ReplyMessage) + 6 ;
                nc := Pos(' - V',ReplyMessage) - i0 ;
                FName[FNumLasers] := MidStr(ReplyMessage,i0,nc);
-               Inc(FNumLasers) ;
+               SendCommand(format('syst%d:inf:pow?',[LaserNum]));
+               s := WaitForReply ;
+               s := WaitForReply ;
+               Val(s,FMaxPower[FNumLasers],iCode);
+               FLaserNum[FNumLasers] := LaserNum ;
                end ;
             end ;
          end ;
@@ -660,18 +698,14 @@ begin
 
 
 procedure TLaser.GetLaserList( List : TStrings ) ;
-// -------------------------------
-// Get type of available ADC gains
-// -------------------------------
+// ----------------------------
+// Get type of available lasers
+// ----------------------------
 var
     i : Integer ;
 begin
-     List.Clear ;
-     for i := 0 to FNumLasers do
-         begin
-         List.Add( FName[i] ) ;
-         end;
-
+    List.Clear ;
+    for i := 0 to Min(FNumLasers,High(FName)) do List.Add( FName[i] ) ;
     end;
 
 
@@ -686,7 +720,7 @@ begin
         end ;
 
     // Update external analogue and/or digital control of lasers (if ports are enabled)
-    UpdateLasersExternal
+    UpdateLasersExternal ;
 
     end;
 
@@ -700,30 +734,22 @@ var
     Power,MinPower,MaxPower : single ;
     s : string ;
 begin
-
+    exit ;
     // Set laser power
     for i := 0 to NumLasers do if FLaserEnabled[i] then
         begin
-        // Get max. power
-        SendCommand( format('SOUR%d:POW:LIM:HIGH',[i+1]) ) ;
-        s := WaitForReply ;
-        Val(s,MaxPower,iCode) ;
-        // Get min. power
-        SendCommand( format('SOUR%d:POW:LIM:LOW',[i+1])) ;
-        s := WaitForReply ;
-        Val(s,MinPower,iCode) ;
         // Set power
-        Power := Max(FIntensity[i]*MaxPower,MinPower);
-        SendCommand( format('SOUR%d:POW:LEV:IMM:AMPL %.2f',[i+1,Power])) ;
+        Power := Min(FIntensity[i],1.0)*FMaxPower[i] ;
+        SendCommand( format('SOUR%d:POW:LEV:IMM:AMPL %.2f',[FLaserNum[i],Power])) ;
         WaitForResponse( 'OK' ) ;
         end;
 
     // Enable lasers
     for i := 0 to NumLasers do
         begin
-        if FLaserEnabled[i] and Value then SendCommand( format('SOUR%d:STAT ON',[i+1]))
-                                      else SendCommand( format('SOUR%d:STAT OFF',[i+1]));
-        WaitForResponse( 'OK' ) ;
+//        if FLaserEnabled[i] and Value then SendCommand( format('SOUR%d:STAT ON',[i+1]))
+//                                      else SendCommand( format('SOUR%d:STAT OFF',[i+1]));
+//        WaitForResponse( 'OK' ) ;
         end;
 
     end;
