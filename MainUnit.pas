@@ -39,6 +39,7 @@ unit MainUnit;
 // V1.6.7 03.11.17 RawImagesFileName folder location can now be changed by user
 // V1.6.8 08.11.17 User interface revised to be more similar to MesoCam
 //        26.03.18 PMT and SRS900 integrator control added
+// V1.6.9 02.10.18 LaserUnit now uses LaserComThead for COM port message handling
 
 interface
 
@@ -605,13 +606,13 @@ var
     NumPix : Cardinal ;
     Gain : Double ;
 begin
-     Caption := 'MesoScan V1.6.8 ';
+     Caption := 'MesoScan V1.6.9 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 26/03/18';
+    Caption := Caption + ' 02/10/18';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;

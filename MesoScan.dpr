@@ -9,7 +9,8 @@ uses
   SettingsUnit in 'SettingsUnit.pas' {SettingsFrm},
   ZStageUnit in 'ZStageUnit.pas' {ZStage: TDataModule},
   LaserUnit in 'LaserUnit.pas' {Laser: TDataModule},
-  PMTUnit in 'PMTUnit.pas' {PMT: TDataModule};
+  PMTUnit in 'PMTUnit.pas' {PMT: TDataModule},
+  LaserComThreadUnit in 'LaserComThreadUnit.pas';
 
 {$R *.res}
 
