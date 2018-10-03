@@ -67,11 +67,9 @@ procedure LaserComThread.Execute;
 var
     EndOfLine : Boolean ;
     Reply : string ;
-    WaitingForReply : Boolean ;
 begin
 
 // Create command list
-   WaitingForReply := False ;
    Reply := '' ;
 
 // Initialization
@@ -81,28 +79,22 @@ begin
   while not Terminated do begin
       Synchronize( procedure
          begin
-          if not WaitingForReply then
+
+         // Send next command in list
+         if (Laser.CommandList.Count > 0) then
             begin
-            // Send next command in list
-            if (Laser.CommandList.Count > 0) then
-               begin
-               SendCommand(Laser.CommandList[0]);
-               Laser.CommandList.Delete(0) ;
-               WaitingForReply := True ;
-               end;
-            end
-         else
-            begin
-            // Wait for command completion reply from remote device
-            Reply := Reply + ReceiveBytes(EndOfLine) ;
-            if EndOfLine then
-               begin
-               Laser.ReplyList.Add(Reply);
-               WaitingForReply := False ;
-               Reply := '' ;
-               end ;
-            end ;
-          end );
+            SendCommand(Laser.CommandList[0]);
+            Laser.CommandList.Delete(0) ;
+            end;
+
+         // Wait for command completion reply from remote device
+         Reply := Reply + ReceiveBytes(EndOfLine) ;
+         if EndOfLine then
+           begin
+           Laser.ReplyList.Add(Reply);
+           Reply := '' ;
+           end ;
+         end );
       sleep(1);
    end;
 
@@ -123,7 +115,7 @@ begin
 
      if FComPortOpen then Exit ;
 
-     Synchronize( procedure begin FComPort := Laser.FComPort end ) ;
+     Synchronize( procedure begin FComPort := Laser.FControlPort end ) ;
 
      ComFailed := True ;
      if FComPort < 1 then Exit ;

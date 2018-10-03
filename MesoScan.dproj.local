@@ -18,8 +18,8 @@
     <Transaction>2018/01/24 15:15:54.000.749,=C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\Unit1.pas</Transaction>
     <Transaction>2018/01/24 15:16:13.000.675,C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\Unit1.pas=C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\PMTUnit.pas</Transaction>
     <Transaction>2018/01/24 15:16:13.000.675,C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\Unit1.dfm=C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\PMTUnit.dfm</Transaction>
-    <Transaction>2018/10/02 15:10:51.754,=C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\Unit1.pas</Transaction>
-    <Transaction>2018/10/02 15:11:42.454,C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\LaserComThreadUnit.pas=C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\Unit1.pas</Transaction>
+    <Transaction>2018/10/02 15:10:51.000.754,=C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\Unit1.pas</Transaction>
+    <Transaction>2018/10/02 15:11:42.000.454,C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\LaserComThreadUnit.pas=C:\Users\John\Documents\Embarcadero\Studio\Projects\MesoScanXE\Unit1.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="LabIOUnit.pas"/>
