@@ -26,8 +26,6 @@ type
   private
     { Private declarations }
 
-    Initialized : Boolean ;           // Laser controller initialized
-    InitCounter : Integer ;           // Initialisation state counter
     InitState : Integer ;             // Initialisation state counter
     FActive : Boolean ;               // Lasers active flag
     FLaserType : Integer ;            // Type of laser unit
@@ -49,7 +47,7 @@ type
     FMaxPower: Array[0..MaxLaser] of Double ;                    // Max. laser power (mW)
     FEnabledControlPort : Array[0..MaxLaser] of Integer ;         // Laser on/off control port
     FLaserEnabled : Array[0..MaxLaser] of Boolean ;               // Laser On/Off status
-    FName : Array[0..MaxLaser] of string ;                       // Laser name
+
     FDescription : Array[0..MaxLaser] of string ;                // Laser description
     FLaserNum : Array[0..MaxLaser] of Integer ;                  // Laser ID number
     LaserNum : Integer ;
@@ -116,7 +114,7 @@ type
     ReplyList : TstringList ;
 //    FComPort : Integer ;              // Com port #
     FControlPort : DWord ;            // Control port number
-
+    FName : Array[0..MaxLaser] of string ;                       // Laser name
     procedure GetLaserTypes( List : TStrings ) ;
     procedure GetEnabledControlLines( List : TStrings ) ;
     procedure GetIntensityControlLines( List : TStrings ) ;
@@ -192,8 +190,6 @@ begin
   FShutterChangeTime := 0.5 ;
   FNumLasers := 0 ;
   ComFailed := False ;
-  Initialized := True ;
-  InitCounter := 0 ;
   InitState := 0 ;
 
   for i := 0 to MaxLaser do
@@ -296,8 +292,7 @@ begin
         lsOBIS :
           begin
           ComThread := LaserComThread.Create ;
-          Initialized := False ;
-          InitCounter := 0 ;
+          InitState := 0 ;
           FNumLasers := 0 ;
           end ;
         end;
@@ -430,6 +425,12 @@ procedure TLaser.OBISInitialize ;
 const
     GetLaserNames = 0 ;
     GetLaserPowers = 1 ;
+    InitRequestLaserNames = 0 ;
+    InitWaitForLaserNames = 1 ;
+    InitRequestLaserPowers = 2 ;
+    InitWaitForLaserPowers = 3 ;
+    InitComplete = 4 ;
+
 var
     i0,nc,iCode,i : Integer ;
 
@@ -437,116 +438,73 @@ var
 begin
 
 //      if InitCounter >= 11 then Initialized := True ;
-      if Initialized then Exit ;
+      if InitState >= InitComplete then Exit ;
       if ComThread = Nil then Exit ;
 
-      if InitCounter = 0 then
-         begin
-         LaserNum := 1 ;
-         FNumLasers := 0 ;
-         WaitingForReply := False ;
-         Inc(InitCounter);
-         end;
-
       case InitState of
+
           InitRequestLaserNames :
             begin
+            // Request names of available lasers from controller
             for i := 1 to 6 do CommandList.Add( format('*idn%d?',[i]));
             LaserNum := 1 ;
+            InitState := InitWaitForLaserNames ;
             end;
 
           InitWaitForLaserNames :
             begin
+            // Read laser names returned by controller
             if ReplyList.Count > 0 then
                begin
                if ContainsText(ReplyList[0],'OK') or ContainsText(ReplyList[0],'ERR') then
                   begin
                   Inc(LaserNum) ;
-                  if LaserNum > 6 then Initialized := True ;
-                  outputdebugstring(pchar('rx: ' + ReplyList[0]));
+                  if LaserNum > 6 then InitState := InitRequestLaserPowers ;
                   end
                else
                   begin
-                  outputdebugstring(pchar('rx: ' + ReplyList[0]));
+                  Inc(FNumLasers) ;
                   LaserID[FNumLasers] := ReplyList[0] ;
                   i0 := Pos('Inc - ',ReplyList[0]) + 6 ;
                   nc := Pos(' - V',ReplyList[0]) - i0 ;
                   FName[FNumLasers] := MidStr(ReplyList[0],i0,nc);
                   FLaserNum[FNumLasers] := LaserNum ;
-                  ReplyList.Delete(0);
                   end ;
+               outputdebugstring(pchar('rx: ' + ReplyList[0]));
+               ReplyList.Delete(0);
                end ;
             end ;
 
           InitRequestLaserPowers :
             begin
-            for i := 0 to FNumLasers-1 do
-                CommandList.Add( format('syst%d:inf:pow?',[FLaserNum[FNumLasers]]));
-            LaserNum := 0 ;
+            // Request laser max. powers from controller
+            for i := 1 to FNumLasers do
+                CommandList.Add( format('syst%d:inf:pow?',[FLaserNum[i]]));
+            LaserNum := 1 ;
+            InitState := InitWaitForLaserPowers ;
             end ;
 
           InitWaitForLaserPowers :
             if ReplyList.Count > 0 then
                begin
+               // Wait for max powers returned by controller
                if ContainsText(ReplyList[0],'OK') or ContainsText(ReplyList[0],'ERR') then
+                  begin
                   Inc(LaserNum) ;
-                  if LaserNum >= FNumLasers then Initialized := True ;
-                  outputdebugstring(pchar('rx: ' + ReplyList[0]));
+                  if LaserNum > FNumLasers then InitState := InitComplete ;
+
                   end
                else
-                  Val(ReplyList[0],FMaxPower[FNumLasers],iCode);
+                  begin
+                  Val(ReplyList[0],FMaxPower[LaserNum],iCode);
                   end ;
+               outputdebugstring(pchar('rx: ' + ReplyList[0]));
+               ReplyList.Delete(0);
                end ;
             end ;
 
 
       end;
-      if not WaitingForReply then
-         begin
-         // Send command
-
-         WaitingForReply := true ;
-         end
-      else
-         begin
-         // Process reply
-         if ReplyList.Count > 0 then
-            begin
-            if ContainsText(ReplyList[0],'OK') or ContainsText(ReplyList[0],'ERR') then
-               begin
-               WaitingForReply := false ;
-               Inc(LaserNum) ;
-               if LaserNum > 6 then Initialized := True ;
-               outputdebugstring(pchar('rx: ' + ReplyList[0]));
-               end
-            else
-               begin
-               outputdebugstring(pchar('rx: ' + ReplyList[0]));
-
-               if ContainsText( ReplyList[0], 'Coherent') then
-                  begin
-                  // Get laser name
-                  LaserID[FNumLasers] := ReplyList[0] ;
-                  i0 := Pos('Inc - ',ReplyList[0]) + 6 ;
-                  nc := Pos(' - V',ReplyList[0]) - i0 ;
-                  FName[FNumLasers] := MidStr(ReplyList[0],i0,nc);
-                  FLaserNum[FNumLasers] := LaserNum ;
-                  CommandList.Add( format('syst%d:inf:pow?',[LaserNum]));
-                  end
-                else
-                  begin
-                  // Get laser power
-                  Val(s,FMaxPower[FNumLasers],iCode);
-                  Inc(FNumLasers) ;
-                  end;
-
-               end ;
-            ReplyList.Delete(0);
-            end ;
-         end ;
-
-
-       end;
 
 
 function TLaser.GetVMaxIntensity(
@@ -640,7 +598,7 @@ procedure TLaser.SetLaserName(
 // Set laser name
 // --------------
 begin
-     if (i < 0) and (i > MaxLaser) then Exit ;
+     //if (i < 0) and (i > MaxLaser) then Exit ;
      FName[i] := Value ;
      end ;
 
@@ -654,6 +612,7 @@ function TLaser.GetLaserName(
 begin
      if ((i >= 0) and (i <= MaxLaser)) then Result := FName[i]
                                        else Result := 'Error' ;
+Result := FName[i]
 end ;
 
 

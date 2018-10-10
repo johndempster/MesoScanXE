@@ -745,17 +745,17 @@ begin
      // Open PMT and integrator control
      PMT.Open ;
 
-     // PMT controls
-     ReadWritePMTGroup( 0, gpPMT0, 'W' ) ;
-     ReadWritePMTGroup( 1, gpPMT1, 'W' ) ;
-     ReadWritePMTGroup( 2, gpPMT2, 'W' ) ;
-     ReadWritePMTGroup( 3, gpPMT3, 'W' ) ;
-
      RawImagesFileName := SettingsDirectory + 'mesoscan.raw' ;
 
      // Load normal scan
 
      if FullFieldWidthMicrons <= 0.0 then FullFieldWidthMicrons := 1E4 ;
+
+     // PMT controls
+     ReadWritePMTGroup( 0, gpPMT0, 'W' ) ;
+     ReadWritePMTGroup( 1, gpPMT1, 'W' ) ;
+     ReadWritePMTGroup( 2, gpPMT2, 'W' ) ;
+     ReadWritePMTGroup( 3, gpPMT3, 'W' ) ;
 
      // Open laser control
      Laser.Open ;
@@ -3269,6 +3269,7 @@ var
    ch,NodeIndex : Integer ;
    XMLDoc : IXMLDocument ;
   i: Integer;
+  s : string ;
 begin
 
     if not FileExists(FileName) then Exit ;
@@ -3370,7 +3371,9 @@ begin
 //    AddElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
         for i := 1 to MaxLaser do
             begin
-            Laser.LaserName[i] := GetElementText( iNode, format('NAME%d',[i]), Laser.LaserName[i] ) ;
+            s := GetElementText( iNode, format('NAME%d',[i]), Laser.FName[i] ) ;
+            outputdebugstring(pchar(s));
+            Laser.FName[i] := s ;
             Laser.EnabledControlPort[i]:= GetElementInt( iNode, format('ENABLEDCONTROLPORT%d',[i]), Laser.EnabledControlPort[i] ) ;
             Laser.IntensityControlPort[i]:= GetElementInt( iNode, format('INTENSITYCONTROLPORT%d',[i]), Laser.IntensityControlPort[i] ) ;
             Laser.VMaxIntensity[i]:= GetElementDouble( iNode, format('VMAXINTENSITY%d',[i]), Laser.VMaxIntensity[i] ) ;
