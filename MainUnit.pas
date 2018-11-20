@@ -3124,7 +3124,7 @@ var
    iNode,ProtNode : IXMLNode;
    s : TStringList ;
    XMLDoc : IXMLDocument ;
-   i,ch : Integer ;
+   i : Integer ;
 begin
 
     if FileName = '' then Exit ;
@@ -3269,7 +3269,6 @@ var
    ch,NodeIndex : Integer ;
    XMLDoc : IXMLDocument ;
   i: Integer;
-  s : string ;
 begin
 
     if not FileExists(FileName) then Exit ;
@@ -3337,8 +3336,6 @@ begin
 
     // PMT settings
 
-
-
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'PMT',iNode,NodeIndex) do
           begin
@@ -3359,7 +3356,8 @@ begin
           Inc(NodeIndex) ;
           end ;
 
-    // Laser control
+    // Laser control settings
+
     NodeIndex := 0 ;
     While FindXMLNode(ProtNode,'LASER',iNode,NodeIndex) do
         begin
@@ -3371,9 +3369,7 @@ begin
 //    AddElementDouble( iNode, 'SHUTTERCHANGETIME', Laser.ShutterChangeTime ) ;
         for i := 1 to MaxLaser do
             begin
-            s := GetElementText( iNode, format('NAME%d',[i]), Laser.FName[i] ) ;
-            outputdebugstring(pchar(s));
-            Laser.FName[i] := s ;
+            Laser.LaserName[i] := GetElementText( iNode, format('NAME%d',[i]), Laser.LaserName[i] ) ;
             Laser.EnabledControlPort[i]:= GetElementInt( iNode, format('ENABLEDCONTROLPORT%d',[i]), Laser.EnabledControlPort[i] ) ;
             Laser.IntensityControlPort[i]:= GetElementInt( iNode, format('INTENSITYCONTROLPORT%d',[i]), Laser.IntensityControlPort[i] ) ;
             Laser.VMaxIntensity[i]:= GetElementDouble( iNode, format('VMAXINTENSITY%d',[i]), Laser.VMaxIntensity[i] ) ;
@@ -3500,8 +3496,8 @@ begin
       TabImage3.Enabled := False ;
       end;
 
-  ImagePage.ActivePage := TabImage2 ;
-  ImagePage.ActivePage := TabImage0 ;
+  // If page not visible, set to first page
+  if not ImagePage.ActivePage.Visible then ImagePage.ActivePage := TabImage0 ;
 
   end;
 
@@ -3531,12 +3527,11 @@ procedure TMainFrm.ReadWritePMTGroup(
 // Read/write PMT controls
 // -----------------------
 var
-    i,iDev : Integer ;
+    i : Integer ;
     ckEnabled : TCheckBox ;
     cbGain : TComboBox ;
     cbLaser : TComboBox ;
     tbLaserIntensity : TTrackBar ;
-    edGain : TValidatedEdit ;
     edLaserIntensity : TValidatedEdit ;
 begin
 

@@ -41,6 +41,7 @@ type
 
     Status : String ;         // Laser status report
     FControlState : Integer ;  // Laser control state
+    FName : Array[0..MaxLaser] of string ;                       // Laser name
     FIntensityControlPort : Array[0..MaxLaser] of Integer ;      // Laser intensity control port
     FIntensity : Array[0..MaxLaser] of Double ;                  // Laser intensity
     FVMaxIntensity: Array[0..MaxLaser] of Double ;               // Voltage at 100% intensity
@@ -114,7 +115,7 @@ type
     ReplyList : TstringList ;
 //    FComPort : Integer ;              // Com port #
     FControlPort : DWord ;            // Control port number
-    FName : Array[0..MaxLaser] of string ;                       // Laser name
+
     procedure GetLaserTypes( List : TStrings ) ;
     procedure GetEnabledControlLines( List : TStrings ) ;
     procedure GetIntensityControlLines( List : TStrings ) ;
@@ -298,6 +299,7 @@ begin
         end;
     end;
 
+
 procedure TLaser.Close ;
 // ---------------------------
 // Close down laser controller
@@ -313,7 +315,7 @@ procedure TLaser.SetControlPort( Value : DWord ) ;
 //-----------------
 begin
     FControlPort := Max(Value,0) ;
-    ResetCOMPort ;
+//    ResetCOMPort ;
     end;
 
 
@@ -324,7 +326,7 @@ procedure TLaser.SetBaudRate( Value : DWord ) ;
 begin
     if Value <= 0 then Exit ;
     FBaudRate := Value ;
-    ResetCOMPort ;
+//    ResetCOMPort ;
     end;
 
 
@@ -340,6 +342,8 @@ begin
              begin
              FreeAndNil(ComThread);
              ComThread := LaserComThread.Create ;
+             InitState := 0 ;
+             FNumLasers := 0 ;
              end;
           end;
         end;
@@ -612,7 +616,7 @@ function TLaser.GetLaserName(
 begin
      if ((i >= 0) and (i <= MaxLaser)) then Result := FName[i]
                                        else Result := 'Error' ;
-Result := FName[i]
+     Result := FName[i]
 end ;
 
 
