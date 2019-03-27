@@ -3,7 +3,7 @@ object MainFrm: TMainFrm
   Top = 357
   Caption = 'MesoScan V1.5.4 64 bit 02/10/18'
   ClientHeight = 1146
-  ClientWidth = 812
+  ClientWidth = 1014
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -22,8 +22,8 @@ object MainFrm: TMainFrm
   PixelsPerInch = 96
   TextHeight = 13
   object ImageGrp: TGroupBox
-    Left = 287
-    Top = 13
+    Left = 383
+    Top = 8
     Width = 500
     Height = 288
     Font.Charset = ANSI_CHARSET
@@ -144,10 +144,6 @@ object MainFrm: TMainFrm
       TabOrder = 3
       object TabImage0: TTabSheet
         Caption = 'PMT0'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image0: TImage
           Left = 2
           Top = 1
@@ -182,10 +178,6 @@ object MainFrm: TMainFrm
       object TabImage2: TTabSheet
         Caption = 'TabImage2'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image2: TImage
           Left = 0
           Top = 0
@@ -203,10 +195,6 @@ object MainFrm: TMainFrm
       object TabImage3: TTabSheet
         Caption = 'TabImage3'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image3: TImage
           Left = 0
           Top = 0
@@ -224,8 +212,8 @@ object MainFrm: TMainFrm
   object ImageSizeGrp: TGroupBox
     Left = 8
     Top = 167
-    Width = 273
-    Height = 188
+    Width = 369
+    Height = 170
     Caption = ' Image '
     TabOrder = 1
     object Label4: TLabel
@@ -254,7 +242,7 @@ object MainFrm: TMainFrm
       Left = 12
       Top = 42
       Width = 189
-      Height = 139
+      Height = 119
       TabOrder = 1
       object Label5: TLabel
         Left = 56
@@ -353,68 +341,13 @@ object MainFrm: TMainFrm
       end
     end
   end
-  object ZStageGrp: TGroupBox
-    Left = 8
-    Top = 354
-    Width = 273
-    Height = 75
-    Caption = 'Z Position '
-    TabOrder = 2
-    object edZTop: TValidatedEdit
-      Left = 12
-      Top = 17
-      Width = 192
-      Height = 21
-      Hint = 'Stage position on Z axis'
-      ShowHint = True
-      Text = ' 0.00 um'
-      Scale = 1.000000000000000000
-      Units = 'um'
-      NumberFormat = '%.2f'
-      LoLimit = -10.000000000000000000
-      HiLimit = 10.000000000000000000
-    end
-    object edGotoZPosition: TValidatedEdit
-      Left = 103
-      Top = 42
-      Width = 102
-      Height = 21
-      Hint = 'Z axis position to move to'
-      OnKeyPress = edGotoZPositionKeyPress
-      ShowHint = True
-      Text = ' 0.00 um'
-      Scale = 1.000000000000000000
-      Units = 'um'
-      NumberFormat = '%.2f'
-      LoLimit = -1000000.000000000000000000
-      HiLimit = 1000000.000000000000000000
-    end
-    object bGotoZPosition: TButton
-      Left = 16
-      Top = 44
-      Width = 81
-      Height = 17
-      Hint = 'Move stage to specified Z axis position'
-      Caption = 'Go To'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-      OnClick = bGotoZPositionClick
-    end
-  end
   object PMTGrp: TGroupBox
-    Left = 8
-    Top = 435
-    Width = 273
+    Left = 12
+    Top = 469
+    Width = 365
     Height = 393
     Caption = ' PMT Channels  '
-    TabOrder = 3
+    TabOrder = 2
     object gpPMT1: TGroupBox
       Left = 8
       Top = 110
@@ -901,12 +834,12 @@ object MainFrm: TMainFrm
     end
   end
   object DisplayGrp: TGroupBox
-    Left = 1
-    Top = 834
-    Width = 273
+    Left = -2
+    Top = 868
+    Width = 379
     Height = 165
     Caption = ' Display '
-    TabOrder = 4
+    TabOrder = 3
     object Splitter1: TSplitter
       Left = 2
       Top = 15
@@ -1020,10 +953,6 @@ object MainFrm: TMainFrm
       object SlidersTab: TTabSheet
         Caption = 'Sliders'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Label9: TLabel
           Left = 14
           Top = 0
@@ -1134,9 +1063,9 @@ object MainFrm: TMainFrm
   object StatusGrp: TGroupBox
     Left = 1
     Top = 1039
-    Width = 278
+    Width = 376
     Height = 81
-    TabOrder = 5
+    TabOrder = 4
     object meStatus: TMemo
       Left = 8
       Top = 10
@@ -1151,10 +1080,10 @@ object MainFrm: TMainFrm
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
-    Width = 273
+    Width = 369
     Height = 153
     Caption = ' Image Capture  '
-    TabOrder = 6
+    TabOrder = 5
     object bCaptureImage: TButton
       Left = 8
       Top = 56
@@ -1292,6 +1221,147 @@ object MainFrm: TMainFrm
         TabOrder = 2
         OnClick = bScanROIClick
       end
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 8
+    Top = 343
+    Width = 369
+    Height = 120
+    Caption = ' Stage Position '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 6
+    object edGotoXPosition: TValidatedEdit
+      Left = 90
+      Top = 56
+      Width = 90
+      Height = 28
+      Hint = 'Z axis position to move to'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial Narrow'
+      Font.Style = []
+      ShowHint = True
+      Text = ' 10000.00 um'
+      Value = 10000.000000000000000000
+      Scale = 1.000000000000000000
+      Units = 'um'
+      NumberFormat = '%.2f'
+      LoLimit = -1000000.000000000000000000
+      HiLimit = 1000000.000000000000000000
+    end
+    object Button1: TButton
+      Left = 8
+      Top = 86
+      Width = 80
+      Height = 25
+      Hint = 'Move stage to specified Z axis position'
+      Caption = 'Go to Z='
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      OnClick = bGotoZPositionClick
+    end
+    object edGotoYPosition: TValidatedEdit
+      Left = 272
+      Top = 56
+      Width = 90
+      Height = 28
+      Hint = 'Z axis position to move to'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial Narrow'
+      Font.Style = []
+      ShowHint = True
+      Text = ' 10000.00 um'
+      Value = 10000.000000000000000000
+      Scale = 1.000000000000000000
+      Units = 'um'
+      NumberFormat = '%.2f'
+      LoLimit = -1000000.000000000000000000
+      HiLimit = 1000000.000000000000000000
+    end
+    object ValidatedEdit5: TValidatedEdit
+      Left = 90
+      Top = 86
+      Width = 90
+      Height = 28
+      Hint = 'Z axis position to move to'
+      OnKeyPress = edGotoZPositionKeyPress
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial Narrow'
+      Font.Style = []
+      ShowHint = True
+      Text = ' 10000.00 um'
+      Value = 10000.000000000000000000
+      Scale = 1.000000000000000000
+      Units = 'um'
+      NumberFormat = '%.2f'
+      LoLimit = -1000000.000000000000000000
+      HiLimit = 1000000.000000000000000000
+    end
+    object edXYZPosition: TEdit
+      Left = 8
+      Top = 18
+      Width = 353
+      Height = 27
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 4
+    end
+    object bGoToXPosition: TButton
+      Left = 8
+      Top = 56
+      Width = 80
+      Height = 24
+      Hint = 'Move stage to specified X axis position'
+      Caption = 'Go to X='
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 5
+    end
+    object bGoToYPosition: TButton
+      Left = 190
+      Top = 56
+      Width = 80
+      Height = 24
+      Hint = 'Move stage to specified Y axis position'
+      Caption = 'Go to Y='
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 6
     end
   end
   object Timer: TTimer

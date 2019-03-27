@@ -117,10 +117,6 @@ type
     LineScanGrp: TGroupBox;
     Label2: TLabel;
     edLineScanFrameHeight: TValidatedEdit;
-    ZStageGrp: TGroupBox;
-    edZTop: TValidatedEdit;
-    edGotoZPosition: TValidatedEdit;
-    bGotoZPosition: TButton;
     PMTGrp: TGroupBox;
     DisplayGrp: TGroupBox;
     Splitter1: TSplitter;
@@ -204,6 +200,14 @@ type
     bEnterScanArea: TButton;
     bScanFullField: TButton;
     bScanROI: TButton;
+    GroupBox2: TGroupBox;
+    edGotoXPosition: TValidatedEdit;
+    Button1: TButton;
+    edGotoYPosition: TValidatedEdit;
+    ValidatedEdit5: TValidatedEdit;
+    edXYZPosition: TEdit;
+    bGoToXPosition: TButton;
+    bGoToYPosition: TButton;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -745,6 +749,9 @@ begin
      // Open PMT and integrator control
      PMT.Open ;
 
+     // Open stage control
+     ZStage.Open ;
+
      RawImagesFileName := SettingsDirectory + 'mesoscan.raw' ;
 
      // Load normal scan
@@ -1173,6 +1180,9 @@ begin
 
      // Close laser shutter
      Laser.Close ;
+
+     // Close Z stage
+     ZStage.Close ;
 
      LabIO.Close ;
 
@@ -2328,7 +2338,7 @@ begin
 
     GetImageFromPMT ;
 
-    ZStage.UpdateZPosition ;
+    //ZStage.UpdateZPosition ;
     edZTop.Text := format('%.2f um',[ZStage.ZPosition]) ;
 
     end;
@@ -3213,7 +3223,6 @@ begin
     iNode := ProtNode.AddChild( 'ZSTAGE' ) ;
     AddElementInt( iNode, 'STAGETYPE', ZStage.StageType ) ;
     AddElementInt( iNode, 'CONTROLPORT', ZStage.ControlPort ) ;
-    AddElementInt( iNode, 'BAUDRATE', ZStage.BaudRate ) ;
     AddElementDouble( iNode, 'ZSCALEFACTOR', ZStage.ZScaleFactor ) ;
     AddElementDouble( iNode, 'ZSTEPTIME', ZStage.ZStepTime ) ;
     AddElementDouble( iNode, 'ZPOSITIONMAX', ZStage.ZPositionMax ) ;
@@ -3384,7 +3393,6 @@ begin
       begin
       ZStage.StageType := GetElementInt( iNode, 'STAGETYPE', ZStage.StageType ) ;
       ZStage.ControlPort := GetElementInt( iNode, 'CONTROLPORT', ZStage.ControlPort ) ;
-      ZStage.BaudRate := GetElementInt( iNode, 'BAUDRATE', ZStage.BaudRate ) ;
       ZStage.ZScaleFactor := GetElementDouble( iNode, 'ZSCALEFACTOR', ZStage.ZScaleFactor ) ;
       ZStage.ZStepTime := GetElementDouble( iNode, 'ZSTEPTIME', ZStage.ZStepTime ) ;
       ZStage.ZPositionMax := GetElementDouble( iNode, 'ZPOSITIONMAX', ZStage.ZPositionMax ) ;
