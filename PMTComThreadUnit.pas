@@ -1,9 +1,8 @@
-unit ZStageComThreadUnit;
+unit PMTComThreadUnit;
 // ====================================================
-// COM port I/O handler thread for Z stage control unit
+// COM port I/O handler thread for PMT integrator
 // ====================================================
-// 14.11.18
-// 03.06.19 Copied from MesoCam project
+// 03.06.19
 
 interface
 
@@ -11,7 +10,7 @@ uses
   System.Classes, System.SysUtils, Windows, mmsystem, System.StrUtils ;
 
 type
-  TZStageComThread = class(TThread)
+  TPMTComThread = class(TThread)
   private
     { Private declarations }
     FComPort : Integer ;              // Com port #
@@ -32,7 +31,7 @@ type
 
 implementation
 
-uses ZStageUnit ;
+uses PMTUnit ;
 
 const
 
@@ -59,7 +58,8 @@ const
   dcb_AbortOnError = $00004000;
   dcb_Reserveds = $FFFF8000;
 
-procedure TZStageComThread.Execute;
+
+procedure TPMTComThread.Execute;
 // --------------------------------
 // COM Port transmit/receive thread
 // --------------------------------
@@ -80,18 +80,18 @@ begin
          begin
 
          // Send next command in list
-         if (ZStage.CommandList.Count > 0) then
+         if (PMT.CommandList.Count > 0) then
             begin
-            SendCommand(ZStage.CommandList[0]);
+            SendCommand(PMT.CommandList[0]);
     //        outputdebugstring(pchar('tx:'+ZStage.CommandList[0]));
-            ZStage.CommandList.Delete(0) ;
+            PMT.CommandList.Delete(0) ;
             end;
 
          // Wait for command completion reply from remote device
          Reply := Reply + ReceiveBytes(EndOfLine) ;
          if EndOfLine then
            begin
-           ZStage.ReplyList.Add(Reply);
+           PMT.ReplyList.Add(Reply);
 //           outputdebugstring(pchar('rx:'+reply));
            Reply := '' ;
            end ;
@@ -105,7 +105,7 @@ begin
    end;
 
 
-procedure TZStageComThread.OpenCOMPort ;
+procedure TPMTComThread.OpenCOMPort ;
 // ----------------------------------------
 // Establish communications with COM port
 // ----------------------------------------
@@ -116,7 +116,7 @@ begin
 
      if FComPortOpen then Exit ;
 
-     Synchronize( procedure begin FComPort := ZStage.FControlPort end ) ;
+     Synchronize( procedure begin FComPort := PMT.FControlPort end ) ;
 
      if FComPort < 1 then Exit ;
 
@@ -171,7 +171,7 @@ begin
      end ;
 
 
-procedure  TZStageComThread.CloseCOMPort ;
+procedure  TPMTComThread.CloseCOMPort ;
 // ----------------------
 // Close serial COM port
 // ----------------------
@@ -182,7 +182,7 @@ begin
 end ;
 
 
-function TZStageComThread.SendCommand(
+function TPMTComThread.SendCommand(
           const Line : string   { Text to be sent to Com port }
           ) : Boolean ;
 { --------------------------------------
@@ -221,7 +221,7 @@ begin
      end ;
 
 
-function TZStageComThread.ReceiveBytes(
+function TPMTComThread.ReceiveBytes(
           var EndOfLine : Boolean
           ) : string ;          { bytes received }
 { -------------------------------------------------------
@@ -260,6 +260,5 @@ begin
      Result := Line ;
 
      end ;
-
 
 end.

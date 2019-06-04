@@ -53,10 +53,14 @@ object SettingsFrm: TSettingsFrm
     Top = 6
     Width = 761
     Height = 467
-    ActivePage = LasersTab
+    ActivePage = gpIntegrator
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ImageHRGrp: TGroupBox
         Left = 8
         Top = 10
@@ -376,6 +380,10 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 1
       ParentFont = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object gpPMTs: TGroupBox
         Left = 259
         Top = 8
@@ -791,6 +799,10 @@ object SettingsFrm: TSettingsFrm
     object LasersTab: TTabSheet
       Caption = 'Lasers '
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grpLaserExternal: TGroupBox
         Left = 3
         Top = 142
@@ -973,6 +985,7 @@ object SettingsFrm: TSettingsFrm
             Scale = 1000.000000000000000000
             Units = 'mW'
             NumberFormat = '%.4g'
+            LoLimit = -1.000000015047466E30
             HiLimit = 1.000000015047466E30
           end
         end
@@ -1299,6 +1312,10 @@ object SettingsFrm: TSettingsFrm
     object TabSheet1: TTabSheet
       Caption = 'XYZ Stage Control'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 8
         Top = 3
@@ -1420,6 +1437,10 @@ object SettingsFrm: TSettingsFrm
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10

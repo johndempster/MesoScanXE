@@ -228,7 +228,7 @@ begin
 
     // PMTs & Integrator
     PMT.IntegratorType := cbIntegratorType.ItemIndex ;
-    PMT.IntegratorPort := cbIntegratorPort.ItemIndex ;
+    PMT.ControlPort := cbIntegratorPort.ItemIndex ;
     PMT.NumPMTs := spNumPMTs.Value ;
     PMT.GainVMin := edPMTGainVMin.Value ;
     PMT.GainVMax := edPMTGainVMax.Value ;
@@ -289,7 +289,8 @@ procedure TSettingsFrm.cbIntegratorPortChange(Sender: TObject);
 // Integrator port changed
 // -----------------------
 begin
-    PMT.IntegratorPort := cbIntegratorPort.ItemIndex ;
+    PMT.ControlPort := cbIntegratorPort.ItemIndex ;
+
     edIntegratorID.Text := PMT.IntegratorID ;
     end;
 
@@ -366,7 +367,7 @@ begin
     PMT.GetIntegratorTypes( cbIntegratorType.Items ) ;
     cbIntegratorType.ItemIndex := PMT.IntegratorType ;
     PMT.GetIntegratorPorts( cbIntegratorPort.Items ) ;
-    cbIntegratorPort.ItemIndex := PMT.IntegratorPort ;
+    cbIntegratorPort.ItemIndex := PMT.ControlPort ;
     edIntegratorID.Text := PMT.IntegratorID ;
     pnIntegratorControlPort.Visible := PMT.IntegratorPortRequired ;
 

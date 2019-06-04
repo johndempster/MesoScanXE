@@ -5,7 +5,7 @@ unit LaserUnit;
 // ========================================================================
 // 8.07.14
 // 15.02.18
-// 02.10.18 Now used LaserComThead for COM port message handling
+// 02.10.18 Now uses LaserComThead for COM port message handling
 
 interface
 
@@ -153,28 +153,6 @@ uses LabIOUnit, mmsystem, strutils ;
 const
 
     csIdle = 0 ;
-  // Com port control flags
-  dcb_Binary = $00000001;
-  dcb_ParityCheck = $00000002;
-  dcb_OutxCtsFlow = $00000004;
-  dcb_OutxDsrFlow = $00000008;
-  dcb_DtrControlMask = $00000030;
-  dcb_DtrControlDisable = $00000000;
-  dcb_DtrControlEnable = $00000010;
-  dcb_DtrControlHandshake = $00000020;
-  dcb_DsrSensivity = $00000040;
-  dcb_TXContinueOnXoff = $00000080;
-  dcb_OutX = $00000100;
-  dcb_InX = $00000200;
-  dcb_ErrorChar = $00000400;
-  dcb_NullStrip = $00000800;
-  dcb_RtsControlMask = $00003000;
-  dcb_RtsControlDisable = $00000000;
-  dcb_RtsControlEnable = $00001000;
-  dcb_RtsControlHandshake = $00002000;
-  dcb_RtsControlToggle = $00003000;
-  dcb_AbortOnError = $00004000;
-  dcb_Reserveds = $FFFF8000;
 
 
 procedure TLaser.DataModuleCreate(Sender: TObject);

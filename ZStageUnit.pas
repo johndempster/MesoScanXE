@@ -21,6 +21,7 @@ unit ZStageUnit;
 // 03.12.18 Now tested and working with threaded COM I/O
 // 15.01.19 Adding support for Thorlabs TDC001
 // 20.02.19 COM port thread now terminated before freeing.
+// 03.06.19 Copied from MesoCam project
 
 interface
 
@@ -555,6 +556,7 @@ procedure TZStage.SetControlPort( Value : DWord ) ;
 // Set Control Port
 //-----------------
 begin
+
     FControlPort := Max(Value,0) ;
 
     // If stage is open for use, close and re-open

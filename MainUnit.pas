@@ -40,6 +40,7 @@ unit MainUnit;
 // V1.6.8 08.11.17 User interface revised to be more similar to MesoCam
 //        26.03.18 PMT and SRS900 integrator control added
 // V1.6.9 02.10.18 LaserUnit now uses LaserComThead for COM port message handling
+//        03.06.19 PMTUnit and ZStageUnit now use threads for COM port message handling (not tested)
 
 interface
 
@@ -204,7 +205,7 @@ type
     edGotoXPosition: TValidatedEdit;
     Button1: TButton;
     edGotoYPosition: TValidatedEdit;
-    ValidatedEdit5: TValidatedEdit;
+    edGotoZPosition: TValidatedEdit;
     edXYZPosition: TEdit;
     bGoToXPosition: TButton;
     bGoToYPosition: TButton;
@@ -2339,7 +2340,7 @@ begin
     GetImageFromPMT ;
 
     //ZStage.UpdateZPosition ;
-    edZTop.Text := format('%.2f um',[ZStage.ZPosition]) ;
+    //edZTop.Text := format('%.2f um',[ZStage.ZPosition]) ;
 
     end;
 
@@ -3207,7 +3208,7 @@ begin
     AddElementDouble( iNode, 'PMTGAINVMIN', PMT.GainVMin ) ;
     AddElementDouble( iNode, 'PMTGAINVMAX', PMT.GainVMax ) ;
     AddElementInt( iNode, 'INTEGRATORTYPE', PMT.IntegratorType ) ;
-    AddElementInt( iNode, 'INTEGRATORPORT', PMT.IntegratorPort ) ;
+    AddElementInt( iNode, 'CONTROLPORT', PMT.ControlPort ) ;
 
     for i := 0 to MaxPMT do
         begin
@@ -3352,7 +3353,7 @@ begin
           PMT.GainVMin := GetElementDouble( iNode, 'PMTGAINVMIN', PMT.GainVMin ) ;
           PMT.GainVMax := GetElementDouble( iNode, 'PMTGAINVMAX', PMT.GainVMax ) ;
           PMT.IntegratorType := GetElementInt( iNode, 'INTEGRATORTYPE', PMT.IntegratorType ) ;
-          PMT.IntegratorPort := GetElementInt( iNode, 'INTEGRATORPORT', PMT.IntegratorPort ) ;
+          PMT.ControlPort := GetElementInt( iNode, 'CONTROLPORT', PMT.ControlPort ) ;
           for i := 0 to MaxPMT do
               begin
               PMT.PMTEnabled[i] := GetElementBool( iNode, format('ENABLED%d',[i]), PMT.PMTEnabled[i] ) ;

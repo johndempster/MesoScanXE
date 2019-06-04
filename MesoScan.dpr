@@ -11,7 +11,8 @@ uses
   LaserUnit in 'LaserUnit.pas' {Laser: TDataModule},
   PMTUnit in 'PMTUnit.pas' {PMT: TDataModule},
   LaserComThreadUnit in 'LaserComThreadUnit.pas',
-  ZStageComThreadUnit in 'ZStageComThreadUnit.pas';
+  ZStageComThreadUnit in 'ZStageComThreadUnit.pas',
+  PMTComThreadUnit in 'PMTComThreadUnit.pas';
 
 {$R *.res}
 
