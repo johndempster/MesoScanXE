@@ -144,10 +144,6 @@ object MainFrm: TMainFrm
       TabOrder = 3
       object TabImage0: TTabSheet
         Caption = 'PMT0'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image0: TImage
           Left = 2
           Top = 1
@@ -182,10 +178,6 @@ object MainFrm: TMainFrm
       object TabImage2: TTabSheet
         Caption = 'TabImage2'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image2: TImage
           Left = 0
           Top = 0
@@ -203,10 +195,6 @@ object MainFrm: TMainFrm
       object TabImage3: TTabSheet
         Caption = 'TabImage3'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image3: TImage
           Left = 0
           Top = 0
@@ -965,10 +953,6 @@ object MainFrm: TMainFrm
       object SlidersTab: TTabSheet
         Caption = 'Sliders'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Label9: TLabel
           Left = 14
           Top = 0
@@ -1264,8 +1248,7 @@ object MainFrm: TMainFrm
       Font.Name = 'Arial Narrow'
       Font.Style = []
       ShowHint = True
-      Text = ' 10000.00 um'
-      Value = 10000.000000000000000000
+      Text = ' 0.00 um'
       Scale = 1.000000000000000000
       Units = 'um'
       NumberFormat = '%.2f'
@@ -1302,8 +1285,7 @@ object MainFrm: TMainFrm
       Font.Name = 'Arial Narrow'
       Font.Style = []
       ShowHint = True
-      Text = ' 10000.00 um'
-      Value = 10000.000000000000000000
+      Text = ' 0.00 um'
       Scale = 1.000000000000000000
       Units = 'um'
       NumberFormat = '%.2f'
@@ -1323,8 +1305,7 @@ object MainFrm: TMainFrm
       Font.Name = 'Arial Narrow'
       Font.Style = []
       ShowHint = True
-      Text = ' 10000.00 um'
-      Value = 10000.000000000000000000
+      Text = ' 0.00 um'
       Scale = 1.000000000000000000
       Units = 'um'
       NumberFormat = '%.2f'
@@ -1361,6 +1342,7 @@ object MainFrm: TMainFrm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 5
+      OnClick = bGoToXPositionClick
     end
     object bGoToYPosition: TButton
       Left = 190
@@ -1378,6 +1360,7 @@ object MainFrm: TMainFrm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 6
+      OnClick = bGoToYPositionClick
     end
   end
   object Timer: TTimer

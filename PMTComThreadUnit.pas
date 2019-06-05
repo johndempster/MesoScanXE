@@ -2,7 +2,8 @@ unit PMTComThreadUnit;
 // ====================================================
 // COM port I/O handler thread for PMT integrator
 // ====================================================
-// 03.06.19
+// 03.06.19 On
+// 05.06.19 Coms working but not fully tested (on Com1 real COM port)
 
 interface
 
@@ -92,7 +93,8 @@ begin
          if EndOfLine then
            begin
            PMT.ReplyList.Add(Reply);
-//           outputdebugstring(pchar('rx:'+reply));
+           outputdebugstring(pchar('Integrator rx:'+reply));
+           if Reply <> '' then PMT.IntegratorID := Reply ;
            Reply := '' ;
            end ;
          end );
@@ -199,7 +201,7 @@ begin
      Result := False ;
      if not FComPortOpen then Exit ;
 
-//     outputdebugstring(pchar('tx: ' + Line));
+     outputdebugstring(pchar('Integrator tx: ' + Line));
 
      { Copy command line to be sent to xMit buffer and and a CR character }
      nC := Length(Line) ;

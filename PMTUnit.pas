@@ -3,6 +3,7 @@ unit PMTUnit;
 // Photomultiplier tube and integrator control module
 // --------------------------------------------------
 // 19.02.18
+// 05.06.19 Coms work wirh SIM900 (not fully tested)
 
 interface
 
@@ -103,6 +104,7 @@ procedure TPMT.DataModuleCreate(Sender: TObject);
 var
   i: Integer;
 begin
+
     FActive := False ;
     FIntegratorType := itgNone ;
     FPMTIsOpen := False ;
@@ -124,6 +126,11 @@ begin
         ADCGainIndex[i] := 0 ;
         FLaserNum[i] := 0 ;
         end;
+
+    // Create Com thread variables
+    CommandList := TStringList.Create ;
+    ReplyList := TStringList.Create ;
+    ComThread := Nil ;
 
     end;
 
@@ -197,6 +204,9 @@ begin
         itgSIM965 :
           begin
           ComThread := TPMTComThread.Create ;
+          CommandList.Add( '*IDN?' ) ;
+          // Enable Channels 1 - 4 for broadcasts
+          CommandList.Add( format('BRER %d',[2 or 4 or 8 or 16]));
           end;
         end;
 

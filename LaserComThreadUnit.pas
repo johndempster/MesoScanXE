@@ -3,6 +3,7 @@ unit LaserComThreadUnit;
 // COM port I/O handler thread for Laser control unit
 // ==================================================
 // 02.10.18
+// 05.06.19 Coms works but not fully tested (on COM6 in V2 test system)
 
 interface
 
@@ -84,6 +85,7 @@ begin
          if (Laser.CommandList.Count > 0) then
             begin
             SendCommand(Laser.CommandList[0]);
+            outputdebugstring(pchar('Laser tx:'+Laser.CommandList[0]));
             Laser.CommandList.Delete(0) ;
             end;
 
@@ -92,6 +94,7 @@ begin
          if EndOfLine then
            begin
            Laser.ReplyList.Add(Reply);
+           outputdebugstring(pchar('Laser rx:'+reply));
            Reply := '' ;
            end ;
          end );

@@ -22,6 +22,7 @@ unit ZStageUnit;
 // 15.01.19 Adding support for Thorlabs TDC001
 // 20.02.19 COM port thread now terminated before freeing.
 // 03.06.19 Copied from MesoCam project
+// 05.06.19 Coms work but not fully tested (On Com3)
 
 interface
 
@@ -275,9 +276,11 @@ begin
     RequestedYPos := 0.0 ;
     RequestedZPos := 0.0 ;
 
+    // Create Com thread variables
     CommandList := TStringList.Create ;
     ReplyList := TStringList.Create ;
     ComThread := Nil ;
+
     TickCounter := 0 ;
     Initialised := False ;
     WaitingForPositionUpdate := False ;

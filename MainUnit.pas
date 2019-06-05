@@ -257,6 +257,8 @@ type
     procedure cbPMTGain0Change(Sender: TObject);
     procedure bScanFullFieldClick(Sender: TObject);
     procedure bScanROIClick(Sender: TObject);
+    procedure bGoToXPositionClick(Sender: TObject);
+    procedure bGoToYPositionClick(Sender: TObject);
   private
     { Private declarations }
         FormInitialized : Boolean ;
@@ -744,7 +746,7 @@ begin
         end ;
 
      // Load last used settings
-     INIFileName := SettingsDirectory + 'mesoscan settings.xml' ;
+     INIFileName := SettingsDirectory + 'mesoscan settings2.xml' ;
      LoadSettingsFromXMLFile( INIFileName ) ;
 
      // Open PMT and integrator control
@@ -2198,6 +2200,24 @@ begin
 
 
 
+procedure TMainFrm.bGoToXPositionClick(Sender: TObject);
+// -------------------------
+// Go to specified X position
+// --------------------------
+begin
+    ZStage.MoveTo( edGoToXPosition.Value, ZStage.YPosition, ZStage.ZPosition ) ;
+    end;
+
+
+procedure TMainFrm.bGoToYPositionClick(Sender: TObject);
+// -------------------------
+// Go to specified Y position
+// --------------------------
+begin
+    ZStage.MoveTo( ZStage.XPosition, edGoToYPosition.Value,  ZStage.ZPosition ) ;
+    end;
+
+
 procedure TMainFrm.bGotoZPositionClick(Sender: TObject);
 // -------------------------
 // Go to specified Z position
@@ -2339,8 +2359,9 @@ begin
 
     GetImageFromPMT ;
 
-    //ZStage.UpdateZPosition ;
-    //edZTop.Text := format('%.2f um',[ZStage.ZPosition]) ;
+    // Acquire and display current stage position
+    edXYZPosition.Text := format('X=%.2f, Y=%.2f, Z=%.2f um',
+                          [ZStage.XPosition,ZStage.YPosition,ZStage.ZPosition]) ;
 
     end;
 
