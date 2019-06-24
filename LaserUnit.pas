@@ -6,6 +6,8 @@ unit LaserUnit;
 // 8.07.14
 // 15.02.18
 // 02.10.18 Now uses LaserComThead for COM port message handling
+// 24.06.19 OBIS laser control working but not completely tested
+//          .Changed and .Initialised properties added
 
 interface
 
@@ -25,8 +27,9 @@ type
     procedure DataModuleDestroy(Sender: TObject);
   private
     { Private declarations }
-
+    FInitialised : Boolean ;          // TRUR = initialisation complete
     InitState : Integer ;             // Initialisation state counter
+    FChanged : Boolean ;              // Available lasers changed
     FActive : Boolean ;               // Lasers active flag
     FLaserType : Integer ;            // Type of laser unit
     FComHandle : THandle ;            // Com port handle
@@ -109,7 +112,7 @@ type
 
   public
     { Public declarations }
-    ControllerID : String ;                       // Laser controller ID
+    ControllerID : String ;                       // Laser controller ID                                   tive
     LaserID : Array[0..MaxLaser] of String ;      // Laser IDs
     CommandList : TstringList ;
     ReplyList : TstringList ;
@@ -138,6 +141,9 @@ type
     Property LaserName[i : Integer] : String read GetLaserName write SetLaserName ;
     Property MaxPower[i : Integer] : Double read GetMaxPower write SetMaxPower ;
     Property Active : Boolean read FActive write SetActive ;
+    Property Initialised : Boolean read FInitialised ;
+    Property Changed : Boolean read FChanged write FChanged ;
+
   end;
 
 var
@@ -170,6 +176,8 @@ begin
   FNumLasers := 0 ;
   ComFailed := False ;
   InitState := 0 ;
+  FInitialised := False ;
+  FChanged := False ;
 
   for i := 0 to MaxLaser do
       begin
@@ -223,7 +231,6 @@ begin
     end;
 
 
-
 procedure TLaser.GetEnabledControlLines( List : TStrings ) ;
 // -----------------------------------
 // Get list of available control ports
@@ -272,9 +279,13 @@ begin
           begin
           ComThread := LaserComThread.Create ;
           InitState := 0 ;
+          FInitialised := False ;
           FNumLasers := 0 ;
           end ;
+        else FInitialised := True ;
         end;
+
+    FChanged := True ;
     end;
 
 
@@ -420,7 +431,13 @@ var
 begin
 
 //      if InitCounter >= 11 then Initialized := True ;
-      if InitState >= InitComplete then Exit ;
+      if InitState >= InitComplete then
+         begin
+         if not FInitialised then FChanged := True ;
+         FInitialised := True ;
+         Exit ;
+         end;
+
       if ComThread = Nil then Exit ;
 
       case InitState of
@@ -681,20 +698,20 @@ var
     Power,MinPower,MaxPower : single ;
     s : string ;
 begin
-    exit ;
+
     // Set laser power
-    for i := 0 to NumLasers do if FLaserEnabled[i] then
+    for i := 1 to NumLasers do if FLaserEnabled[i] then
         begin
         // Set power
         Power := Min(FIntensity[i],1.0)*FMaxPower[i] ;
-        CommandList.Add( format('SOUR%d:POW:LEV:IMM:AMPL %.2f',[FLaserNum[i],Power])) ;
+        CommandList.Add( format('SOUR%d:POW:LEV:IMM:AMPL %.4f',[FLaserNum[i],Power])) ;
         end;
 
     // Enable lasers
-    for i := 0 to NumLasers do
+    for i := 1 to NumLasers do
         begin
-        if FLaserEnabled[i] and Value then CommandList.Add( format('SOUR%d:STAT ON',[i+1]))
-                                      else CommandList.Add(  format('SOUR%d:STAT OFF',[i+1]));
+        if FLaserEnabled[i] and Value then CommandList.Add( format('SOUR%d:AM:STAT ON',[FLaserNum[i]]))
+                                      else CommandList.Add( format('SOUR%d:AM:STAT OFF',[FLaserNum[i]]));
         end;
 
     end;

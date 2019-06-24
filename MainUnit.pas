@@ -41,6 +41,7 @@ unit MainUnit;
 //        26.03.18 PMT and SRS900 integrator control added
 // V1.6.9 02.10.18 LaserUnit now uses LaserComThead for COM port message handling
 //        03.06.19 PMTUnit and ZStageUnit now use threads for COM port message handling (not tested)
+//        24.06.19 OBIS laser control working but still under test
 
 interface
 
@@ -2349,6 +2350,7 @@ begin
   //        Laser.Intensity := edLaserIntensity.Value ;
  //         ScanRequested := Round(Laser.ShutterChangeTime/(Timer.Interval*0.001)) ;
  //         end ;
+       Laser.Active := True ;
        ScanRequested := Max(ScanRequested - 1,0) ;
        if ScanRequested <= 0 then
           begin
@@ -2362,6 +2364,16 @@ begin
     // Acquire and display current stage position
     edXYZPosition.Text := format('X=%.2f, Y=%.2f, Z=%.2f um',
                           [ZStage.XPosition,ZStage.YPosition,ZStage.ZPosition]) ;
+
+    if Laser.Changed then
+       begin
+       // PMT controls
+       ReadWritePMTGroup( 0, gpPMT0, 'W' ) ;
+       ReadWritePMTGroup( 1, gpPMT1, 'W' ) ;
+       ReadWritePMTGroup( 2, gpPMT2, 'W' ) ;
+       ReadWritePMTGroup( 3, gpPMT3, 'W' ) ;
+       Laser.Changed := False ;
+       end;
 
     end;
 
@@ -2595,8 +2607,8 @@ begin
     ScanningInProgress := False ;
     LinesAvailableForDisplay := 0 ;
 
-    // Close laser shutter
- //   Laser.ShutterOpen := False ;
+    // Turn lasers off
+    Laser.Active := False ;
 
     // Move Z stage back to starting position
 
@@ -3597,6 +3609,7 @@ begin
          PMT.PMTEnabled[Num] := ckEnabled.Checked ;
          PMT.ADCGainIndex[Num] := cbGain.ItemIndex ;
          PMT.LaserNum[Num] := cbLaser.ItemIndex ;
+         Laser.LaserEnabled[PMT.LaserNum[Num]] := PMT.PMTEnabled[Num] ;
          if ANSIContainsText( RW, 'RT') then
             begin
             // Read intensity track bar

@@ -1,7 +1,7 @@
 object MainFrm: TMainFrm
   Left = 794
   Top = 357
-  Caption = 'MesoScan V1.5.4 64 bit 02/10/18'
+  Caption = 'MesoScan V1.5.4 64 bit 24/06/19'
   ClientHeight = 1146
   ClientWidth = 1014
   Color = clBtnFace
