@@ -3,8 +3,8 @@ object SettingsFrm: TSettingsFrm
   Top = 0
   BorderStyle = bsDialog
   Caption = ' Scan Settings '
-  ClientHeight = 643
-  ClientWidth = 773
+  ClientHeight = 512
+  ClientWidth = 571
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -51,72 +51,55 @@ object SettingsFrm: TSettingsFrm
   object StageTab: TPageControl
     Left = 8
     Top = 6
-    Width = 761
+    Width = 553
     Height = 467
-    ActivePage = gpIntegrator
+    ActivePage = ScanTab
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      ExplicitLeft = 8
       object ImageHRGrp: TGroupBox
         Left = 8
         Top = 10
-        Width = 240
+        Width = 253
         Height = 131
         Caption = ' Image (hi. res. scan)'
         TabOrder = 0
-        object Label1: TLabel
-          Left = 40
-          Top = 42
-          Width = 88
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'Hi. Res. Pixels/line'
-        end
         object Label4: TLabel
-          Left = 31
-          Top = 66
-          Width = 97
-          Height = 13
+          Left = 8
+          Top = 46
+          Width = 142
+          Height = 15
           Alignment = taRightJustify
-          Caption = 'Fast Scan Pixels/line'
+          Caption = 'Live Image Pixels/line'
         end
         object Label12: TLabel
-          Left = 22
-          Top = 96
-          Width = 106
-          Height = 13
+          Left = 8
+          Top = 74
+          Width = 142
+          Height = 15
           Alignment = taRightJustify
-          Caption = 'Fast Scan Lines/image'
+          Caption = 'Live Image Lines/image'
         end
         object Label37: TLabel
-          Left = 85
+          Left = 8
           Top = 18
-          Width = 43
-          Height = 13
+          Width = 142
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Pixel size'
         end
-        object edHRFrameWidth: TValidatedEdit
-          Left = 132
-          Top = 42
-          Width = 90
-          Height = 21
-          Text = ' 1000 '
-          Value = 1000.000000000000000000
-          Scale = 1.000000000000000000
-          NumberFormat = '%.0f'
-          LoLimit = 10.000000000000000000
-          HiLimit = 30000.000000000000000000
-        end
         object edFastFrameWidth: TValidatedEdit
-          Left = 132
-          Top = 69
+          Left = 156
+          Top = 46
           Width = 90
-          Height = 21
+          Height = 23
           Text = ' 500 '
           Value = 500.000000000000000000
           Scale = 1.000000000000000000
@@ -125,10 +108,10 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 30000.000000000000000000
         end
         object edFastFrameHeight: TValidatedEdit
-          Left = 132
-          Top = 96
+          Left = 156
+          Top = 74
           Width = 90
-          Height = 21
+          Height = 23
           Text = ' 50 '
           Value = 50.000000000000000000
           Scale = 1.000000000000000000
@@ -137,10 +120,10 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 30000.000000000000000000
         end
         object edHRPixelSize: TValidatedEdit
-          Left = 132
+          Left = 156
           Top = 18
           Width = 90
-          Height = 21
+          Height = 23
           Text = ' 0.25 um'
           Value = 0.250000000000000000
           Scale = 1.000000000000000000
@@ -151,49 +134,49 @@ object SettingsFrm: TSettingsFrm
         end
       end
       object ScanGrp: TGroupBox
-        Left = 256
-        Top = 10
+        Left = 268
+        Top = 3
         Width = 235
-        Height = 295
+        Height = 294
         Caption = ' Scan Settings'
         TabOrder = 1
         object Label3: TLabel
-          Left = 73
+          Left = 63
           Top = 110
-          Width = 58
-          Height = 13
+          Width = 68
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Phase delay'
         end
         object Label6: TLabel
-          Left = 59
+          Left = 53
           Top = 184
-          Width = 72
-          Height = 13
+          Width = 78
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Max. scan rate'
         end
         object Label9: TLabel
-          Left = 36
+          Left = 22
           Top = 209
-          Width = 95
-          Height = 13
+          Width = 109
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Min. pixel dwell time'
         end
         object Label11: TLabel
-          Left = 78
+          Left = 70
           Top = 18
-          Width = 53
-          Height = 13
+          Width = 61
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Field Width'
         end
         object Label24: TLabel
-          Left = 82
+          Left = 72
           Top = 44
-          Width = 49
-          Height = 13
+          Width = 59
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Field Edge'
         end
@@ -212,7 +195,7 @@ object SettingsFrm: TSettingsFrm
           Left = 137
           Top = 110
           Width = 90
-          Height = 21
+          Height = 23
           Text = ' 0 ms'
           Scale = 1000.000000000000000000
           Units = 'ms'
@@ -224,7 +207,7 @@ object SettingsFrm: TSettingsFrm
           Left = 137
           Top = 184
           Width = 90
-          Height = 21
+          Height = 23
           Text = ' 100.0 Hz'
           Value = 100.000000000000000000
           Scale = 1.000000000000000000
@@ -246,7 +229,7 @@ object SettingsFrm: TSettingsFrm
           Left = 137
           Top = 209
           Width = 90
-          Height = 21
+          Height = 23
           Text = ' 0.5 us'
           Value = 0.000000499999998738
           Scale = 1000000.000000000000000000
@@ -259,7 +242,7 @@ object SettingsFrm: TSettingsFrm
           Left = 137
           Top = 18
           Width = 90
-          Height = 21
+          Height = 23
           Hint = 'Maximum width of scanning field (um)'
           ShowHint = True
           Text = ' 5000 um'
@@ -274,7 +257,7 @@ object SettingsFrm: TSettingsFrm
           Left = 137
           Top = 43
           Width = 90
-          Height = 21
+          Height = 23
           Hint = 
             'Additional non-imaging region at edge of field (% of field width' +
             ')'
@@ -289,65 +272,65 @@ object SettingsFrm: TSettingsFrm
         end
       end
       object GroupBox1: TGroupBox
-        Left = 8
+        Left = 3
         Top = 147
-        Width = 240
+        Width = 258
         Height = 150
         Caption = ' Scanning Galvanometer Control '
         TabOrder = 2
         object Label40: TLabel
-          Left = 48
+          Left = 8
           Top = 20
-          Width = 75
-          Height = 13
+          Width = 148
+          Height = 15
           Alignment = taRightJustify
           Caption = 'X Mirror Control'
         end
         object Label41: TLabel
-          Left = 48
+          Left = 8
           Top = 79
-          Width = 75
-          Height = 13
+          Width = 148
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Y Mirror Control'
         end
         object xscalelab: TLabel
-          Left = 59
-          Top = 46
-          Width = 65
-          Height = 13
+          Left = 78
+          Top = 49
+          Width = 78
+          Height = 15
           Alignment = taRightJustify
-          Caption = 'X scale factor'
+          Caption = 'X Scale Factor'
         end
         object Label5: TLabel
-          Left = 59
-          Top = 106
-          Width = 65
-          Height = 13
+          Left = 78
+          Top = 108
+          Width = 78
+          Height = 15
           Alignment = taRightJustify
-          Caption = 'Y scale factor'
+          Caption = 'Y Scale Factor'
         end
         object cbXGalvo: TComboBox
-          Left = 130
+          Left = 162
           Top = 20
           Width = 90
-          Height = 21
+          Height = 23
           Style = csDropDownList
           TabOrder = 0
         end
         object cbYGalvo: TComboBox
-          Left = 130
+          Left = 162
           Top = 79
           Width = 90
-          Height = 21
+          Height = 23
           Style = csDropDownList
           TabOrder = 1
         end
         object edXVoltsPerMicron: TValidatedEdit
-          Left = 130
+          Left = 162
           Top = 46
           Width = 90
-          Height = 21
+          Height = 23
           Text = ' 1 V/um'
           Value = 1.000000000000000000
           Scale = 1.000000000000000000
@@ -357,10 +340,10 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 1.000000000000000000
         end
         object edYVoltsPerMicron: TValidatedEdit
-          Left = 130
+          Left = 162
           Top = 106
           Width = 90
-          Height = 21
+          Height = 23
           Text = ' 1 V/um'
           Value = 1.000000000000000000
           Scale = 1.000000000000000000
@@ -380,10 +363,7 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 1
       ParentFont = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitWidth = 753
       object gpPMTs: TGroupBox
         Left = 259
         Top = 8
@@ -799,13 +779,10 @@ object SettingsFrm: TSettingsFrm
     object LasersTab: TTabSheet
       Caption = 'Lasers '
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitWidth = 513
       object grpLaserExternal: TGroupBox
         Left = 3
-        Top = 142
+        Top = 134
         Width = 534
         Height = 294
         Caption = ' Lasers '
@@ -1261,21 +1238,21 @@ object SettingsFrm: TSettingsFrm
       object GroupBox4: TGroupBox
         Left = 3
         Top = 8
-        Width = 370
+        Width = 534
         Height = 120
         Caption = ' Laser Control Unit '
         TabOrder = 1
         object cbLaserType: TComboBox
-          Left = 8
+          Left = 3
           Top = 21
-          Width = 350
+          Width = 518
           Height = 21
           Style = csDropDownList
           TabOrder = 0
           OnChange = cbLaserTypeChange
         end
         object pnLaserControlPort: TPanel
-          Left = 138
+          Left = 304
           Top = 48
           Width = 217
           Height = 30
@@ -1301,8 +1278,8 @@ object SettingsFrm: TSettingsFrm
         end
         object edLaserControllerID: TEdit
           Left = 8
-          Top = 80
-          Width = 350
+          Top = 84
+          Width = 513
           Height = 21
           ReadOnly = True
           TabOrder = 2
@@ -1311,71 +1288,75 @@ object SettingsFrm: TSettingsFrm
     end
     object TabSheet1: TTabSheet
       Caption = 'XYZ Stage Control'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Style = []
       ImageIndex = 3
+      ParentFont = False
       ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitTop = 28
       object GroupBox2: TGroupBox
         Left = 8
         Top = 3
-        Width = 230
+        Width = 281
         Height = 191
         Caption = ' Z position Control'
         TabOrder = 0
         object Label8: TLabel
-          Left = 56
+          Left = 8
           Top = 43
-          Width = 58
-          Height = 13
+          Width = 160
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Control Port'
         end
         object Label10: TLabel
-          Left = 49
+          Left = 8
           Top = 68
-          Width = 65
-          Height = 13
+          Width = 160
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Z scale factor'
         end
         object Label13: TLabel
-          Left = 61
+          Left = 8
           Top = 95
-          Width = 53
-          Height = 13
+          Width = 160
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Z step time'
         end
         object Label14: TLabel
-          Left = 12
+          Left = 8
           Top = 122
-          Width = 102
-          Height = 13
+          Width = 160
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Z Position Lower Limit'
         end
         object Label16: TLabel
-          Left = 12
+          Left = 8
           Top = 149
-          Width = 102
-          Height = 13
+          Width = 160
+          Height = 15
           Alignment = taRightJustify
           Caption = 'Z Position Upper Limit'
         end
         object cbZStagePort: TComboBox
-          Left = 120
+          Left = 176
           Top = 43
           Width = 97
-          Height = 21
+          Height = 23
           Style = csDropDownList
           TabOrder = 0
         end
         object edZScaleFactor: TValidatedEdit
-          Left = 120
+          Left = 176
           Top = 68
           Width = 97
-          Height = 21
+          Height = 23
           Text = ' 1 steps/um'
           Value = 1.000000000000000000
           Scale = 1.000000000000000000
@@ -1387,17 +1368,17 @@ object SettingsFrm: TSettingsFrm
         object cbZStageType: TComboBox
           Left = 8
           Top = 16
-          Width = 209
-          Height = 21
+          Width = 265
+          Height = 23
           TabOrder = 2
           Text = 'cbZStageType'
           OnChange = cbZStageTypeChange
         end
         object edZStepTime: TValidatedEdit
-          Left = 120
+          Left = 176
           Top = 95
           Width = 97
-          Height = 21
+          Height = 23
           Text = ' 100 ms'
           Value = 0.100000001490116100
           Scale = 1000.000000000000000000
@@ -1407,10 +1388,10 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 1000000.000000000000000000
         end
         object edZpositionMin: TValidatedEdit
-          Left = 120
+          Left = 176
           Top = 122
           Width = 97
-          Height = 21
+          Height = 23
           Text = ' -10000 um'
           Value = -10000.000000000000000000
           Scale = 1.000000000000000000
@@ -1420,10 +1401,10 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 1000000.000000000000000000
         end
         object edZPositionMax: TValidatedEdit
-          Left = 120
+          Left = 176
           Top = 149
           Width = 97
-          Height = 21
+          Height = 23
           Text = ' 10000 um'
           Value = 10000.000000000000000000
           Scale = 1.000000000000000000
@@ -1437,14 +1418,11 @@ object SettingsFrm: TSettingsFrm
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitWidth = 483
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10
-        Width = 329
+        Width = 532
         Height = 199
         TabOrder = 0
         object Label25: TLabel
@@ -1462,7 +1440,7 @@ object SettingsFrm: TSettingsFrm
         end
         object Label17: TLabel
           Left = 8
-          Top = 73
+          Top = 57
           Width = 99
           Height = 13
           Caption = 'Raw Data File Folder'
@@ -1476,24 +1454,23 @@ object SettingsFrm: TSettingsFrm
         object edImageJPath: TEdit
           Left = 8
           Top = 26
-          Width = 315
+          Width = 518
           Height = 21
           TabOrder = 0
           Text = 'edImageJPath'
         end
         object ckSaveAsMultipageTIFF: TCheckBox
-          Left = 160
-          Top = 53
-          Width = 161
+          Left = 8
+          Top = 105
+          Width = 170
           Height = 17
-          Alignment = taLeftJustify
           Caption = 'Save stacks as multipage TIFF'
           TabOrder = 1
         end
         object edRawFileFolder: TEdit
           Left = 8
-          Top = 92
-          Width = 315
+          Top = 76
+          Width = 518
           Height = 21
           TabOrder = 2
           Text = 'edImageJPath'

@@ -28,8 +28,6 @@ type
     TabSheet1: TTabSheet;
     MiscTab: TTabSheet;
     ImageHRGrp: TGroupBox;
-    Label1: TLabel;
-    edHRFrameWidth: TValidatedEdit;
     ScanGrp: TGroupBox;
     Label3: TLabel;
     Label6: TLabel;
@@ -213,7 +211,6 @@ procedure TSettingsFrm.bOKClick(Sender: TObject);
 var
     i : Integer ;
 begin
-    MainFrm.HRFRameWidth := Round(edHRFRameWidth.Value) ;
     MainFrm.HRPixelSize := edHRPixelSize.Value ;
     MainFrm.FastFRameWidth := Round(edFastFRameWidth.Value) ;
     MainFrm.FastFRameHeight := Round(edFastFRameHeight.Value) ;
@@ -346,7 +343,6 @@ var
     i,iDev : Integer ;
 begin
 
-    edHRFrameWidth.Value := MainFrm.HRFrameWidth ;
     edFastFrameWidth.Value := MainFrm.FastFrameWidth ;
     edFastFrameHeight.Value := MainFrm.FastFrameHeight ;
 

@@ -425,9 +425,7 @@ const
     InitComplete = 4 ;
 
 var
-    i0,nc,iCode,i : Integer ;
-
-    s : string ;
+    i0,nc,i,iCode : Integer ;
 begin
 
 //      if InitCounter >= 11 then Initialized := True ;
@@ -694,9 +692,8 @@ procedure TLaser.OBISSetActive( Value : Boolean ) ;
 // Activate/inactivate enabled OBIS lasers and set intensity
 // -----------------------------------------------------
 var
-    i,iCode : Integer ;
-    Power,MinPower,MaxPower : single ;
-    s : string ;
+    i : Integer ;
+    Power : single ;
 begin
 
     // Set laser power

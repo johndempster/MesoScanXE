@@ -107,8 +107,6 @@ type
     lbZSection: TLabel;
     lbReadout: TLabel;
     ImageSizeGrp: TGroupBox;
-    Label4: TLabel;
-    edNumAverages: TValidatedEdit;
     ZStackGrp: TGroupBox;
     Label5: TLabel;
     Label6: TLabel;
@@ -210,6 +208,8 @@ type
     edXYZPosition: TEdit;
     bGoToXPosition: TButton;
     bGoToYPosition: TButton;
+    edNumAverages: TValidatedEdit;
+    Label4: TLabel;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -830,10 +830,10 @@ begin
      ScanArea.Width := FullFieldWidthMicrons ;
      ScanArea.Height := FullFieldWidthMicrons ;
 
-     HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
+{     HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
      FrameWidth := HRFrameWidth ;
      FrameHeight := 2*(Round( ScanArea.Height/HRPixelSize ) div 2);
-     FrameHeightScale := 1.0 ;
+     FrameHeightScale := 1.0 ;}
 
      SelectedRect.Left := 0 ;
      SelectedRect.Top := 0 ;
@@ -2033,8 +2033,6 @@ procedure TMainFrm.StartScan ;
 // ---------------
 var
     i,nSamples : Integer ;
-    PMTInUse : Array[0..MaxPMT] of Boolean ;
-    PMTGain : Array[0..MaxPMT] of Integer ;
     AOList : Array[0..1] of Integer ;
 begin
 

@@ -2,7 +2,7 @@ object MainFrm: TMainFrm
   Left = 794
   Top = 357
   Caption = 'MesoScan V1.5.4 64 bit 24/06/19'
-  ClientHeight = 1146
+  ClientHeight = 1053
   ClientWidth = 1014
   Color = clBtnFace
   DoubleBuffered = True
@@ -213,37 +213,15 @@ object MainFrm: TMainFrm
     Left = 8
     Top = 167
     Width = 369
-    Height = 170
+    Height = 146
     Caption = ' Image '
     TabOrder = 1
-    object Label4: TLabel
-      Left = 60
-      Top = 14
-      Width = 103
-      Height = 13
-      Alignment = taRightJustify
-      Caption = 'No. averages / image'
-    end
-    object edNumAverages: TValidatedEdit
-      Left = 169
-      Top = 15
-      Width = 33
-      Height = 21
-      Hint = 'No. of images to be averaged'
-      ShowHint = True
-      Text = ' 1 '
-      Value = 1.000000000000000000
-      Scale = 1.000000000000000000
-      NumberFormat = '%.0f'
-      LoLimit = 1.000000000000000000
-      HiLimit = 20000.000000000000000000
-    end
     object ZStackGrp: TGroupBox
       Left = 12
-      Top = 42
-      Width = 189
+      Top = 18
+      Width = 345
       Height = 119
-      TabOrder = 1
+      TabOrder = 0
       object Label5: TLabel
         Left = 56
         Top = 16
@@ -312,11 +290,11 @@ object MainFrm: TMainFrm
       end
     end
     object LineScanGrp: TGroupBox
-      Left = 12
-      Top = 42
-      Width = 190
+      Left = 14
+      Top = 18
+      Width = 343
       Height = 104
-      TabOrder = 2
+      TabOrder = 1
       object Label2: TLabel
         Left = 74
         Top = 16
@@ -342,17 +320,17 @@ object MainFrm: TMainFrm
     end
   end
   object PMTGrp: TGroupBox
-    Left = 12
-    Top = 469
+    Left = 8
+    Top = 445
     Width = 365
-    Height = 393
+    Height = 356
     Caption = ' PMT Channels  '
     TabOrder = 2
     object gpPMT1: TGroupBox
       Left = 8
-      Top = 110
-      Width = 251
-      Height = 86
+      Top = 104
+      Width = 350
+      Height = 76
       TabOrder = 0
       object Label8: TLabel
         Left = 70
@@ -369,8 +347,8 @@ object MainFrm: TMainFrm
         Caption = 'Laser'
       end
       object Label17: TLabel
-        Left = 24
-        Top = 50
+        Left = 252
+        Top = 6
         Width = 39
         Height = 13
         Caption = 'Intensity'
@@ -442,9 +420,9 @@ object MainFrm: TMainFrm
       end
       object TrackBar3: TTrackBar
         Tag = 3
-        Left = 70
-        Top = 50
-        Width = 124
+        Left = 247
+        Top = 20
+        Width = 96
         Height = 25
         Max = 1000
         Position = 100
@@ -455,9 +433,9 @@ object MainFrm: TMainFrm
       end
       object ValidatedEdit2: TValidatedEdit
         Tag = 4
-        Left = 190
-        Top = 50
-        Width = 50
+        Left = 251
+        Top = 46
+        Width = 86
         Height = 21
         OnKeyPress = ValidatedEdit1KeyPress
         Text = ' 100 %'
@@ -471,9 +449,9 @@ object MainFrm: TMainFrm
     end
     object gpPMT2: TGroupBox
       Left = 8
-      Top = 200
-      Width = 251
-      Height = 86
+      Top = 188
+      Width = 350
+      Height = 76
       TabOrder = 1
       object Label18: TLabel
         Left = 70
@@ -490,8 +468,8 @@ object MainFrm: TMainFrm
         Caption = 'Laser'
       end
       object Label20: TLabel
-        Left = 24
-        Top = 50
+        Left = 252
+        Top = 6
         Width = 39
         Height = 13
         Caption = 'Intensity'
@@ -563,9 +541,9 @@ object MainFrm: TMainFrm
       end
       object TrackBar4: TTrackBar
         Tag = 3
-        Left = 70
-        Top = 50
-        Width = 124
+        Left = 247
+        Top = 20
+        Width = 96
         Height = 25
         Max = 1000
         Position = 100
@@ -576,9 +554,9 @@ object MainFrm: TMainFrm
       end
       object ValidatedEdit3: TValidatedEdit
         Tag = 4
-        Left = 190
-        Top = 50
-        Width = 50
+        Left = 251
+        Top = 46
+        Width = 86
         Height = 21
         OnKeyPress = ValidatedEdit1KeyPress
         Text = ' 100 %'
@@ -593,8 +571,8 @@ object MainFrm: TMainFrm
     object gpPMT0: TGroupBox
       Left = 8
       Top = 20
-      Width = 251
-      Height = 86
+      Width = 350
+      Height = 76
       TabOrder = 2
       object Label15: TLabel
         Left = 70
@@ -611,8 +589,8 @@ object MainFrm: TMainFrm
         Caption = 'Laser'
       end
       object Label7: TLabel
-        Left = 24
-        Top = 50
+        Left = 252
+        Top = 6
         Width = 39
         Height = 13
         Caption = 'Intensity'
@@ -684,9 +662,9 @@ object MainFrm: TMainFrm
       end
       object TrackBar2: TTrackBar
         Tag = 3
-        Left = 69
-        Top = 50
-        Width = 124
+        Left = 247
+        Top = 20
+        Width = 96
         Height = 25
         Max = 1000
         Position = 100
@@ -697,9 +675,9 @@ object MainFrm: TMainFrm
       end
       object ValidatedEdit1: TValidatedEdit
         Tag = 4
-        Left = 190
-        Top = 50
-        Width = 50
+        Left = 251
+        Top = 46
+        Width = 86
         Height = 21
         OnKeyPress = ValidatedEdit1KeyPress
         Text = ' 100 %'
@@ -713,9 +691,9 @@ object MainFrm: TMainFrm
     end
     object gpPMT3: TGroupBox
       Left = 8
-      Top = 290
-      Width = 251
-      Height = 86
+      Top = 272
+      Width = 350
+      Height = 76
       TabOrder = 3
       object Label21: TLabel
         Left = 70
@@ -732,8 +710,8 @@ object MainFrm: TMainFrm
         Caption = 'Laser'
       end
       object Label23: TLabel
-        Left = 24
-        Top = 50
+        Left = 252
+        Top = 6
         Width = 39
         Height = 13
         Caption = 'Intensity'
@@ -805,9 +783,9 @@ object MainFrm: TMainFrm
       end
       object TrackBar5: TTrackBar
         Tag = 3
-        Left = 70
-        Top = 50
-        Width = 124
+        Left = 247
+        Top = 20
+        Width = 96
         Height = 25
         Max = 1000
         Position = 100
@@ -818,9 +796,9 @@ object MainFrm: TMainFrm
       end
       object ValidatedEdit4: TValidatedEdit
         Tag = 4
-        Left = 190
-        Top = 50
-        Width = 50
+        Left = 251
+        Top = 46
+        Width = 86
         Height = 21
         OnKeyPress = ValidatedEdit1KeyPress
         Text = ' 100 %'
@@ -834,22 +812,22 @@ object MainFrm: TMainFrm
     end
   end
   object DisplayGrp: TGroupBox
-    Left = -2
-    Top = 868
-    Width = 379
-    Height = 165
+    Left = 8
+    Top = 807
+    Width = 369
+    Height = 138
     Caption = ' Display '
     TabOrder = 3
     object Splitter1: TSplitter
       Left = 2
       Top = 15
-      Height = 148
+      Height = 121
       ExplicitHeight = 176
     end
     object cbPalette: TComboBox
       Left = 11
       Top = 15
-      Width = 193
+      Width = 346
       Height = 21
       Hint = 'Display colour palette'
       Style = csDropDownList
@@ -861,23 +839,24 @@ object MainFrm: TMainFrm
     object ContrastPage: TPageControl
       Left = 10
       Top = 42
-      Width = 196
-      Height = 117
+      Width = 347
+      Height = 87
       ActivePage = RangeTab
       MultiLine = True
       TabOrder = 1
       object RangeTab: TTabSheet
         Caption = 'Display Contrast'
+        ExplicitHeight = 65
         object bFullScale: TButton
-          Left = 2
-          Top = 4
-          Width = 70
-          Height = 17
+          Left = 10
+          Top = 3
+          Width = 90
+          Height = 25
           Hint = 'Set display intensity range to cover full camera range'
           Caption = 'Full Range'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
-          Font.Height = -12
+          Font.Height = -15
           Font.Name = 'Arial'
           Font.Style = [fsBold]
           ParentFont = False
@@ -885,15 +864,15 @@ object MainFrm: TMainFrm
           OnClick = bFullScaleClick
         end
         object bMaxContrast: TButton
-          Left = 3
-          Top = 23
-          Width = 70
-          Height = 17
+          Left = 106
+          Top = 3
+          Width = 90
+          Height = 25
           Hint = 'Set display range to min. - max.  intensities within image'
           Caption = 'Best'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
-          Font.Height = -12
+          Font.Height = -15
           Font.Name = 'Arial'
           Font.Style = [fsBold]
           ParentFont = False
@@ -901,13 +880,18 @@ object MainFrm: TMainFrm
           OnClick = bMaxContrastClick
         end
         object edDisplayIntensityRange: TRangeEdit
-          Left = 78
-          Top = 4
-          Width = 104
-          Height = 20
+          Left = 202
+          Top = 3
+          Width = 127
+          Height = 24
           Hint = 'Range of intensities displayed within image'
           OnKeyPress = edDisplayIntensityRangeKeyPress
           AutoSize = False
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial Narrow'
+          Font.Style = []
           ShowHint = True
           Text = ' 4096 - 4096 '
           LoValue = 4096.000000000000000000
@@ -917,8 +901,8 @@ object MainFrm: TMainFrm
           NumberFormat = '%.0f - %.0f'
         end
         object ckContrast6SDOnly: TCheckBox
-          Left = 2
-          Top = 63
+          Left = 202
+          Top = 33
           Width = 105
           Height = 17
           Hint = 
@@ -936,8 +920,8 @@ object MainFrm: TMainFrm
           TabOrder = 3
         end
         object ckAutoOptimise: TCheckBox
-          Left = 2
-          Top = 46
+          Left = 106
+          Top = 34
           Width = 119
           Height = 17
           Caption = 'Auto adjust'
@@ -953,6 +937,8 @@ object MainFrm: TMainFrm
       object SlidersTab: TTabSheet
         Caption = 'Sliders'
         ImageIndex = 1
+        ExplicitTop = 20
+        ExplicitHeight = 89
         object Label9: TLabel
           Left = 14
           Top = 0
@@ -967,8 +953,8 @@ object MainFrm: TMainFrm
           ParentFont = False
         end
         object Label10: TLabel
-          Left = 14
-          Top = 40
+          Left = 186
+          Top = -1
           Width = 62
           Height = 15
           Caption = 'Brightness'
@@ -981,7 +967,7 @@ object MainFrm: TMainFrm
         end
         object Label11: TLabel
           Left = 2
-          Top = 18
+          Top = 20
           Width = 9
           Height = 19
           Caption = '+'
@@ -993,8 +979,8 @@ object MainFrm: TMainFrm
           ParentFont = False
         end
         object Label13: TLabel
-          Left = 2
-          Top = 58
+          Left = 328
+          Top = 20
           Width = 9
           Height = 19
           Caption = '+'
@@ -1006,7 +992,7 @@ object MainFrm: TMainFrm
           ParentFont = False
         end
         object Label12: TLabel
-          Left = 175
+          Left = 160
           Top = 16
           Width = 6
           Height = 19
@@ -1019,8 +1005,8 @@ object MainFrm: TMainFrm
           ParentFont = False
         end
         object Label14: TLabel
-          Left = 175
-          Top = 56
+          Left = 174
+          Top = 16
           Width = 6
           Height = 19
           Caption = '-'
@@ -1032,9 +1018,9 @@ object MainFrm: TMainFrm
           ParentFont = False
         end
         object sbContrast: TScrollBar
-          Left = 17
-          Top = 17
-          Width = 155
+          Left = 14
+          Top = 20
+          Width = 140
           Height = 17
           Hint = 'Display contrast control slider'
           LargeChange = 10
@@ -1045,9 +1031,9 @@ object MainFrm: TMainFrm
           OnChange = sbContrastChange
         end
         object sbBrightness: TScrollBar
-          Left = 17
-          Top = 61
-          Width = 155
+          Left = 186
+          Top = 20
+          Width = 140
           Height = 17
           Hint = 'Display brightness control slider'
           LargeChange = 10
@@ -1061,15 +1047,15 @@ object MainFrm: TMainFrm
     end
   end
   object StatusGrp: TGroupBox
-    Left = 1
-    Top = 1039
+    Left = 8
+    Top = 951
     Width = 376
     Height = 81
     TabOrder = 4
     object meStatus: TMemo
       Left = 8
       Top = 10
-      Width = 200
+      Width = 356
       Height = 61
       Lines.Strings = (
         'meStatus')
@@ -1084,6 +1070,20 @@ object MainFrm: TMainFrm
     Height = 153
     Caption = ' Image Capture  '
     TabOrder = 5
+    object Label4: TLabel
+      Left = 276
+      Top = 13
+      Width = 66
+      Height = 16
+      Alignment = taRightJustify
+      Caption = 'No. Averages'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial Narrow'
+      Font.Style = []
+      ParentFont = False
+    end
     object bCaptureImage: TButton
       Left = 8
       Top = 56
@@ -1164,14 +1164,14 @@ object MainFrm: TMainFrm
     object CCDAreaGrp: TGroupBox
       Left = 154
       Top = 15
-      Width = 110
+      Width = 116
       Height = 114
       Caption = ' Scanning Area '
       TabOrder = 5
       object bEnterScanArea: TButton
         Left = 8
         Top = 70
-        Width = 83
+        Width = 97
         Height = 25
         Hint = 'Specify coordinates of R.O.I.'
         Caption = 'Set ROI Area'
@@ -1222,10 +1222,24 @@ object MainFrm: TMainFrm
         OnClick = bScanROIClick
       end
     end
+    object edNumAverages: TValidatedEdit
+      Left = 276
+      Top = 35
+      Width = 66
+      Height = 21
+      Hint = 'No. of images to be averaged'
+      ShowHint = True
+      Text = ' 1 '
+      Value = 1.000000000000000000
+      Scale = 1.000000000000000000
+      NumberFormat = '%.0f'
+      LoLimit = 1.000000000000000000
+      HiLimit = 20000.000000000000000000
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 343
+    Top = 319
     Width = 369
     Height = 120
     Caption = ' Stage Position '
@@ -1367,24 +1381,24 @@ object MainFrm: TMainFrm
     Enabled = False
     Interval = 100
     OnTimer = TimerTimer
-    Left = 296
-    Top = 928
+    Left = 536
+    Top = 1064
   end
   object ImageFile: TImageFile
     XResolution = 1.000000000000000000
     YResolution = 1.000000000000000000
     ZResolution = 1.000000000000000000
     TResolution = 1.000000000000000000
-    Left = 328
-    Top = 928
+    Left = 488
+    Top = 960
   end
   object SaveDialog: TSaveDialog
-    Left = 400
-    Top = 928
+    Left = 520
+    Top = 944
   end
   object MainMenu1: TMainMenu
-    Left = 360
-    Top = 928
+    Left = 488
+    Top = 1000
     object File1: TMenuItem
       Caption = 'File'
       object mnSaveImage: TMenuItem
