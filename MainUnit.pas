@@ -750,6 +750,9 @@ begin
      INIFileName := SettingsDirectory + 'mesoscan settings2.xml' ;
      LoadSettingsFromXMLFile( INIFileName ) ;
 
+     // Open laser control
+     Laser.Open ;
+
      // Open PMT and integrator control
      PMT.Open ;
 
@@ -767,9 +770,6 @@ begin
      ReadWritePMTGroup( 1, gpPMT1, 'W' ) ;
      ReadWritePMTGroup( 2, gpPMT2, 'W' ) ;
      ReadWritePMTGroup( 3, gpPMT3, 'W' ) ;
-
-     // Open laser control
-     Laser.Open ;
 
      UpdateDisplay := False ;
      ScanRequested := 0 ;
@@ -3598,7 +3598,7 @@ begin
          PMT.GetADCGainList( cbGain.Items ) ;
          cbGain.ItemIndex := PMT.ADCGainIndex[Num] ;
          Laser.GetLaserList( cbLaser.Items ) ;
-         cbLaser.ItemIndex := Min(Max(PMT.LaserNum[Num],0),Laser.NumLasers) ;
+         cbLaser.ItemIndex := Max(PMT.LaserNum[Num],0) ;
          tbLaserIntensity.Position := Round(Laser.Intensity[PMT.LaserNum[Num]]*tbLaserIntensity.Max);
          edLaserIntensity.Value :=  Laser.Intensity[PMT.LaserNum[Num]] ;
          end

@@ -53,7 +53,7 @@ object SettingsFrm: TSettingsFrm
     Top = 6
     Width = 553
     Height = 467
-    ActivePage = ScanTab
+    ActivePage = gpIntegrator
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
@@ -63,7 +63,10 @@ object SettingsFrm: TSettingsFrm
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      ExplicitLeft = 8
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ImageHRGrp: TGroupBox
         Left = 8
         Top = 10
@@ -72,25 +75,25 @@ object SettingsFrm: TSettingsFrm
         Caption = ' Image (hi. res. scan)'
         TabOrder = 0
         object Label4: TLabel
-          Left = 8
+          Left = 31
           Top = 46
-          Width = 142
+          Width = 119
           Height = 15
           Alignment = taRightJustify
           Caption = 'Live Image Pixels/line'
         end
         object Label12: TLabel
-          Left = 8
+          Left = 18
           Top = 74
-          Width = 142
+          Width = 132
           Height = 15
           Alignment = taRightJustify
           Caption = 'Live Image Lines/image'
         end
         object Label37: TLabel
-          Left = 8
+          Left = 99
           Top = 18
-          Width = 142
+          Width = 51
           Height = 15
           Alignment = taRightJustify
           Caption = 'Pixel size'
@@ -279,17 +282,17 @@ object SettingsFrm: TSettingsFrm
         Caption = ' Scanning Galvanometer Control '
         TabOrder = 2
         object Label40: TLabel
-          Left = 8
+          Left = 72
           Top = 20
-          Width = 148
+          Width = 84
           Height = 15
           Alignment = taRightJustify
           Caption = 'X Mirror Control'
         end
         object Label41: TLabel
-          Left = 8
+          Left = 72
           Top = 79
-          Width = 148
+          Width = 84
           Height = 15
           Alignment = taRightJustify
           Caption = 'Y Mirror Control'
@@ -363,7 +366,6 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 1
       ParentFont = False
-      ExplicitWidth = 753
       object gpPMTs: TGroupBox
         Left = 259
         Top = 8
@@ -779,7 +781,10 @@ object SettingsFrm: TSettingsFrm
     object LasersTab: TTabSheet
       Caption = 'Lasers '
       ImageIndex = 2
-      ExplicitWidth = 513
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grpLaserExternal: TGroupBox
         Left = 3
         Top = 134
@@ -1295,8 +1300,6 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 3
       ParentFont = False
-      ExplicitLeft = 0
-      ExplicitTop = 28
       object GroupBox2: TGroupBox
         Left = 8
         Top = 3
@@ -1305,41 +1308,41 @@ object SettingsFrm: TSettingsFrm
         Caption = ' Z position Control'
         TabOrder = 0
         object Label8: TLabel
-          Left = 8
+          Left = 103
           Top = 43
-          Width = 160
+          Width = 65
           Height = 15
           Alignment = taRightJustify
           Caption = 'Control Port'
         end
         object Label10: TLabel
-          Left = 8
+          Left = 95
           Top = 68
-          Width = 160
+          Width = 73
           Height = 15
           Alignment = taRightJustify
           Caption = 'Z scale factor'
         end
         object Label13: TLabel
-          Left = 8
+          Left = 107
           Top = 95
-          Width = 160
+          Width = 61
           Height = 15
           Alignment = taRightJustify
           Caption = 'Z step time'
         end
         object Label14: TLabel
-          Left = 8
+          Left = 46
           Top = 122
-          Width = 160
+          Width = 122
           Height = 15
           Alignment = taRightJustify
           Caption = 'Z Position Lower Limit'
         end
         object Label16: TLabel
-          Left = 8
+          Left = 46
           Top = 149
-          Width = 160
+          Width = 122
           Height = 15
           Alignment = taRightJustify
           Caption = 'Z Position Upper Limit'
@@ -1418,7 +1421,10 @@ object SettingsFrm: TSettingsFrm
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 4
-      ExplicitWidth = 483
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10

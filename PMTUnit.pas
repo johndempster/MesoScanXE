@@ -30,7 +30,7 @@ type
     FNumPMTs : Integer ;
     FGainVMin : double ;      // PMT control voltage (V) at minimum gain
     FGainVMax : double ;      // PMT control voltage (V) at maximum gain
-    FEnabled : Array[0..MaxPMT] of Boolean ;
+//    FEnabled : Array[0..MaxPMT] of Boolean ;
     FLaserNum : Array[0..MaxPMT] of Integer ;
     FADCDevice : Integer ;    // NI device used for A/D conversion of PMT signal
     ReplyBuf : String ;       // COM channel reply message buf
@@ -72,8 +72,8 @@ type
     Property IntegratorType : Integer read FIntegratorType  write SetIntegratorType ;
     Property ControlPort : DWORD read FControlPort write SetControlPort ;
     Property NumPMTs : Integer read FNumPMTs write FNumPMTs ;
-    Property GainVMin : double read FGainVMax write FGainVMax ;
-    Property GainVMax : double read FGainVMin write FGainVMin ;
+    Property GainVMin : double read FGainVMin write FGainVMin ;
+    Property GainVMax : double read FGainVMax write FGainVMax ;
     Property LaserNum[Chan : Integer] : Integer read GetLaserNum Write SetLaserNum ;
     Property ADCDevice : Integer read FADCDevice write FADCDevice ;
     Property Active : Boolean read FActive write SetActive ;
@@ -119,7 +119,7 @@ begin
 
     for i := 0 to MaxPMT do
         begin
-        FEnabled[i] := False ;
+        PMTEnabled[i] := False ;
         PMTName[i] := format('PMT%d',[i]);
         PMTPort[i] := ControlDisabled ;
         PMTGain[i] := 1.0 ;
@@ -332,7 +332,7 @@ var
 begin
       // If PMT is enabled and an AO control port is defined,
       // apply selected gain control voltage to PMT
-      for i := 0 to NumPMTs-1 do if FEnabled[i] and (PMTPort[i] <> ControlDisabled) then
+      for i := 0 to NumPMTs-1 do if PMTEnabled[i] and (PMTPort[i] <> ControlDisabled) then
           begin
           if Value = TRUE then V := FGainVMin + (FGainVMax - FGainVMin)*PMTGain[i]
                           else V := FGainVMin ;

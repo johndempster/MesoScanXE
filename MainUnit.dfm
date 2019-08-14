@@ -846,7 +846,6 @@ object MainFrm: TMainFrm
       TabOrder = 1
       object RangeTab: TTabSheet
         Caption = 'Display Contrast'
-        ExplicitHeight = 65
         object bFullScale: TButton
           Left = 10
           Top = 3
@@ -937,8 +936,6 @@ object MainFrm: TMainFrm
       object SlidersTab: TTabSheet
         Caption = 'Sliders'
         ImageIndex = 1
-        ExplicitTop = 20
-        ExplicitHeight = 89
         object Label9: TLabel
           Left = 14
           Top = 0
@@ -1393,12 +1390,12 @@ object MainFrm: TMainFrm
     Top = 960
   end
   object SaveDialog: TSaveDialog
-    Left = 520
+    Left = 552
     Top = 944
   end
   object MainMenu1: TMainMenu
-    Left = 488
-    Top = 1000
+    Left = 632
+    Top = 976
     object File1: TMenuItem
       Caption = 'File'
       object mnSaveImage: TMenuItem

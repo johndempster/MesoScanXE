@@ -442,6 +442,8 @@ begin
 
           InitRequestLaserNames :
             begin
+            // Disable 5 second CDRH compliance delay on start of laser emission
+            CommandList.Add( 'syst:cdrh off' ) ;
             // Request names of available lasers from controller
             for i := 1 to 6 do CommandList.Add( format('*idn%d?',[i]));
             LaserNum := 1 ;
