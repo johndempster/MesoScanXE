@@ -90,6 +90,16 @@ type
     Height : Double ;
     end ;
 
+  TScanCycle = record
+    NP : Integer ;
+    NumLines : Integer ;
+    NumLineRepeats : Integer ;
+    StartImage : Integer ;
+    EndImage : Integer ;
+    StartLine : Integer ;
+    EndLine : Integer ;
+  end;
+
 
   TMainFrm = class(TForm)
     ImageGrp: TGroupBox;
@@ -106,17 +116,6 @@ type
     scZSection: TScrollBar;
     lbZSection: TLabel;
     lbReadout: TLabel;
-    ImageSizeGrp: TGroupBox;
-    ZStackGrp: TGroupBox;
-    Label5: TLabel;
-    Label6: TLabel;
-    edNumZSections: TValidatedEdit;
-    edNumPixelsPerZStep: TValidatedEdit;
-    Label1: TLabel;
-    edMicronsPerZStep: TValidatedEdit;
-    LineScanGrp: TGroupBox;
-    Label2: TLabel;
-    edLineScanFrameHeight: TValidatedEdit;
     PMTGrp: TGroupBox;
     DisplayGrp: TGroupBox;
     Splitter1: TSplitter;
@@ -210,6 +209,16 @@ type
     bGoToYPosition: TButton;
     edNumAverages: TValidatedEdit;
     Label4: TLabel;
+    ZStackGrp: TGroupBox;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label1: TLabel;
+    edNumZSections: TValidatedEdit;
+    edNumPixelsPerZStep: TValidatedEdit;
+    edMicronsPerZStep: TValidatedEdit;
+    LineScanGrp: TGroupBox;
+    Label2: TLabel;
+    edLineScanFrameHeight: TValidatedEdit;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -287,6 +296,8 @@ type
     ADCBuf : PBig16bitArray ;
     AvgBuf : PBig32bitArray ;
     ADCMap : PBig32bitArray ;
+    ScanCycle : TScanCycle ;
+
 //    XZLineAverage : PBig32bitArray ;
 
     ADCNumNewSamples : Integer ;
@@ -320,16 +331,13 @@ type
     ZTop : Double ;
     //Zoom : Double ;
     FullFieldWidthMicrons : Double ;      // Actual width of full imaging field (um)
-    FieldEdge : Double ;                  // Non-imaging edge of scan width (% of field width)
-    BidirectionalScan : Boolean ;         // TRUE = bidirectional scan enabled
-    CorrectSineWaveDistortion : Boolean ; // TRUE = sine wave image distortion correction
     InvertPMTSignal : Boolean ;           // TRUE = PMT signal inverted
     BlackLevel : Integer ;                // Black level of PMT signal
-    MaxScanRate : Double ;                // Highest permitted scan rate
+    MinCyclePeriod : Double ;             // Period of scan flyback sine waveform
     MinPixelDwellTime : Double ;          // Smallest permitted pixel dwell time
     XVoltsPerMicron : Double ;            // X galvo volts per micron displacement scall factor
     YVoltsPerMicron : Double ;            // Y galvo volts per micron displacement scall factor
-    PhaseShift : Double ;                 // Phase delay between galvo command galvo displacement
+    PhaseShift : Double ;                 // Phase delay between galvo command and galvo displacement (s)
     FrameWidth : Integer ;                // Width of image on display
     FrameHeight : Integer ;               // Height of image of display
     FullFieldWidth : Integer ;            // Width of full field image
@@ -430,7 +438,9 @@ type
     MemUsed : Integer ;
     procedure InitialiseImage ;
     procedure SetImagePanels ;
-    procedure CreateScanWaveform ;
+    procedure CreateScanWaveform(
+              FastScan : Boolean            // True = fast / low resolution scan
+              ) ;
     procedure StartNewScan(
               iScanRegion : Integer ; // Scan region
               FastScan : Boolean      // TRUE = Fast scan mode
@@ -612,7 +622,6 @@ procedure TMainFrm.FormShow(Sender: TObject);
 var
     i,ch : Integer ;
     NumPix : Cardinal ;
-    Gain : Double ;
 begin
      Caption := 'MesoScan V1.6.9 ';
      {$IFDEF WIN32}
@@ -698,7 +707,6 @@ begin
 
      FullFieldWidth := 500 ;
      FullFieldWidthMicrons := 2000.0 ;
-     FieldEdge := 0.0 ;
      FrameWidth := FullFieldWidth ;
      FrameHeight := FullFieldWidth ;
      Magnification := 1;
@@ -712,14 +720,12 @@ begin
 
      // Default normal scan settings
      NumAverages := 5 ;
-     BiDirectionalScan := True ;
-     MaxScanRate := 100.0 ;
+     MinCyclePeriod := 0.02 ;           // Flyback period 20 ms = 50 Hz
      MinPixelDwellTime := 5E-7 ;
      XVoltsPerMicron := 1E-3 ;
      YVoltsPerMicron := 1E-3 ;
      //ADCVoltageRange := 0 ;
      PhaseShift := 0 ;
-     CorrectSineWaveDistortion := True ;
      BlackLevel := 10 ;
      InvertPMTSignal := True ;
 
@@ -1178,8 +1184,6 @@ procedure TMainFrm.FormClose(Sender: TObject; var Action: TCloseAction);
 // ------------
 // Stop program
 // ------------
-var
-    i : Integer ;
 begin
 
      // Close laser shutter
@@ -1214,40 +1218,39 @@ begin
 end;
 
 
-procedure TMainFrm.CreateScanWaveform ;
+procedure TMainFrm.CreateScanWaveform(
+          FastScan : Boolean            // True = fast / low resolution scan
+          ) ;
 // ------------------------------
 // Create X/Y galvo scan waveform
 // ------------------------------
+const
+    SineSegment = 0 ;
+    LinearSegment = 1 ;
+    NumEdgeLines = 1 ;
 var
-    XPeriod,HalfPi,ScanSpeed : Double ;
+    HalfPi,ScanSpeed : Double ;
     XCentre,YCentre,XAmplitude,YHeight,PCDOne : Double ;
-    n,ch,iX,iY,iY1,i,j,k,iShift,kStart,kShift : Integer ;
-    SineWaveForwardScan,SineWaveReverseScan,SineWaveCorrection : PBig16BitArray ;
+    n,ch,iX,iY,iY1,i,j,iShift : Integer ;
     NumBytes : NativeInt ;
-    NumXEdgePixels,NumYEdgePixels : Cardinal ;
+    NumYEdgePixels : Cardinal ;
     NumPix : Cardinal ;
     NumLinesInDACBuf : Cardinal ;
     XDAC,YDAC : SmallInt ;
     Amplitude : Double ;
+    ScanSegment : Integer ;
+    PhaseAngle,Amp,AmpStep,YStep : Double ;
+    TwoPi : Double ;
+    Rad,RadiansPerCycle,RadiansPerStep,Theta : double ;
+    XScanWaveform,YScanWaveform : PBig16BitArray ;
+    LinearDone : Boolean ;
+    PixelSize : Double ;
 begin
 
     meStatus.Clear ;
     meStatus.Lines[0] := 'Wait: Creating XY scan waveform' ;
 
 
-    // No. pixels in scan buffer
-
-    NumXEdgePixels :=  Round(FieldEdge*FrameWidth) ;
-    NumXPixels := FrameWidth + (2*NumXEdgePixels) ;
-
-    // Determine line scan time
-    PixelDwellTime := Max( 1.0/(MaxScanRate*NumXPixels*2), MinPixelDwellTime ) ;
-    LabIO.CheckSamplingInterval(DeviceNum,PixelDwellTime,1) ;
-    ScanSpeed := 1.0/(PixelDwellTime*NumXPixels) ;
-    if not BidirectionalScan then ScanSpeed := ScanSpeed*0.5 ;
-    ScanInfo := format('%.3g lines/s Tdwell=%.3g us',[ScanSpeed,1E6*PixelDwellTime]);
-    LineScanTime := NumXPixels*PixelDwellTime ;
-    if not BidirectionalScan then LineScanTime := LineScanTime*2.0 ;
 
     // Determine number of lines per Z step (for XZ mode)
     if cbImageMode.ItemIndex = XZMode then
@@ -1258,51 +1261,50 @@ begin
 
     NumYEdgePixels := 1 ;
     NumYPixels := (FrameHeight + 2*NumYEdgePixels)*NumLinesPerZStep ;
-    if not BidirectionalScan then NumYPixels := NumYPixels*2 ;
-
-    // Allocate image buffers
-
-    NumPix := FrameWidth*FrameHeight*NumLinesPerZStep ;
-    for ch := 0 to High(PImageBuf) do
-        begin
-        if PImageBuf[ch] <> Nil then FreeMem(PImageBuf[ch]) ;
-        PImageBuf[ch] := Nil ;
-        if ch < NumPMTChannels then
-           begin
-           PImageBuf[ch] := AllocMem( Int64(NumPix)*SizeOf(SmallInt)) ;
-           end;
-        end;
-
-    NumPixels := NumXPixels*NumYPixels ;
-
-    // Allocate A/D buffer
-    if ADCBuf <> Nil then FreeMem( ADCBuf ) ;
-    NumBytes := Int64(NumPixels)*Int64(NumPMTChannels)*SizeOf(SmallInt) ;
-    ADCBuf := AllocMem( NumBytes ) ;
-
-    // Allocate D/A waveform databuffer
-    if DACBuf <> Nil then FreeMem( DACBuf ) ;
-    NumPixelsInDACBuf := NumPixels ;
-    NumLinesinDACBuf := NumPixelsInDACBuf div NumXPixels ;
-    NumPixelsInDACBuf := NumLinesinDACBuf*NumXPixels ;
-    NumBytes := Int64(NumPixels)*Int64(SizeOf(SmallInt)*2) ;
-    DACBuf := AllocMem( NumBytes ) ;
-
-    GetMem( SineWaveForwardScan, NumXPixels*SizeOf(SmallInt) ) ;
-    GetMem( SineWaveReverseScan, NumXPixels*SizeOf(SmallInt) ) ;
-    GetMem( SineWaveCorrection, NumXPixels*SizeOf(SmallInt) ) ;
-
-    if ADCMap <> Nil then FreeMem(ADCMap) ;
-    NumBytes := Int64(NumPixels)*SizeOf(Integer) ;
-    ADCMap := AllocMem(NumBytes) ;
 
     XScale := (LabIO.DACMaxValue[DeviceNum]/VMax)*XVoltsPerMicron ;
     YScale := (LabIO.DACMaxValue[DeviceNum]/VMax)*YVoltsPerMicron ;
-    XAmplitude := (ScanArea.Right - ScanArea.Left)*0.5 ;
+    XWidth := ScanArea.Right - ScanArea.Left ;
     XCentre := (ScanArea.Left + ScanArea.Right - FullFieldWidthMicrons)*0.5 ;
+
     YHeight := ScanArea.Bottom - ScanArea.Top ;
     YCentre := (ScanArea.Top + ScanArea.Bottom - FullFieldWidthMicrons)*0.5 ;
-    XPeriod := (pi)/NumXPixels ;
+
+    // No. of pixels in linear scan line
+    if FastScan then
+       begin
+       // Fast / low resolution scan
+       NumXPixels := FastFrameWidth ;
+       PixelSize := XWidth / NumXPixels ;
+       YLineSpacingMicrons := YHeight / FastFrameHeight ;
+       ScanCycle.NumLineRepeats := Round( YLineSpacingMicrons/PixelSize ) ;
+       end
+    else
+       begin
+       // High resolution /slow scan
+       NumXPixels := Round( XWidth/HRPixelSize ) ;
+       PixelSize := HRPixelSize ;
+       YLineSpacingMicrons := PixelSize ;
+       ScanCycle.NumLineRepeats := 1 ;
+       end;
+
+    // Calculate phase angle of sine wave which delimits end of linear scan
+    Theta := arcsin(cos(2.0/Pi())) ;
+    // Scale up sine wave amplitude to ensure linear section is XWidth
+    XAmplitude := (0.5*XWidth) / sin(Theta) ;
+    // Calculate number of radians in combined sine+ramp cycle
+    RadiansPerCycle := 3.0*Pi() - 2.0*Theta ;
+    RadiansPerStep := Pi() / NumXPixels ;
+    ScanCycle.NP := Round(RadiansPerCycle / RadiansPerStep) ;
+
+    // Determine line scan time
+    PixelDwellTime :=  MinPixelDwellTime  ;
+    PixelDwellTime :=  Max( PixelDwellTime, MinCyclePeriod / ScanCycle.NP ) ;
+    LabIO.CheckSamplingInterval(DeviceNum,PixelDwellTime,1) ;
+
+    ScanSpeed := 1.0/(ScanCycle.NP*PixelDwellTime) ;
+    ScanInfo := format('%.3g lines/s Tdwell=%.3g us',[ScanSpeed,1E6*PixelDwellTime]);
+    LineScanTime := NumXPixels*PixelDwellTime ;
 
     case cbImageMode.ItemIndex of
         XTMode,XZMode :
@@ -1317,92 +1319,99 @@ begin
           // XY and XYZ modes
           YStartMicrons := YCentre - YHeight*0.5 ;
           YEndMicrons := YCentre + YHeight*0.5 ;
-          YLineSpacingMicrons := YHeight/(NumYPixels-2*NumBeamParkLines) ;
           end ;
        end;
 
-    HalfPi := Pi*0.5 ;
-    for iX := 0 to NumXPixels-1 do
+    // Create full cycle of X scan waveform with sine edges, linear centre segment and sine flyback
+
+    GetMem( XScanWaveform, ScanCycle.NP*SizeOf(SmallInt) ) ;
+    GetMem( YScanWaveform, ScanCycle.NP*SizeOf(SmallInt) ) ;
+
+    HalfPi := Pi()*0.5 ;
+    TwoPi := Pi()*2.0 ;
+    PhaseAngle := -HalfPi ;
+    AmpStep := XWidth / NumXPixels ;
+    ScanSegment := SineSegment ;
+    Rad := -HalfPi ;
+    LinearDone := False ;
+    for i := 0 to ScanCycle.NP-1 do
         begin
-        SineWaveForwardScan^[iX] := Round((XCentre + XAmplitude*sin((iX*XPeriod)-HalfPi))*XScale) ;
-        SineWaveReverseScan^[iX] := Round((XCentre + XAmplitude*sin((iX*XPeriod)+HalfPi))*XScale) ;
-        SineWaveCorrection^[iX] := Round( (NumXPixels*0.5) + (NumXPixels*0.5)*sin(iX*XPeriod-HalfPi) ) ;
-        SineWaveCorrection^[iX] := Min(Max(SineWaveCorrection^[iX],0),NumXPixels-1);
+        case ScanSegment of
+
+             SineSegment : begin
+               // Sine scan segment
+               Amp := sin(Rad)*XAmplitude ;
+               if (Abs(Amp) <= (0.5*XWidth)) and (not LinearDone) then
+                  begin
+                  // Start of linear segment
+                  ScanSegment := LinearSegment ;
+                  ScanCycle.StartImage := i ;
+                  end;
+               Rad := Rad + RadiansPerStep ;
+               end;
+
+             LinearSegment : begin
+               // Linear segment
+               Amp := Amp + AmpStep ;
+               if Abs(Amp) >= (0.5*XWidth) then
+                  begin
+                  // End of linear segment
+                  ScanSegment := SineSegment ;
+                  Rad := Theta ;
+                  ScanCycle.EndImage := i ;
+                  LinearDone := True ;
+                  end ;
+                end;
+
+             end;
+
+        XScanWaveform^[i] := Round((XCentre + Amp)*XScale) ;
+
         end ;
 
-    // Create initial DAC buffer
+    // Create full cycle of Y scan waveform with sine edges
+
+    YStep := YScale*YLineSpacingMicrons ;
+    for i := 0 to ScanCycle.NP-1 do
+        begin
+        if i >= ScanCycle.EndImage then
+           begin
+           YScanWaveform^[i] := Round(YStep*(1.0 - exp( -(i-ScanCycle.EndImage)/(ScanCycle.NP*0.2) )));
+           end
+        else YScanWaveform^[i] := 0 ;
+        end ;
+
+
+    ScanCycle.NumLines := Round( YHeight/YLineSpacingMicrons ) + 2*NumEdgeLines ;
+    ScanCycle.StartLine := NumEdgeLines ;
+    ScanCycle.EndLine := ScanCycle.NumLines - NumEdgeLines - 1 ;
+
+    // Create X,Y DAC voltage waveform buffer
+
+    if DACBuf <> Nil then FreeMem( DACBuf ) ;
+    NumPixelsInDACBuf := ScanCycle.NP*ScanCycle.NumLines ;
+    NumLinesinDACBuf := NumPixelsInDACBuf div ScanCycle.NP ;
+    NumPixelsInDACBuf := NumLinesinDACBuf*ScanCycle.NP ;
+    NumBytes := Int64(NumPixelsInDACBuf)*Int64(SizeOf(SmallInt)*2) ;
+    DACBuf := AllocMem( NumBytes ) ;
+
     PCDone := 0.0 ;
     j := 0 ;
     n := 0 ;
-    for iY := 0 to NumLinesinDACBuf-1 do
+
+    for iY := 0 to ScanCycle.NumLines-1 do
         begin
 
-        if (not BidirectionalScan) and ((iY mod 2) <> 0) then iY1 := iy + 1
-                                                         else iY1 := iy ;
         YDAC := Round(YScale*((iY1)*YLineSpacingMicrons + YStartMicrons)) ;
 
-        if (iY mod 2) = 0 then
-           begin
-           // Forward scan
-           for iX := 0 to NumXPixels-1 do
-               begin
-               DACBuf^[j] := SineWaveForwardScan^[iX] ;
-               DACBuf^[j+1] := YDAC ;
-               j := j + 2 ;
-               end ;
-           end
-        else
-           begin
-           // Reverse scan
-           for iX := 0 to NumXPixels-1 do
-               begin
-               DACBuf^[j] := SineWaveReverseScan^[iX] ;
-               DACBuf^[j+1] := YDAC ;
-               j := j + 2 ;
-               end ;
-           end ;
+        for iX := 0 to ScanCycle.NP-1 do
+            begin
+            DACBuf^[j] := XScanWaveform^[iX] ;
+            DACBuf^[j+1] := YDAC + YScanWaveform^[iX] ;
+            j := j + 2 ;
+            end ;
 
-        if n = 1000 then PercentDone(PCDone,n,NumYPixels)
-                    else Inc(n) ;
-
-        end ;
-
-    // Create sine wave correction mapping buffer
-
-    k := 0 ;
-    n := 0 ;
-    for iY := 0 to NumYPixels-1 do
-        begin
-        kStart := k ;
-
-        if (iY mod 2) = 0 then
-           begin
-           // Forward scan
-           for iX := 0 to NumXPixels-1 do
-               begin
-               ADCMap^[k] := iY*NumXPixels + iX ;
-               Inc(k) ;
-               end ;
-           end
-        else
-           begin
-           // Reverse scan
-           for iX := 0 to NumXPixels-1 do
-               begin
-               ADCMap^[k] := iY*NumXPixels + NumXPixels -1 - iX ;
-               Inc(k) ;
-               end ;
-           end ;
-
-        if CorrectSineWaveDistortion then
-           begin
-           for iX := 0 to NumXPixels-1 do
-               begin
-               ADCMap^[kStart+iX] := SineWaveCorrection^[ADCMap^[kStart+iX]-kStart] + kStart ;
-               end ;
-           end ;
-
-        if n = 1000 then PercentDone(PCDone,n,NumYPixels)
+        if n = 1000 then PercentDone(PCDone,n,ScanCycle.NumLines)
                     else Inc(n) ;
 
         end ;
@@ -1411,91 +1420,50 @@ begin
      YDAC := DACBuf^[1] ;
      XDAC := DACBuf^[0] ;
      j := 0 ;
-     for iX := 0 to NumXPixels-1 do
+     for iX := 0 to ScanCycle.NP-1 do
          begin
-         Amplitude := 0.5*(1.0 - cos((iX*Pi)/(NumXPixels-1)));
+         Amplitude := 0.5*(1.0 - cos((iX*Pi)/(ScanCycle.NP-1)));
          DACBuf^[j] := Round(XDAC*Amplitude) ;
          DACBuf^[j+1] := Round(YDAC*Amplitude) ;
          j := j + 2 ;
          end ;
 
      // Modify last line to smoothly park beam at centre position from bottom/right of imaging area
-     j := (NumYPixels-1)*NumXPixels*2 + (NumXPixels-1)*2;
+     j := (ScanCycle.NumLines-1)*ScanCycle.NP*2 + (ScanCycle.NP-1)*2;
      YDAC := DACBuf^[j+1] ;
      XDAC := DACBuf^[j] ;
-     for iX := 0 to NumXPixels-1 do
+     for iX := 0 to ScanCycle.NP-1 do
          begin
-         Amplitude := 0.5*(1.0 - cos((iX*Pi)/(NumXPixels-1)));
+         Amplitude := 0.5*(1.0 - cos((iX*Pi)/(ScanCycle.NP-1)));
          DACBuf^[j] := Round(XDAC*Amplitude) ;
          DACBuf^[j+1] := Round(YDAC*Amplitude) ;
          j := j - 2 ;
          end ;
 
-    // Discard reverse scans when in unidirectional scan mode
-
-    if not BidirectionalScan then
-       begin
-       n := 0 ;
-       for iY := 0 to NumYPixels-1 do
-           begin
-           kStart := iY*NumXPixels ;
-           kShift := (iY*NumXPixels) div 2 ;
-           if (iY mod 2) = 0 then
-              begin
-              for iX := 0 to NumXPixels-1 do
-                  begin
-                  ADCMap^[kStart+iX] := ADCMap^[kStart+iX] - kShift ;
-                  end ;
-              end
-           else
-              begin
-              for iX := 0 to NumXPixels-1 do ADCMap^[kStart+iX] := 0 ;
-              end ;
-
-           if n = 1000 then PercentDone(PCDone,n,NumYPixels)
-                       else Inc(n) ;
-
-           end ;
-       end ;
-
     iShift := Round(PhaseShift/PixelDwellTime) ;
-    if iShift >= 0 then
-       begin
-       n := 0 ;
-       for i := 0 to NumPixels-1 do
-           begin
-           ADCMap^[i] := ADCMap^[Max(Min(i+iShift,NumPixels-1),0)] ;
-           if n = 1000000 then PercentDone(PCDone,n,NumPixels)
-                          else Inc(n) ;
-           end ;
-       end
-    else
-       begin
-       n := 0 ;
-       for i := NumPixels-1 downto 0 do
-           begin
-           ADCMap^[i] := ADCMap^[Max(Min(i+iShift,NumPixels-1),0)] ;
-           if n = 1000000 then PercentDone(PCDone,n,NumPixels)
-                          else Inc(n) ;
-           end ;
-       end ;
 
+    FrameWidth := ScanCycle.EndImage - ScanCycle.StartImage + 1 ;
+    FrameHeight := (ScanCycle.EndLine - ScanCycle.StartLine + 1)*ScanCycle.NumLineRepeats ;
 
-    // Adjust mapping to remove X and Y edge pixels from image
-    n := 0 ;
-    for i := 0 to NumPixels-1 do
+    // Allocate image buffers
+    NumPix := FrameWidth*FrameHeight*NumLinesPerZStep ;
+    for ch := 0 to High(PImageBuf) do
         begin
-        iY := Max((ADCMap^[i] div NumXPixels) - NumYEdgePixels,0) ;
-        iX := Max((ADCMap^[i] mod NumXPixels) - NumXEdgePixels,0) ;
-        if iX < FrameWidth then ADCMap^[i] := Min(Max(iY*FrameWidth + iX,0),NumPix)
-                           else ADCMap^[i] := 0 ;
-        if n = 1000000 then PercentDone(PCDone,n,NumPixels)
-                       else Inc(n) ;
-        end ;
+        if PImageBuf[ch] <> Nil then FreeMem(PImageBuf[ch]) ;
+        PImageBuf[ch] := Nil ;
+        if ch < NumPMTChannels then
+           begin
+           PImageBuf[ch] := AllocMem( Int64(NumPix)*SizeOf(SmallInt)) ;
+           end;
+        end;
 
-    FreeMem( SineWaveCorrection ) ;
-    FreeMem( SineWaveForwardScan ) ;
-    FreeMem( SineWaveReverseScan ) ;
+    // Allocate A/D buffer
+    if ADCBuf <> Nil then FreeMem( ADCBuf ) ;
+    NumBytes := Int64(ScanCycle.NP)*Int64(ScanCycle.NumLines)*Int64(NumPMTChannels)*SizeOf(SmallInt) ;
+    ADCBuf := AllocMem( NumBytes ) ;
+
+    FreeMem(XScanWaveform) ;
+    FreeMem(YScanWaveform) ;
 
     end ;
 
@@ -1505,7 +1473,7 @@ procedure TMainFrm.PercentDone(
           var n : Integer ;
           var NumPixels : Integer ) ;
 begin
-     PCDone := PCDone + (n/NumPixels)*25.0 ;
+     PCDone := PCDone + (n/NumPixels) ;
      n := 0 ;
      meStatus.Lines[0] := format('Wait: Creating XY scan waveform %.0f%%',[PCDone]) ;
      Application.ProcessMessages ;
@@ -2020,7 +1988,7 @@ begin
     ZStartingPosition := ZStage.ZPosition ;
 
     // Create scan waveform
-    CreateScanWaveform ;
+    CreateScanWaveform(FastScan) ;
 
     ScanRequested := 1 ;
 
@@ -2034,6 +2002,7 @@ procedure TMainFrm.StartScan ;
 var
     i,nSamples : Integer ;
     AOList : Array[0..1] of Integer ;
+    NumPixels : Int64 ;
 begin
 
     // Stop A/D & D/A
@@ -2044,11 +2013,13 @@ begin
     if LabIO.ADCActive[DeviceNum] then LabIO.StopADC(DeviceNum) ;
     if LabIO.DACActive[DeviceNum] then LabIO.StopDAC(DeviceNum) ;
 
+    NumPixels := Int64(ScanCycle.NP)*Int64(ScanCycle.NumLines) ;
+
     if ClearAverage then
        begin
        // Dispose of existing display buffers and create new ones
        if AvgBuf <> Nil then FreeMem( AvgBuf ) ;
-       AvgBuf := AllocMem( Int64(NumPixels)*Int64(NumPMTChannels)*4 ) ;
+       AvgBuf := AllocMem( NumPixels*Int64(NumPMTChannels)*4 ) ;
        for i := 0 to NumPixels*NumPMTChannels-1 do AvgBuf^[i] := 0 ;
        ClearAverage := False ;
        NumAverages := 1 ;
@@ -2073,13 +2044,13 @@ begin
     // Turn PMTs on
     PMT.Active := True ;
 
-    nSamples := Max(Round(10.0/PixelDwellTime) div NumXPixels,1)*NumXPixels ;
+    nSamples := Max(Round(10.0/PixelDwellTime) div ScanCycle.NP,1)*ScanCycle.NP ;
     LabIO.ADCToMemoryExtScan( DeviceNum,
                               PMT.PMTEnabled,
                               PMT.ADCGainIndex,
                               PMTList,
                               NumPMTChannels,
-                              NumXPixels*NumYPixels,
+                              ScanCycle.NP*ScanCycle.NumLines,
                               False,
                               DeviceNum ) ;
 
@@ -2398,11 +2369,12 @@ procedure TMainFrm.GetImageFromPMT ;
 // Get image from PMT
 // ------------------
 var
-    ch,iPix,iPointer,iPointerStep,iSign,iLine,nAvg,iAvg,AvgFrameStart : Integer ;
+    ch,iPix,iSign,iLine,nAvg,iAvg,AvgFrameStart,iY,iYStart : Integer ;
     i,ADCStart,ADCEnd : NativeInt ;
     NewZSection : Integer ;
     Sum,y : Integer ;
     j: Integer;
+    iPhaseShift : Integer ;
 begin
 
     if not LabIO.DACActive[DeviceNum] then exit ;
@@ -2416,36 +2388,34 @@ begin
     if InvertPMTSignal then iSign := -1
                        else iSign := 1 ;
 
+    iPhaseShift := Round(Abs(PhaseShift)/PixelDwellTime)*NumPMTChannels ;
     for i := ADCStart to ADCEnd do
         begin
         ADCPointer := i ;
+
+        // Add to average buffer
         AvgBuf^[i] := AvgBuf^[i] + ADCBuf^[i] ;
-        iPix := i div NumPMTChannels ;
-        ch := i mod NumPMTChannels ;
-        iPointer := ADCMap^[iPix] ;
-        iPointerStep := ADCMap^[iPix+1] - iPointer ;
 
-        // Average and add black level
-        y := iSign*(AvgBuf^[i] div NumAverages) + BlackLevel ;
-        // Keep within 16 bit limits
-        if y  < 0 then y := 0 ;
-        if y > ADCMaxValue then y := ADCmaxValue ;
+        // Determine pixel and line position
+        iPix :=  ((i + iPhaseShift) div NumPMTChannels) mod ScanCycle.NP ;
+        iLine := ((i + iPhaseShift) div NumPMTChannels) div ScanCycle.NP ;
 
-
-        pImageBuf[ch]^[iPointer] := y  ;
-        if Abs(iPointerStep) = 2 then
+        if (iPix >= ScanCycle.StartImage) and (iPix <= ScanCycle.EndImage) and
+           (iLine >= ScanCycle.StartLine) and (iLine <= ScanCycle.EndLine) then
            begin
-           iPointer := iPointer + Sign(iPointerStep) ;
-           pImageBuf[ch]^[iPointer] := y ;
-           end ;
+           ch := i mod NumPMTChannels ;
+           // Average and add black level
+           y := iSign*(AvgBuf^[i] div NumAverages) + BlackLevel ;
+           // Keep within 16 bit limits
+           if y  < 0 then y := 0 ;
+           if y > ADCMaxValue then y := ADCmaxValue ;
+           // Copy to image buffer
+           iYStart := (iLine - ScanCycle.StartLine)*ScanCycle.NumLineRepeats ;
+           for iY := iYStart to iYStart + ScanCycle.NumLineRepeats -1 do
+               pImageBuf[ch]^[(iPix - ScanCycle.StartImage) + iY*FrameWidth] := y  ;
+           end;
 
         end ;
-
-    // Copy image to display bitmap
-    iLine := ADCPointer div (NumXPixels*NumPMTChannels) ;
-    iLine := Max(iLine -1,0) ;
-
-    if not BiDirectionalScan then iLine := iLine div 2 ;
 
     // Increment Z stage in XZ mode
     if cbImageMode.ItemIndex = XZMode then
@@ -2508,6 +2478,7 @@ begin
     meStatus.Lines.Add( ScanInfo ) ;
     ADCNumNewSamples := 0 ;
 
+    NumPixels := Int64(ScanCycle.NP)*Int64(ScanCycle.NumLines) ;
     if ADCPointer >= (NumPixels*NumPMTChannels-4) then
        begin
 
@@ -3189,13 +3160,11 @@ begin
 
     AddElementInt( ProtNode, 'PALETTE', cbPalette.ItemIndex ) ;
 
-    AddElementBool( ProtNode, 'BIDIRECTIONALSCAN', BiDirectionalScan ) ;
-    AddElementBool( ProtNode, 'CORRECTSINEWAVEDISTORTION', CorrectSineWaveDistortion ) ;
     AddElementBool( ProtNode, 'REPEATSCANS', ckRepeat.Checked ) ;
     AddElementBool( ProtNode, 'INVERTPMTSIGNAL', InvertPMTSignal ) ;
 
     AddElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
-    AddElementDouble( ProtNode, 'MAXSCANRATE', MaxScanRate ) ;
+    AddElementDouble( ProtNode, 'MINCYCLEPERIOD', MinCyclePeriod ) ;
     AddElementDouble( ProtNode, 'MINPIXELDWELLTIME', MinPixelDwellTime ) ;
     AddElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
     AddElementInt( ProtNode, 'BLACKLEVEL', BlackLevel ) ;
@@ -3209,7 +3178,6 @@ begin
     AddElementDouble( ProtNode, 'PHASESHIFT', PhaseShift ) ;
     AddElementDouble( ProtNode, 'LASERINTENSITY', LaserIntensity ) ;
     AddElementDouble( ProtNode, 'FULLFIELDWIDTHMICRONS', FullFieldWidthMicrons ) ;
-    AddElementDouble( ProtNode, 'FIELDEDGE', FieldEdge ) ;
 
     // Z stack
     iNode := ProtNode.AddChild( 'ZSTACK' ) ;
@@ -3342,15 +3310,12 @@ begin
     for ch  := 0 to High(Bitmap) do
        if BitMap[ch] <> Nil then SetPalette( BitMap[ch], PaletteType ) ;
 
-    BiDirectionalScan := GetElementBool( ProtNode, 'BIDIRECTIONALSCAN', BiDirectionalScan ) ;
-    CorrectSineWaveDistortion := GetElementBool( ProtNode, 'CORRECTSINEWAVEDISTORTION', CorrectSineWaveDistortion ) ;
-
     ckRepeat.Checked := GetElementBool( ProtNode, 'REPEATSCANS', ckRepeat.Checked ) ;
 
     InvertPMTSignal := GetElementBool( ProtNode, 'INVERTPMTSIGNAL', InvertPMTSignal ) ;
 
     NumAverages := GetElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
-    MaxScanRate := GetElementDouble( ProtNode, 'MAXSCANRATE', MaxScanRate ) ;
+    MinCyclePeriod := GetElementDouble( ProtNode, 'MINCYCLEPERIOD', MinCyclePeriod ) ;
     MinPixelDwellTime := GetElementDouble( ProtNode, 'MINPIXELDWELLTIME', MinPixelDwellTime ) ;
     NumAverages := GetElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
     BlackLevel := GetElementInt( ProtNode, 'BLACKLEVEL', BlackLevel ) ;
@@ -3364,7 +3329,6 @@ begin
     PhaseShift := GetElementDouble( ProtNode, 'PHASESHIFT', PhaseShift ) ;
     LaserIntensity := GetElementDouble( ProtNode, 'LASERINTENSITY', LaserIntensity ) ;
     FullFieldWidthMicrons := GetElementDouble( ProtNode, 'FULLFIELDWIDTHMICRONS', FullFieldWidthMicrons ) ;
-    FieldEdge := GetElementDouble( ProtNode, 'FIELDEDGE', FieldEdge ) ;
 
     // Z stage
     NodeIndex := 0 ;

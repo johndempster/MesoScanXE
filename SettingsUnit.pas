@@ -27,24 +27,16 @@ type
     LasersTab: TTabSheet;
     TabSheet1: TTabSheet;
     MiscTab: TTabSheet;
-    ImageHRGrp: TGroupBox;
+    gpCaptureImage: TGroupBox;
     ScanGrp: TGroupBox;
     Label3: TLabel;
     Label6: TLabel;
     Label9: TLabel;
     Label11: TLabel;
-    Label24: TLabel;
-    ckCorrectSineWaveDistortion: TCheckBox;
     edPhaseShift: TValidatedEdit;
-    edMaxScanRate: TValidatedEdit;
-    ckBidirectionalScan: TCheckBox;
+    edMinCyclePeriod: TValidatedEdit;
     edMinPixelDwellTime: TValidatedEdit;
     edFullFieldWidthMicrons: TValidatedEdit;
-    edFieldEdge: TValidatedEdit;
-    Label4: TLabel;
-    edFastFrameWidth: TValidatedEdit;
-    Label12: TLabel;
-    edFastFrameHeight: TValidatedEdit;
     gpPMTs: TGroupBox;
     Label2: TLabel;
     Label18: TLabel;
@@ -157,6 +149,11 @@ type
     ValidatedEdit12: TValidatedEdit;
     ValidatedEdit13: TValidatedEdit;
     Label31: TLabel;
+    gpLiveImage: TGroupBox;
+    Label4: TLabel;
+    edFastFrameWidth: TValidatedEdit;
+    Label12: TLabel;
+    edFastFrameHeight: TValidatedEdit;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -214,13 +211,11 @@ begin
     MainFrm.HRPixelSize := edHRPixelSize.Value ;
     MainFrm.FastFRameWidth := Round(edFastFRameWidth.Value) ;
     MainFrm.FastFRameHeight := Round(edFastFRameHeight.Value) ;
-    MainFrm.BidirectionalScan := ckBidirectionalScan.Checked ;
-    MainFrm.MaxScanRate := edMaxScanRate.Value ;
+    MainFrm.MinCyclePeriod := edMinCyclePeriod.Value ;
     MainFrm.MinPixelDwellTime := edMinPixelDwellTime.Value ;
     MainFrm.XVoltsPerMicron := edXVoltsPerMicron.Value ;
     MainFrm.YVoltsPerMicron := edYVoltsPerMicron.Value ;
-    MainFrm.PhaseShift := edPhaseShift.Value ;
-    MainFrm.CorrectSineWaveDistortion := ckCorrectSineWaveDistortion.Checked ;
+    MainFrm.PhaseShift := Abs(edPhaseShift.Value) ;
     MainFrm.BlackLevel := Round(edBlackLevel.Value) ;
 
     // PMTs & Integrator
@@ -237,11 +232,9 @@ begin
 
     MainFrm.UpdatePMTSettings ;
 
-    if (MainFrm.FullFieldWidthMicrons <> edFullFieldWidthMicrons.Value) or
-       (MainFrm.FieldEdge <> edFieldEdge.Value)then
+    if (MainFrm.FullFieldWidthMicrons <> edFullFieldWidthMicrons.Value)then
        begin
        MainFrm.FullFieldWidthMicrons := edFullFieldWidthMicrons.Value ;
-       MainFrm.FieldEdge := edFieldEdge.Value ;
        MainFrm.SetScanZoomToFullField ;
        end;
 
@@ -339,23 +332,18 @@ procedure TSettingsFrm.FormShow(Sender: TObject);
 // --------------------------
 // Initialise form on display
 // --------------------------
-var
-    i,iDev : Integer ;
 begin
 
     edFastFrameWidth.Value := MainFrm.FastFrameWidth ;
     edFastFrameHeight.Value := MainFrm.FastFrameHeight ;
 
-    edPhaseShift.Value := MainFrm.PhaseShift ;
-    ckBidirectionalScan.Checked :=  MainFrm.BidirectionalScan ;
-    edMaxScanRate.Value := MainFrm.MaxScanRate ;
+    edPhaseShift.Value := Abs(MainFrm.PhaseShift) ;
+    edMinCyclePeriod.Value := MainFrm.MinCyclePeriod ;
     edMinPixelDwellTime.Value := MainFrm.MinPixelDwellTime ;
     edXVoltsPerMicron.Value := MainFrm.XVoltsPerMicron ;
     edYVoltsPerMicron.Value := MainFrm.YVoltsPerMicron ;
-    ckCorrectSineWaveDistortion.Checked := MainFrm.CorrectSineWaveDistortion ;
     edBlackLevel.Value := MainFrm.BlackLevel ;
     edFullFieldWidthMicrons.Value := MainFrm.FullFieldWidthMicrons ;
-    edFieldEdge.Value := MainFrm.FieldEdge ;
     ckInvertPMTSignal.Checked := MainFrm.InvertPMTSignal ;
     edHRPixelSize.Value := MainFrm.HRPixelSize ;
 
@@ -434,11 +422,11 @@ procedure TSettingsFrm.ReadWritePMTPanel(
           Num : Integer ;
           Panel : TPanel ;
           RW : string ) ;
-// -----------------------------------------
+// ---------------------------------
 // Read PMT settings panel controls
-// -----------------------------------------
+// ---------------------------------
 var
-    i,iDev : Integer ;
+    i : Integer ;
     edName : TEdit ;
     cbPort : TComboBox ;
     edGain : TValidatedEdit ;
@@ -518,7 +506,7 @@ procedure TSettingsFrm.ReadWriteLaserPanel(
 // Read/write laser settings panel controls
 // -----------------------------------------
 var
-    i,iDev : Integer ;
+    i : Integer ;
     edName : TEdit ;
     cbOnOffPort,cbIntensityPort : TComboBox ;
     edVMax,edMaxPower : TValidatedEdit ;

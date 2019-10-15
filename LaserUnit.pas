@@ -32,9 +32,7 @@ type
     FChanged : Boolean ;              // Available lasers changed
     FActive : Boolean ;               // Lasers active flag
     FLaserType : Integer ;            // Type of laser unit
-    FComHandle : THandle ;            // Com port handle
 
-    FComPortOpen : Boolean ;          // Com port open flag
     FBaudRate : DWord ;               // Com port baud rate
     ComFailed : Boolean ;             // COM port communications failed flag
     FShutterOpen : Boolean ;
@@ -42,8 +40,6 @@ type
     FNumLasers : Integer ;            // No. lasers in use
 
 
-    Status : String ;         // Laser status report
-    FControlState : Integer ;  // Laser control state
     FName : Array[0..MaxLaser] of string ;                       // Laser name
     FIntensityControlPort : Array[0..MaxLaser] of Integer ;      // Laser intensity control port
     FIntensity : Array[0..MaxLaser] of Double ;                  // Laser intensity
@@ -56,13 +52,9 @@ type
     FLaserNum : Array[0..MaxLaser] of Integer ;                  // Laser ID number
     LaserNum : Integer ;
 
-    OverLapStructure : POVERLAPPED ;
-    ReplyMessage : string ;
-    WaitingForReply : Boolean ;
 
     ComThread : LaserComThread ;
 
-    procedure ResetCOMPort ;
     procedure SetLaserType( Value : Integer ) ;
     procedure SetControlPort( Value : DWord ) ;
     procedure SetBaudRate( Value : DWord ) ;
@@ -319,7 +311,7 @@ begin
     end;
 
 
-procedure TLaser.ResetCOMPort ;
+{procedure TLaser.ResetCOMPort ;
 // --------------------------
 // Reset COM thread (if in use)
 // --------------------------
@@ -336,7 +328,7 @@ begin
              end;
           end;
         end;
-    end;
+    end;    }
 
 
 procedure TLaser.SetIntensity(

@@ -1,8 +1,8 @@
 object MainFrm: TMainFrm
   Left = 794
-  Top = 357
+  Top = 350
   Caption = 'MesoScan V1.5.4 64 bit 24/06/19'
-  ClientHeight = 1053
+  ClientHeight = 1024
   ClientWidth = 1014
   Color = clBtnFace
   DoubleBuffered = True
@@ -13,6 +13,7 @@ object MainFrm: TMainFrm
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
+  Position = poDesigned
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
@@ -209,123 +210,13 @@ object MainFrm: TMainFrm
       end
     end
   end
-  object ImageSizeGrp: TGroupBox
-    Left = 8
-    Top = 167
-    Width = 369
-    Height = 146
-    Caption = ' Image '
-    TabOrder = 1
-    object ZStackGrp: TGroupBox
-      Left = 12
-      Top = 18
-      Width = 345
-      Height = 119
-      TabOrder = 0
-      object Label5: TLabel
-        Left = 56
-        Top = 16
-        Width = 59
-        Height = 13
-        Alignment = taRightJustify
-        Caption = 'No. sections'
-      end
-      object Label6: TLabel
-        Left = 4
-        Top = 43
-        Width = 111
-        Height = 13
-        Alignment = taRightJustify
-        Caption = 'Section spacing (pixels)'
-      end
-      object Label1: TLabel
-        Left = 16
-        Top = 70
-        Width = 99
-        Height = 13
-        Alignment = taRightJustify
-        Caption = 'Section spacing (um)'
-      end
-      object edNumZSections: TValidatedEdit
-        Left = 121
-        Top = 16
-        Width = 57
-        Height = 21
-        Hint = 'No. of sections in Z stage'
-        ShowHint = True
-        Text = ' 1 '
-        Value = 1.000000000000000000
-        Scale = 1.000000000000000000
-        NumberFormat = '%.0f'
-        LoLimit = 1.000000000000000000
-        HiLimit = 20000.000000000000000000
-      end
-      object edNumPixelsPerZStep: TValidatedEdit
-        Left = 121
-        Top = 43
-        Width = 57
-        Height = 21
-        Hint = 'Z increment between sections'
-        OnKeyPress = edNumPixelsPerZStepKeyPress
-        Text = ' 1.000 '
-        Value = 1.000000000000000000
-        Scale = 1.000000000000000000
-        NumberFormat = '%.3f'
-        LoLimit = -100.000000000000000000
-        HiLimit = 100.000000000000000000
-      end
-      object edMicronsPerZStep: TValidatedEdit
-        Left = 121
-        Top = 70
-        Width = 57
-        Height = 21
-        Hint = 'Z increment between sections'
-        OnKeyPress = edMicronsPerZStepKeyPress
-        Text = ' 0.000 um'
-        Scale = 1.000000000000000000
-        Units = 'um'
-        NumberFormat = '%.3f'
-        LoLimit = -100.000000000000000000
-        HiLimit = 100.000000000000000000
-      end
-    end
-    object LineScanGrp: TGroupBox
-      Left = 14
-      Top = 18
-      Width = 343
-      Height = 104
-      TabOrder = 1
-      object Label2: TLabel
-        Left = 74
-        Top = 16
-        Width = 41
-        Height = 13
-        Alignment = taRightJustify
-        Caption = 'No. lines'
-      end
-      object edLineScanFrameHeight: TValidatedEdit
-        Left = 121
-        Top = 16
-        Width = 57
-        Height = 21
-        Hint = 'No. lines in line scan image'
-        ShowHint = True
-        Text = ' 1000 '
-        Value = 1000.000000000000000000
-        Scale = 1.000000000000000000
-        NumberFormat = '%.0f'
-        LoLimit = 10.000000000000000000
-        HiLimit = 30000.000000000000000000
-      end
-    end
-  end
   object PMTGrp: TGroupBox
     Left = 8
-    Top = 445
+    Top = 421
     Width = 365
     Height = 356
     Caption = ' PMT Channels  '
-    TabOrder = 2
+    TabOrder = 1
     object gpPMT1: TGroupBox
       Left = 8
       Top = 104
@@ -813,11 +704,11 @@ object MainFrm: TMainFrm
   end
   object DisplayGrp: TGroupBox
     Left = 8
-    Top = 807
+    Top = 783
     Width = 369
     Height = 138
     Caption = ' Display '
-    TabOrder = 3
+    TabOrder = 2
     object Splitter1: TSplitter
       Left = 2
       Top = 15
@@ -1045,10 +936,10 @@ object MainFrm: TMainFrm
   end
   object StatusGrp: TGroupBox
     Left = 8
-    Top = 951
+    Top = 927
     Width = 376
     Height = 81
-    TabOrder = 4
+    TabOrder = 3
     object meStatus: TMemo
       Left = 8
       Top = 10
@@ -1064,9 +955,9 @@ object MainFrm: TMainFrm
     Left = 8
     Top = 8
     Width = 369
-    Height = 153
+    Height = 281
     Caption = ' Image Capture  '
-    TabOrder = 5
+    TabOrder = 4
     object Label4: TLabel
       Left = 276
       Top = 13
@@ -1145,8 +1036,8 @@ object MainFrm: TMainFrm
       Top = 20
       Width = 140
       Height = 30
-      Hint = 'Acquire high speed low resolution image of full imaging field'
-      Caption = 'Live Image (Fast)'
+      Hint = 'Acquire repeated high speed low resolution image'
+      Caption = 'Live Image'
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -1223,8 +1114,13 @@ object MainFrm: TMainFrm
       Left = 276
       Top = 35
       Width = 66
-      Height = 21
+      Height = 24
       Hint = 'No. of images to be averaged'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial Narrow'
+      Font.Style = []
       ShowHint = True
       Text = ' 1 '
       Value = 1.000000000000000000
@@ -1233,10 +1129,124 @@ object MainFrm: TMainFrm
       LoLimit = 1.000000000000000000
       HiLimit = 20000.000000000000000000
     end
+    object ZStackGrp: TGroupBox
+      Left = 8
+      Top = 146
+      Width = 262
+      Height = 119
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 7
+      object Label5: TLabel
+        Left = 8
+        Top = 10
+        Width = 140
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'No. sections'
+      end
+      object Label6: TLabel
+        Left = 8
+        Top = 38
+        Width = 140
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'Section spacing (pixels)'
+      end
+      object Label1: TLabel
+        Left = 8
+        Top = 66
+        Width = 140
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'Section spacing (um)'
+      end
+      object edNumZSections: TValidatedEdit
+        Left = 154
+        Top = 10
+        Width = 80
+        Height = 24
+        Hint = 'No. of sections in Z stage'
+        ShowHint = True
+        Text = ' 1 '
+        Value = 1.000000000000000000
+        Scale = 1.000000000000000000
+        NumberFormat = '%.0f'
+        LoLimit = 1.000000000000000000
+        HiLimit = 20000.000000000000000000
+      end
+      object edNumPixelsPerZStep: TValidatedEdit
+        Left = 154
+        Top = 38
+        Width = 80
+        Height = 24
+        Hint = 'Z increment between sections'
+        OnKeyPress = edNumPixelsPerZStepKeyPress
+        Text = ' 1.000 '
+        Value = 1.000000000000000000
+        Scale = 1.000000000000000000
+        NumberFormat = '%.3f'
+        LoLimit = -100.000000000000000000
+        HiLimit = 100.000000000000000000
+      end
+      object edMicronsPerZStep: TValidatedEdit
+        Left = 154
+        Top = 66
+        Width = 80
+        Height = 24
+        Hint = 'Z increment between sections'
+        OnKeyPress = edMicronsPerZStepKeyPress
+        Text = ' 0.000 um'
+        Scale = 1.000000000000000000
+        Units = 'um'
+        NumberFormat = '%.3f'
+        LoLimit = -100.000000000000000000
+        HiLimit = 100.000000000000000000
+      end
+    end
+    object LineScanGrp: TGroupBox
+      Left = 8
+      Top = 146
+      Width = 262
+      Height = 119
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 8
+      object Label2: TLabel
+        Left = 8
+        Top = 10
+        Width = 140
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'No. lines'
+      end
+      object edLineScanFrameHeight: TValidatedEdit
+        Left = 154
+        Top = 10
+        Width = 60
+        Height = 24
+        Hint = 'No. lines in line scan image'
+        ShowHint = True
+        Text = ' 1000 '
+        Value = 1000.000000000000000000
+        Scale = 1.000000000000000000
+        NumberFormat = '%.0f'
+        LoLimit = 10.000000000000000000
+        HiLimit = 30000.000000000000000000
+      end
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 319
+    Top = 295
     Width = 369
     Height = 120
     Caption = ' Stage Position '
@@ -1246,7 +1256,7 @@ object MainFrm: TMainFrm
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-    TabOrder = 6
+    TabOrder = 5
     object edGotoXPosition: TValidatedEdit
       Left = 90
       Top = 56

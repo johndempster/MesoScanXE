@@ -17,7 +17,6 @@ type
     FComPort : Integer ;              // Com port #
     FComHandle : THandle ;            // Com port handle
     FComPortOpen : Boolean ;          // Com port open flag
-    FBaudRate : DWord ;               // Com port baud rate
     ComFailed : Boolean ;             // COM port communications failed flag
 
     OverLapStructure : POVERLAPPED ;

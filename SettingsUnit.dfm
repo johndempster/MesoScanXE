@@ -1,10 +1,10 @@
 object SettingsFrm: TSettingsFrm
-  Left = 0
+  Left = 176
   Top = 0
   BorderStyle = bsDialog
   Caption = ' Scan Settings '
   ClientHeight = 512
-  ClientWidth = 571
+  ClientWidth = 594
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,7 +12,7 @@ object SettingsFrm: TSettingsFrm
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poDesigned
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -53,7 +53,7 @@ object SettingsFrm: TSettingsFrm
     Top = 6
     Width = 553
     Height = 467
-    ActivePage = gpIntegrator
+    ActivePage = MiscTab
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
@@ -64,32 +64,16 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ParentFont = False
       ExplicitLeft = 0
-      ExplicitTop = 0
+      ExplicitTop = 48
       ExplicitWidth = 0
       ExplicitHeight = 0
-      object ImageHRGrp: TGroupBox
+      object gpCaptureImage: TGroupBox
         Left = 8
-        Top = 10
+        Top = 8
         Width = 253
-        Height = 131
-        Caption = ' Image (hi. res. scan)'
+        Height = 52
+        Caption = 'Capture Image '
         TabOrder = 0
-        object Label4: TLabel
-          Left = 31
-          Top = 46
-          Width = 119
-          Height = 15
-          Alignment = taRightJustify
-          Caption = 'Live Image Pixels/line'
-        end
-        object Label12: TLabel
-          Left = 18
-          Top = 74
-          Width = 132
-          Height = 15
-          Alignment = taRightJustify
-          Caption = 'Live Image Lines/image'
-        end
         object Label37: TLabel
           Left = 99
           Top = 18
@@ -98,35 +82,13 @@ object SettingsFrm: TSettingsFrm
           Alignment = taRightJustify
           Caption = 'Pixel size'
         end
-        object edFastFrameWidth: TValidatedEdit
-          Left = 156
-          Top = 46
-          Width = 90
-          Height = 23
-          Text = ' 500 '
-          Value = 500.000000000000000000
-          Scale = 1.000000000000000000
-          NumberFormat = '%.0f'
-          LoLimit = 10.000000000000000000
-          HiLimit = 30000.000000000000000000
-        end
-        object edFastFrameHeight: TValidatedEdit
-          Left = 156
-          Top = 74
-          Width = 90
-          Height = 23
-          Text = ' 50 '
-          Value = 50.000000000000000000
-          Scale = 1.000000000000000000
-          NumberFormat = '%.0f'
-          LoLimit = 10.000000000000000000
-          HiLimit = 30000.000000000000000000
-        end
         object edHRPixelSize: TValidatedEdit
           Left = 156
           Top = 18
           Width = 90
           Height = 23
+          Hint = 'Pixel size (microns) for captured images'
+          ShowHint = True
           Text = ' 0.25 um'
           Value = 0.250000000000000000
           Scale = 1.000000000000000000
@@ -138,30 +100,30 @@ object SettingsFrm: TSettingsFrm
       end
       object ScanGrp: TGroupBox
         Left = 268
-        Top = 3
+        Top = 8
         Width = 235
-        Height = 294
+        Height = 309
         Caption = ' Scan Settings'
         TabOrder = 1
         object Label3: TLabel
           Left = 63
-          Top = 110
+          Top = 99
           Width = 68
           Height = 15
           Alignment = taRightJustify
           Caption = 'Phase delay'
         end
         object Label6: TLabel
-          Left = 53
-          Top = 184
-          Width = 78
+          Left = 37
+          Top = 45
+          Width = 94
           Height = 15
           Alignment = taRightJustify
-          Caption = 'Max. scan rate'
+          Caption = 'Min. Cycle Period'
         end
         object Label9: TLabel
           Left = 22
-          Top = 209
+          Top = 72
           Width = 109
           Height = 15
           Alignment = taRightJustify
@@ -175,64 +137,42 @@ object SettingsFrm: TSettingsFrm
           Alignment = taRightJustify
           Caption = 'Field Width'
         end
-        object Label24: TLabel
-          Left = 72
-          Top = 44
-          Width = 59
-          Height = 15
-          Alignment = taRightJustify
-          Caption = 'Field Edge'
-        end
-        object ckCorrectSineWaveDistortion: TCheckBox
-          Left = 26
-          Top = 88
-          Width = 201
-          Height = 15
-          Alignment = taLeftJustify
-          Caption = 'Correct Sine Wave Distortion'
-          Checked = True
-          State = cbChecked
-          TabOrder = 0
-        end
         object edPhaseShift: TValidatedEdit
           Left = 137
-          Top = 110
+          Top = 99
           Width = 90
           Height = 23
+          Hint = 'XY Galvanometer  phase delay'
+          ShowHint = True
           Text = ' 0 ms'
           Scale = 1000.000000000000000000
           Units = 'ms'
           NumberFormat = '%.4g'
           LoLimit = -1.000000015047466E30
-          HiLimit = 20000.000000000000000000
+          HiLimit = 1.000000015047466E30
         end
-        object edMaxScanRate: TValidatedEdit
+        object edMinCyclePeriod: TValidatedEdit
           Left = 137
-          Top = 184
+          Top = 45
           Width = 90
           Height = 23
-          Text = ' 100.0 Hz'
-          Value = 100.000000000000000000
-          Scale = 1.000000000000000000
-          Units = 'Hz'
+          Hint = 'Shortest permitted cycle period'
+          ShowHint = True
+          Text = ' 20.0 ms'
+          Value = 0.019999999552965160
+          Scale = 1000.000000000000000000
+          Units = 'ms'
           NumberFormat = '%.1f'
-          LoLimit = 1.000000000000000000
-          HiLimit = 500.000000000000000000
-        end
-        object ckBidirectionalScan: TCheckBox
-          Left = 26
-          Top = 65
-          Width = 201
-          Height = 17
-          Alignment = taLeftJustify
-          Caption = 'Bi-directional scan'
-          TabOrder = 3
+          LoLimit = 0.004999999888241291
+          HiLimit = 1.000000000000000000
         end
         object edMinPixelDwellTime: TValidatedEdit
           Left = 137
-          Top = 209
+          Top = 72
           Width = 90
           Height = 23
+          Hint = 'Shortest permitted dwell time'
+          ShowHint = True
           Text = ' 0.5 us'
           Value = 0.000000499999998738
           Scale = 1000000.000000000000000000
@@ -256,33 +196,16 @@ object SettingsFrm: TSettingsFrm
           LoLimit = 100.000000000000000000
           HiLimit = 10000.000000000000000000
         end
-        object edFieldEdge: TValidatedEdit
-          Left = 137
-          Top = 43
-          Width = 90
-          Height = 23
-          Hint = 
-            'Additional non-imaging region at edge of field (% of field width' +
-            ')'
-          ShowHint = True
-          Text = ' 5 %'
-          Value = 0.050000000745058060
-          Scale = 100.000000000000000000
-          Units = '%'
-          NumberFormat = '%.0f'
-          LoLimit = -1.000000015047466E30
-          HiLimit = 0.200000002980232200
-        end
       end
       object GroupBox1: TGroupBox
-        Left = 3
-        Top = 147
-        Width = 258
+        Left = 8
+        Top = 167
+        Width = 253
         Height = 150
         Caption = ' Scanning Galvanometer Control '
         TabOrder = 2
         object Label40: TLabel
-          Left = 72
+          Left = 68
           Top = 20
           Width = 84
           Height = 15
@@ -290,7 +213,7 @@ object SettingsFrm: TSettingsFrm
           Caption = 'X Mirror Control'
         end
         object Label41: TLabel
-          Left = 72
+          Left = 68
           Top = 79
           Width = 84
           Height = 15
@@ -298,15 +221,15 @@ object SettingsFrm: TSettingsFrm
           Caption = 'Y Mirror Control'
         end
         object xscalelab: TLabel
-          Left = 78
-          Top = 49
+          Left = 74
+          Top = 48
           Width = 78
           Height = 15
           Alignment = taRightJustify
           Caption = 'X Scale Factor'
         end
         object Label5: TLabel
-          Left = 78
+          Left = 74
           Top = 108
           Width = 78
           Height = 15
@@ -314,26 +237,34 @@ object SettingsFrm: TSettingsFrm
           Caption = 'Y Scale Factor'
         end
         object cbXGalvo: TComboBox
-          Left = 162
+          Left = 156
           Top = 20
           Width = 90
           Height = 23
+          Hint = 'X Mirror galvo control analogue output'
           Style = csDropDownList
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 0
         end
         object cbYGalvo: TComboBox
-          Left = 162
+          Left = 156
           Top = 79
           Width = 90
           Height = 23
+          Hint = 'Y Mirror galvo control analogue output'
           Style = csDropDownList
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 1
         end
         object edXVoltsPerMicron: TValidatedEdit
-          Left = 162
-          Top = 46
+          Left = 156
+          Top = 48
           Width = 90
           Height = 23
+          Hint = 'X galvo V/micron scaling factor'
+          ShowHint = True
           Text = ' 1 V/um'
           Value = 1.000000000000000000
           Scale = 1.000000000000000000
@@ -343,10 +274,12 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 1.000000000000000000
         end
         object edYVoltsPerMicron: TValidatedEdit
-          Left = 162
+          Left = 156
           Top = 106
           Width = 90
           Height = 23
+          Hint = 'Y galvo V/micron scaling factor'
+          ShowHint = True
           Text = ' 1 V/um'
           Value = 1.000000000000000000
           Scale = 1.000000000000000000
@@ -354,6 +287,58 @@ object SettingsFrm: TSettingsFrm
           NumberFormat = '%.4g'
           LoLimit = 0.000009999999747379
           HiLimit = 10.000000000000000000
+        end
+      end
+      object gpLiveImage: TGroupBox
+        Left = 8
+        Top = 71
+        Width = 253
+        Height = 90
+        Caption = ' Live Image '
+        TabOrder = 3
+        object Label4: TLabel
+          Left = 96
+          Top = 20
+          Width = 56
+          Height = 15
+          Alignment = taRightJustify
+          Caption = 'Pixels/line'
+        end
+        object Label12: TLabel
+          Left = 77
+          Top = 48
+          Width = 75
+          Height = 15
+          Alignment = taRightJustify
+          Caption = 'Lines / Image'
+        end
+        object edFastFrameWidth: TValidatedEdit
+          Left = 156
+          Top = 20
+          Width = 90
+          Height = 23
+          Hint = 'No. of pixels in Live Image scan line'
+          ShowHint = True
+          Text = ' 500 '
+          Value = 500.000000000000000000
+          Scale = 1.000000000000000000
+          NumberFormat = '%.0f'
+          LoLimit = 10.000000000000000000
+          HiLimit = 30000.000000000000000000
+        end
+        object edFastFrameHeight: TValidatedEdit
+          Left = 156
+          Top = 48
+          Width = 90
+          Height = 23
+          Hint = 'No. of lines in Live Image image'
+          ShowHint = True
+          Text = ' 50 '
+          Value = 50.000000000000000000
+          Scale = 1.000000000000000000
+          NumberFormat = '%.0f'
+          LoLimit = 10.000000000000000000
+          HiLimit = 30000.000000000000000000
         end
       end
     end
@@ -366,6 +351,10 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 1
       ParentFont = False
+      ExplicitLeft = 0
+      ExplicitTop = 20
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object gpPMTs: TGroupBox
         Left = 259
         Top = 8
@@ -380,16 +369,16 @@ object SettingsFrm: TSettingsFrm
         ParentFont = False
         TabOrder = 0
         object Label2: TLabel
-          Left = 69
-          Top = 27
-          Width = 104
+          Left = 44
+          Top = 20
+          Width = 124
           Height = 16
           Alignment = taRightJustify
           Caption = 'No. of PMTs available'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -13
-          Font.Name = 'Arial Narrow'
+          Font.Name = 'Arial'
           Font.Style = []
           ParentFont = False
         end
@@ -430,30 +419,30 @@ object SettingsFrm: TSettingsFrm
           ParentFont = False
         end
         object Label20: TLabel
-          Left = 56
+          Left = 26
           Top = 50
-          Width = 117
+          Width = 142
           Height = 16
           Alignment = taRightJustify
           Caption = 'PMT Voltage (Min. Gain)'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -13
-          Font.Name = 'Arial Narrow'
+          Font.Name = 'Arial'
           Font.Style = []
           ParentFont = False
         end
         object Label21: TLabel
-          Left = 52
+          Left = 22
           Top = 79
-          Width = 121
+          Width = 146
           Height = 16
           Alignment = taRightJustify
           Caption = 'PMT Voltage (Max. Gain)'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -13
-          Font.Name = 'Arial Narrow'
+          Font.Name = 'Arial'
           Font.Style = []
           ParentFont = False
         end
@@ -526,8 +515,8 @@ object SettingsFrm: TSettingsFrm
           end
         end
         object spNumPMTs: TSpinEdit
-          Left = 179
-          Top = 18
+          Left = 176
+          Top = 20
           Width = 50
           Height = 26
           Hint = 'Number of PMTS installed in system'
@@ -681,8 +670,8 @@ object SettingsFrm: TSettingsFrm
           end
         end
         object edPMTGainVMin: TValidatedEdit
-          Left = 177
-          Top = 49
+          Left = 176
+          Top = 50
           Width = 50
           Height = 24
           Hint = 'PMT control voltage at minimum gain'
@@ -696,7 +685,7 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 10.000000000000000000
         end
         object edPMTGainVMax: TValidatedEdit
-          Left = 177
+          Left = 176
           Top = 79
           Width = 50
           Height = 24
@@ -723,6 +712,9 @@ object SettingsFrm: TSettingsFrm
           Top = 20
           Width = 215
           Height = 24
+          Hint = 'PMT signal integrator'
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 0
           Text = 'cbIntegratorType'
           OnChange = cbIntegratorTypeChange
@@ -747,7 +739,10 @@ object SettingsFrm: TSettingsFrm
             Top = 0
             Width = 97
             Height = 24
+            Hint = 'PMT signal integrator control port'
             Style = csDropDownList
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 0
             OnChange = cbIntegratorPortChange
           end
@@ -773,6 +768,9 @@ object SettingsFrm: TSettingsFrm
           Top = 20
           Width = 215
           Height = 24
+          Hint = 'PMT signal A/D converter'
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 0
           Text = 'cbPMTADCDevice'
         end
@@ -1300,6 +1298,10 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 3
       ParentFont = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 8
         Top = 3
@@ -1352,7 +1354,12 @@ object SettingsFrm: TSettingsFrm
           Top = 43
           Width = 97
           Height = 23
+          Hint = 
+            'Z stage control port (COM or analogue depending on type of stage' +
+            ')'
           Style = csDropDownList
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 0
         end
         object edZScaleFactor: TValidatedEdit
@@ -1360,6 +1367,8 @@ object SettingsFrm: TSettingsFrm
           Top = 68
           Width = 97
           Height = 23
+          Hint = 'Z step scaling factor'
+          ShowHint = True
           Text = ' 1 steps/um'
           Value = 1.000000000000000000
           Scale = 1.000000000000000000
@@ -1382,6 +1391,8 @@ object SettingsFrm: TSettingsFrm
           Top = 95
           Width = 97
           Height = 23
+          Hint = 'Time allocated for completion of Z step '
+          ShowHint = True
           Text = ' 100 ms'
           Value = 0.100000001490116100
           Scale = 1000.000000000000000000
@@ -1395,6 +1406,8 @@ object SettingsFrm: TSettingsFrm
           Top = 122
           Width = 97
           Height = 23
+          Hint = 'Upper limit of Z stage movement'
+          ShowHint = True
           Text = ' -10000 um'
           Value = -10000.000000000000000000
           Scale = 1.000000000000000000
@@ -1408,6 +1421,8 @@ object SettingsFrm: TSettingsFrm
           Top = 149
           Width = 97
           Height = 23
+          Hint = 'Upper limit of Z stage movement'
+          ShowHint = True
           Text = ' 10000 um'
           Value = 10000.000000000000000000
           Scale = 1.000000000000000000
@@ -1420,7 +1435,13 @@ object SettingsFrm: TSettingsFrm
     end
     object MiscTab: TTabSheet
       Caption = 'Miscellaneous'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Arial'
+      Font.Style = []
       ImageIndex = 4
+      ParentFont = False
       ExplicitLeft = 0
       ExplicitTop = 0
       ExplicitWidth = 0
@@ -1430,30 +1451,36 @@ object SettingsFrm: TSettingsFrm
         Top = 10
         Width = 532
         Height = 199
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial Narrow'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 0
         object Label25: TLabel
           Left = 8
           Top = 8
-          Width = 107
-          Height = 13
+          Width = 129
+          Height = 16
           Caption = 'Image-J Program Path'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Height = -13
+          Font.Name = 'Arial'
           Font.Style = []
           ParentFont = False
         end
         object Label17: TLabel
           Left = 8
           Top = 57
-          Width = 99
-          Height = 13
+          Width = 121
+          Height = 16
           Caption = 'Raw Data File Folder'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Height = -13
+          Font.Name = 'Arial'
           Font.Style = []
           ParentFont = False
         end
@@ -1461,23 +1488,41 @@ object SettingsFrm: TSettingsFrm
           Left = 8
           Top = 26
           Width = 518
-          Height = 21
+          Height = 24
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
           Text = 'edImageJPath'
         end
         object ckSaveAsMultipageTIFF: TCheckBox
           Left = 8
           Top = 105
-          Width = 170
+          Width = 249
           Height = 17
           Caption = 'Save stacks as multipage TIFF'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
           TabOrder = 1
         end
         object edRawFileFolder: TEdit
           Left = 8
           Top = 76
           Width = 518
-          Height = 21
+          Height = 24
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 2
           Text = 'edImageJPath'
         end

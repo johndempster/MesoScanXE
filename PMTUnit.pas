@@ -288,8 +288,6 @@ procedure TPMT.SetIntegrationTime( IntegrationTime : double ) ;
 // ------------------------
 // Set PMT integration time
 // ------------------------
-var
-    i : Integer ;
 begin
 
     case FIntegratorType of

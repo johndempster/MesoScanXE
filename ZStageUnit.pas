@@ -138,8 +138,6 @@ type
     // Thorlabs TDC001 procedures and variables
     LibraryHnd : THandle ;
     CommonLibraryHnd : THandle ;
-    mmToDeviceUnits : Double ;
-    DeviceUnitsTomm : Double ;
 
     TLI_BuildDeviceList : TTLI_BuildDeviceList ;
     TLI_GetDeviceListSize : TTLI_GetDeviceListSize ;
@@ -789,7 +787,6 @@ procedure TZStage.TDC001_GetPosition ;
 // --------------------------------
 var
     DeviceUnits : Integer ;
-    ii : Int64 ;
 begin
   if not FStageIsOpen then Exit ;
   DeviceUnits := CC_GetPosition( PANSIChar(FSerialNumber) ) ;
