@@ -1402,7 +1402,7 @@ begin
     for iY := 0 to ScanCycle.NumLines-1 do
         begin
 
-        YDAC := Round(YScale*((iY1)*YLineSpacingMicrons + YStartMicrons)) ;
+        YDAC := Round(YScale*((iY)*YLineSpacingMicrons + YStartMicrons)) ;
 
         for iX := 0 to ScanCycle.NP-1 do
             begin
@@ -2397,8 +2397,8 @@ begin
         AvgBuf^[i] := AvgBuf^[i] + ADCBuf^[i] ;
 
         // Determine pixel and line position
-        iPix :=  ((i + iPhaseShift) div NumPMTChannels) mod ScanCycle.NP ;
-        iLine := ((i + iPhaseShift) div NumPMTChannels) div ScanCycle.NP ;
+        iPix :=  ((i - iPhaseShift) div NumPMTChannels) mod ScanCycle.NP ;
+        iLine := ((i - iPhaseShift) div NumPMTChannels) div ScanCycle.NP ;
 
         if (iPix >= ScanCycle.StartImage) and (iPix <= ScanCycle.EndImage) and
            (iLine >= ScanCycle.StartLine) and (iLine <= ScanCycle.EndLine) then

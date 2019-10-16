@@ -199,7 +199,7 @@ begin
      if not FComPortOpen then Exit ;
      if ComFailed then Exit ;
 
-     outputdebugstring(pchar('tx: ' + Line));
+//     outputdebugstring(pchar('tx: ' + Line));
 
      { Copy command line to be sent to xMit buffer and and a CR character }
      nC := Length(Line) ;

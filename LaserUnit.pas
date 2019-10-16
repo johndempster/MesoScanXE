@@ -414,7 +414,9 @@ const
     InitWaitForLaserNames = 1 ;
     InitRequestLaserPowers = 2 ;
     InitWaitForLaserPowers = 3 ;
-    InitComplete = 4 ;
+    InitDisableCDRH = 4 ;
+    InitWaitForDisableCDRH = 5 ;
+    InitComplete = 6 ;
 
 var
     i0,nc,i,iCode : Integer ;
@@ -435,7 +437,7 @@ begin
           InitRequestLaserNames :
             begin
             // Disable 5 second CDRH compliance delay on start of laser emission
-            CommandList.Add( 'syst:cdrh off' ) ;
+            //CommandList.Add( 'syst1:cdrh off' ) ;
             // Request names of available lasers from controller
             for i := 1 to 6 do CommandList.Add( format('*idn%d?',[i]));
             LaserNum := 1 ;
@@ -482,8 +484,7 @@ begin
                if ContainsText(ReplyList[0],'OK') or ContainsText(ReplyList[0],'ERR') then
                   begin
                   Inc(LaserNum) ;
-                  if LaserNum > FNumLasers then InitState := InitComplete ;
-
+                  if LaserNum > FNumLasers then InitState := InitDisableCDRH ;
                   end
                else
                   begin
@@ -492,6 +493,30 @@ begin
                outputdebugstring(pchar('rx: ' + ReplyList[0]));
                ReplyList.Delete(0);
                end ;
+
+          InitDisableCDRH :
+            begin
+            // Disable CDRH compliance delays for lasers
+            for i := 1 to FNumLasers do
+                CommandList.Add( format('syst%d:cdrh off',[FLaserNum[i]]));
+            LaserNum := 1 ;
+            InitState := InitWaitForDisableCDRH ;
+            end ;
+
+          InitWaitForDisableCDRH :
+            if ReplyList.Count > 0 then
+               begin
+               // Wait OK replies returned by controller
+               if ContainsText(ReplyList[0],'OK') or ContainsText(ReplyList[0],'ERR') then
+                  begin
+                  Inc(LaserNum) ;
+                  if LaserNum > FNumLasers then InitState := InitComplete ;
+                  end ;
+               outputdebugstring(pchar('rx: ' + ReplyList[0]));
+               ReplyList.Delete(0);
+               end ;
+
+
             end ;
 
 
@@ -620,7 +645,7 @@ begin
       begin
       // Intensity control
       i := FIntensityControlPort[iLaser] ;
-      if  i < MaxResources then
+      if  (i >=0) and (i < MaxResources) then
           begin
           if FLaserEnabled[iLaser] then V := FIntensity[iLaser]*VMaxIntensity[iLaser]
                                   else V := 0.0 ;
