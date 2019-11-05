@@ -79,76 +79,15 @@ object MainFrm: TMainFrm
       BevelOuter = bvNone
       TabOrder = 1
     end
-    object ZoomPanel: TPanel
-      Left = 16
-      Top = 237
-      Width = 105
-      Height = 20
-      BevelOuter = bvNone
-      TabOrder = 2
-      object lbZoom: TLabel
-        Left = 1
-        Top = 0
-        Width = 56
-        Height = 14
-        Caption = 'Zoom (X1)'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Arial'
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
-      object bZoomIn: TButton
-        Left = 63
-        Top = 0
-        Width = 17
-        Height = 17
-        Hint = 'Magnify displayed imaged'
-        Caption = '+'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Courier New'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 0
-        OnClick = bZoomInClick
-      end
-      object bZoomOut: TButton
-        Left = 82
-        Top = 0
-        Width = 17
-        Height = 17
-        Hint = 'Reduce image magnification'
-        Caption = '-'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Courier New'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 1
-        OnClick = bZoomOutClick
-      end
-    end
     object ImagePage: TPageControl
       Left = 3
       Top = 3
       Width = 294
       Height = 217
       ActivePage = TabImage1
-      TabOrder = 3
+      TabOrder = 2
       object TabImage0: TTabSheet
         Caption = 'PMT0'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image0: TImage
           Left = 2
           Top = 1
@@ -183,10 +122,6 @@ object MainFrm: TMainFrm
       object TabImage2: TTabSheet
         Caption = 'TabImage2'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image2: TImage
           Left = 0
           Top = 0
@@ -204,10 +139,6 @@ object MainFrm: TMainFrm
       object TabImage3: TTabSheet
         Caption = 'TabImage3'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image3: TImage
           Left = 0
           Top = 0
@@ -219,6 +150,49 @@ object MainFrm: TMainFrm
           OnMouseMove = Image0MouseMove
           OnMouseUp = Image0MouseUp
         end
+      end
+    end
+    object DisplayModeGrp: TGroupBox
+      Left = 288
+      Top = 243
+      Width = 195
+      Height = 34
+      TabOrder = 3
+      object rbZoomMode: TRadioButton
+        Left = 8
+        Top = 4
+        Width = 96
+        Height = 27
+        Hint = 'Select image zoom/position selection mode'
+        Caption = 'Zoom Mode'
+        Checked = True
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        TabStop = True
+      end
+      object rbROIMode: TRadioButton
+        Left = 110
+        Top = 4
+        Width = 83
+        Height = 27
+        Hint = 'Display CCD region of interest selection rectangle'
+        Caption = 'ROI Mode'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
       end
     end
   end
@@ -261,6 +235,7 @@ object MainFrm: TMainFrm
         Top = 22
         Width = 65
         Height = 17
+        Hint = 'Enable PMT Channel'
         Caption = 'Ch.0'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -268,6 +243,8 @@ object MainFrm: TMainFrm
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         OnClick = ckEnablePMT0Click
       end
@@ -302,7 +279,7 @@ object MainFrm: TMainFrm
         Top = 20
         Width = 116
         Height = 24
-        Hint = 'PMT amplifier gain'
+        Hint = 'Excitation laser selected for this PMT channel'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -327,8 +304,11 @@ object MainFrm: TMainFrm
         Top = 20
         Width = 96
         Height = 25
+        Hint = 'Excitation laser intensity (% of maximum)'
         Max = 1000
+        ParentShowHint = False
         Position = 100
+        ShowHint = True
         TabOrder = 3
         ThumbLength = 14
         TickStyle = tsManual
@@ -340,7 +320,9 @@ object MainFrm: TMainFrm
         Top = 46
         Width = 86
         Height = 21
+        Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
         Text = ' 100 %'
         Value = 1.000000000000000000
         Scale = 100.000000000000000000
@@ -382,6 +364,7 @@ object MainFrm: TMainFrm
         Top = 22
         Width = 65
         Height = 17
+        Hint = 'Enable PMT Channel'
         Caption = 'Ch.0'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -389,6 +372,8 @@ object MainFrm: TMainFrm
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         OnClick = ckEnablePMT0Click
       end
@@ -423,7 +408,7 @@ object MainFrm: TMainFrm
         Top = 20
         Width = 116
         Height = 24
-        Hint = 'PMT amplifier gain'
+        Hint = 'Excitation laser selected for this PMT channel'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -448,8 +433,11 @@ object MainFrm: TMainFrm
         Top = 20
         Width = 96
         Height = 25
+        Hint = 'Excitation laser intensity (% of maximum)'
         Max = 1000
+        ParentShowHint = False
         Position = 100
+        ShowHint = True
         TabOrder = 3
         ThumbLength = 14
         TickStyle = tsManual
@@ -461,7 +449,9 @@ object MainFrm: TMainFrm
         Top = 46
         Width = 86
         Height = 21
+        Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
         Text = ' 100 %'
         Value = 1.000000000000000000
         Scale = 100.000000000000000000
@@ -503,6 +493,7 @@ object MainFrm: TMainFrm
         Top = 22
         Width = 65
         Height = 17
+        Hint = 'Enable PMT Channel'
         Caption = 'Ch.0'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -510,6 +501,8 @@ object MainFrm: TMainFrm
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         OnClick = ckEnablePMT0Click
       end
@@ -544,7 +537,7 @@ object MainFrm: TMainFrm
         Top = 20
         Width = 116
         Height = 24
-        Hint = 'PMT amplifier gain'
+        Hint = 'Excitation laser selected for this PMT channel'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -569,8 +562,11 @@ object MainFrm: TMainFrm
         Top = 20
         Width = 96
         Height = 25
+        Hint = 'Excitation laser intensity (% of maximum)'
         Max = 1000
+        ParentShowHint = False
         Position = 100
+        ShowHint = True
         TabOrder = 3
         ThumbLength = 14
         TickStyle = tsManual
@@ -582,7 +578,9 @@ object MainFrm: TMainFrm
         Top = 46
         Width = 86
         Height = 21
+        Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
         Text = ' 100 %'
         Value = 1.000000000000000000
         Scale = 100.000000000000000000
@@ -624,6 +622,7 @@ object MainFrm: TMainFrm
         Top = 22
         Width = 65
         Height = 17
+        Hint = 'Enable PMT Channel'
         Caption = 'Ch.0'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -631,6 +630,8 @@ object MainFrm: TMainFrm
         Font.Name = 'Arial'
         Font.Style = []
         ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         OnClick = ckEnablePMT0Click
       end
@@ -665,7 +666,7 @@ object MainFrm: TMainFrm
         Top = 20
         Width = 116
         Height = 24
-        Hint = 'PMT amplifier gain'
+        Hint = 'Excitation laser selected for this PMT channel'
         Style = csDropDownList
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -690,8 +691,11 @@ object MainFrm: TMainFrm
         Top = 20
         Width = 96
         Height = 25
+        Hint = 'Excitation laser intensity (% of maximum)'
         Max = 1000
+        ParentShowHint = False
         Position = 100
+        ShowHint = True
         TabOrder = 3
         ThumbLength = 14
         TickStyle = tsManual
@@ -703,7 +707,9 @@ object MainFrm: TMainFrm
         Top = 46
         Width = 86
         Height = 21
+        Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
         Text = ' 100 %'
         Value = 1.000000000000000000
         Scale = 100.000000000000000000
@@ -839,10 +845,6 @@ object MainFrm: TMainFrm
       object SlidersTab: TTabSheet
         Caption = 'Sliders'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Label9: TLabel
           Left = 14
           Top = 0
@@ -872,9 +874,9 @@ object MainFrm: TMainFrm
         object Label11: TLabel
           Left = 2
           Top = 20
-          Width = 9
+          Width = 5
           Height = 19
-          Caption = '+'
+          Caption = '-'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -16
@@ -898,9 +900,9 @@ object MainFrm: TMainFrm
         object Label12: TLabel
           Left = 160
           Top = 16
-          Width = 6
+          Width = 11
           Height = 19
-          Caption = '-'
+          Caption = '+'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -16
@@ -1024,17 +1026,6 @@ object MainFrm: TMainFrm
       TabOrder = 1
       OnClick = bStopImageClick
     end
-    object ckRepeat: TCheckBox
-      Left = 210
-      Top = 111
-      Width = 60
-      Height = 17
-      Hint = 'Repeated image scanning'
-      Caption = 'Repeat'
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-    end
     object cbImageMode: TComboBox
       Left = 8
       Top = 84
@@ -1044,7 +1035,7 @@ object MainFrm: TMainFrm
       Style = csDropDownList
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 3
+      TabOrder = 2
       OnChange = cbImageModeChange
     end
     object bLiveSCan: TButton
@@ -1062,7 +1053,7 @@ object MainFrm: TMainFrm
       ParentFont = False
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 4
+      TabOrder = 3
       OnClick = bLiveSCanClick
     end
     object CCDAreaGrp: TGroupBox
@@ -1071,13 +1062,13 @@ object MainFrm: TMainFrm
       Width = 116
       Height = 114
       Caption = ' Scanning Area '
-      TabOrder = 5
+      TabOrder = 4
       object bEnterScanArea: TButton
         Left = 8
         Top = 70
         Width = 97
         Height = 25
-        Hint = 'Specify coordinates of R.O.I.'
+        Hint = 'Set scanning area to user-entered region of interest'
         Caption = 'Set ROI Area'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1088,13 +1079,14 @@ object MainFrm: TMainFrm
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
+        OnClick = bEnterScanAreaClick
       end
       object bScanFullField: TButton
         Left = 8
         Top = 20
         Width = 96
         Height = 20
-        Hint = 'Acquire high speed low resolution image of region of interest'
+        Hint = 'Set scanning area to full field'
         Caption = 'Use Full Field'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1112,7 +1104,7 @@ object MainFrm: TMainFrm
         Top = 44
         Width = 96
         Height = 20
-        Hint = 'Acquire high speed low resolution image of region of interest'
+        Hint = 'Set scanning area to region of interest defined on image'
         Caption = 'Use ROI'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1135,7 +1127,7 @@ object MainFrm: TMainFrm
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
-      Font.Name = 'Arial Narrow'
+      Font.Name = 'Arial'
       Font.Style = []
       ShowHint = True
       Text = ' 1 '
@@ -1156,7 +1148,7 @@ object MainFrm: TMainFrm
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 6
       object Label5: TLabel
         Left = 75
         Top = 10
@@ -1235,7 +1227,7 @@ object MainFrm: TMainFrm
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 8
+      TabOrder = 7
       object Label2: TLabel
         Left = 97
         Top = 10

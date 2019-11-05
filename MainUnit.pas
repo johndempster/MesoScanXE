@@ -42,6 +42,7 @@ unit MainUnit;
 // V1.6.9 02.10.18 LaserUnit now uses LaserComThead for COM port message handling
 //        03.06.19 PMTUnit and ZStageUnit now use threads for COM port message handling (not tested)
 //        24.06.19 OBIS laser control working but still under test
+// V2.0.0 21.10.10 Now designated as V2.0.0
 
 interface
 
@@ -139,10 +140,6 @@ type
     StatusGrp: TGroupBox;
     meStatus: TMemo;
     mnSaveImage: TMenuItem;
-    ZoomPanel: TPanel;
-    lbZoom: TLabel;
-    bZoomIn: TButton;
-    bZoomOut: TButton;
     ImagePage: TPageControl;
     TabImage0: TTabSheet;
     Image0: TImage;
@@ -156,7 +153,6 @@ type
     GroupBox1: TGroupBox;
     bCaptureImage: TButton;
     bStopScan: TButton;
-    ckRepeat: TCheckBox;
     cbImageMode: TComboBox;
     gpPMT1: TGroupBox;
     Label8: TLabel;
@@ -219,6 +215,9 @@ type
     LineScanGrp: TGroupBox;
     Label2: TLabel;
     edLineScanFrameHeight: TValidatedEdit;
+    DisplayModeGrp: TGroupBox;
+    rbZoomMode: TRadioButton;
+    rbROIMode: TRadioButton;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -241,8 +240,6 @@ type
     procedure ckLineScanClick(Sender: TObject);
     procedure bGotoZPositionClick(Sender: TObject);
 
-    procedure bZoomInClick(Sender: TObject);
-    procedure bZoomOutClick(Sender: TObject);
     procedure Image0MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Image0MouseDown(Sender: TObject; Button: TMouseButton;
@@ -269,6 +266,7 @@ type
     procedure bScanROIClick(Sender: TObject);
     procedure bGoToXPositionClick(Sender: TObject);
     procedure bGoToYPositionClick(Sender: TObject);
+    procedure bEnterScanAreaClick(Sender: TObject);
   private
     { Private declarations }
         FormInitialized : Boolean ;
@@ -277,6 +275,11 @@ type
         procedure DisplayROI( BitMap : TBitmap ) ;
         procedure DisplaySquare(
                   BitMap : TBitMap ;
+                  X : Integer ;
+                  Y : Integer ) ;
+        procedure DisplayCursorReadout ;
+
+        procedure DisplayCalibrationBar(
                   X : Integer ;
                   Y : Integer ) ;
 
@@ -319,7 +322,7 @@ type
     LineScanTime : Double ;                    // Time taken to scan a single line (s)
     LinesAvailableForDisplay : Integer ;       // Image lines available for display
 
-    SelectedRect : TRect ;                     // Selected sub-area within displayed image (image pixels)
+    SelectedRect : TDoubleRect ;                     // Selected sub-area within displayed image (image pixels)
     SelectedRectBM : TRect ;                   // Selected sub-area (bitmap pixels)
     SelectedEdge : TRect ;                     // Selection rectangle edges selected
     MouseDown : Boolean ;                      // TRUE = image cursor mouse is depressed
@@ -327,6 +330,7 @@ type
     TopLeftDown : TPoint ;
     MouseDownAt : TPoint ;                     // Mouse position when button depressed
     MouseUpCursor : Integer ;                  // Cursor icon when button released
+    CursorReadoutText : string ;               // X,Y position of mouse cursor on display and intensity
 
     ZTop : Double ;
     //Zoom : Double ;
@@ -341,12 +345,13 @@ type
     FrameWidth : Integer ;                // Width of image on display
     FrameHeight : Integer ;               // Height of image of display
     FullFieldWidth : Integer ;            // Width of full field image
-    HRFrameWidth : Integer ;              // Width of high res. image
-    HRFrameHeight : Integer ;             // Height of image of display
+//    HRFrameWidth : Integer ;              // Width of high res. image
+//    HRFrameHeight : Integer ;             // Height of image of display
     HRPixelSize : Double ;                // High res. image pixel size
     FastFrameWidth : Integer ;            // Fast imaging: frame width (pixels)
     FastFrameHeight : Integer ;           // Fast imaging: frame height (pixels)
-    FrameHeightScale : Double ;           // Fast imaging: Frame height scaling factor
+//    FrameHeightScale : Double ;           // Fast imaging: Frame height scaling factor
+    CalibrationBarSize : double ;          // Display calibration bar size (microns)
     ScanInfo : String ;
 
     // PMT setting
@@ -407,7 +412,8 @@ type
 
     YScaleToBM : Double ;
 
-    Magnification : Integer ;
+    Magnification : Array[0..999] of Integer ;
+    iZoom : Integer ;
 
         // Display look-up tables
     GreyLo : Array[0..MaxPMT] of Integer ; // Lower limit of display grey scale
@@ -578,7 +584,7 @@ implementation
 //uses LogUnit;
 
 
-uses SettingsUnit, ZStageUnit, LaserUnit, PMTUnit ;
+uses SettingsUnit, ZStageUnit, LaserUnit, PMTUnit , SetScanAreaUnit;
 
 {$R *.dfm}
 
@@ -610,6 +616,8 @@ begin
      Image[2] := Image2 ;
      Image[3] := Image3 ;
 
+     CursorReadoutText := '' ;
+
      FormInitialized := False ;
 
      end;
@@ -623,13 +631,13 @@ var
     i,ch : Integer ;
     NumPix : Cardinal ;
 begin
-     Caption := 'MesoScan V1.6.9 ';
+     Caption := 'MesoScan V2.0.0 ';
      {$IFDEF WIN32}
      Caption := Caption + '(32 bit)';
     {$ELSE}
      Caption := Caption + '(64 bit)';
     {$IFEND}
-    Caption := Caption + ' 02/10/18';
+    Caption := Caption + ' 21/10/19';
 
      TempBuf := Nil ;
      DeviceNum := 1 ;
@@ -691,6 +699,10 @@ begin
 
      edDisplayIntensityRange.LoLimit := 0 ;
      edDisplayIntensityRange.HiLimit := ADCMaxValue ;
+     sbBrightness.Min := 0 ;
+     sbBrightness.Max := ADCMaxValue ;
+     sbContrast.Min := 0 ;
+     sbContrast.Max := ADCMaxValue ;
 
      bFullScale.Click ;
 
@@ -709,7 +721,13 @@ begin
      FullFieldWidthMicrons := 2000.0 ;
      FrameWidth := FullFieldWidth ;
      FrameHeight := FullFieldWidth ;
-     Magnification := 1;
+
+     Magnification[0] := 1 ;
+     for i := 0 to High(Magnification) do begin
+         Magnification[i+1] := Magnification[i] + Max(Round(Magnification[i]*0.25),1) ;
+         end ;
+     iZoom := 0 ;
+
      for ch := 0 to High(BitMap) do begin
          if BitMap[ch] <> Nil then BitMap[ch].Free ;
          BitMap[ch] := TBitMap.Create ;
@@ -729,11 +747,11 @@ begin
      BlackLevel := 10 ;
      InvertPMTSignal := True ;
 
-     HRFrameWidth := 1000 ;
+//     HRFrameWidth := 1000 ;
      HRPixelSize := 1.0 ;
      FastFrameWidth := 500 ;
      FastFrameHeight := 100 ;
-     FrameHeightScale := 1.0 ;
+//     FrameHeightScale := 1.0 ;
 
      edNumPixelsPerZStep.Value := 1.0 ;
      edNumZSections.Value := 10.0 ;
@@ -839,7 +857,7 @@ begin
 {     HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
      FrameWidth := HRFrameWidth ;
      FrameHeight := 2*(Round( ScanArea.Height/HRPixelSize ) div 2);
-     FrameHeightScale := 1.0 ;}
+//     FrameHeightScale := 1.0 ;}
 
      SelectedRect.Left := 0 ;
      SelectedRect.Top := 0 ;
@@ -856,14 +874,14 @@ procedure TMainFrm.Image0DblClick(Sender: TObject);
 // Mouse double clicked on image
 // -----------------------------
 begin
-    ROIMode := True ;
+      ROIMode := True ;
       // Set top-left of ROI box to current cursor position
       SelectedRectBM.Left := MouseDownAt.X ;
-      SelectedRect.Left := Round(SelectedRectBM.Left/XScaleToBM) + XLeft ;
+      SelectedRect.Left := ((SelectedRectBM.Left/XScaleToBM) + XLeft)/FrameWidth ;
       SelectedRectBM.Top := MouseDownAt.Y ;
-      SelectedRect.Top := Round(SelectedRectBM.Top/YScaleToBM) + YTop ;
+      SelectedRect.Top := ((SelectedRectBM.Top/YScaleToBM) + YTop)/FrameHeight ;
       UpdateDisplay := True ;
-    end;
+      end;
 
 
 procedure TMainFrm.Image0MouseDown(Sender: TObject; Button: TMouseButton;
@@ -916,13 +934,15 @@ begin
      i := YImage*FrameWidth + XImage ;
 
      PixelsToMicronsX := ScanArea.Width/FrameWidth ;
-     PixelsToMicronsY := FrameHeightScale*PixelsToMicronsX ;
+     PixelsToMicronsY := {FrameHeightScale*}PixelsToMicronsX ;
 
      if (i > 0) and (i < FrameWidth*FrameHeight) then begin
-        lbReadout.Caption := format('X=%.2f um, Y=%.2f um, I=%d',
+
+        CursorReadoutText := format('X=%.2f um, Y=%.2f um, I=%d',
                            [XImage*PixelsToMicronsX + ScanArea.Left,
                             YImage*PixelsToMicronsY + ScanArea.Top,
                             pImageBuf[TImage(Sender).tag][i]]) ;
+         UpdateDisplay := True ;
          end ;
 
      if not MouseDown then
@@ -1042,17 +1062,45 @@ procedure TMainFrm.Image0MouseUp(Sender: TObject; Button: TMouseButton;
 // Mouse up on image
 // -------------------
 var
-    ch : Integer ;
+   NewWidth,NewHeight,MagnificationOld : Integer ;
 begin
-     MouseDown := False ;
 
-     for ch := 0 to NumPMTChannels-1 do Image[ch].Cursor := MouseUpCursor ;
-     Screen.Cursor :=crDefault ;
+    if rbZoomMode.Checked and
+       (CursorPos.X = MouseDownAt.X) and (CursorPos.Y = MouseDownAt.Y) then
+       begin
+       MagnificationOld := Magnification[iZoom] ;
+       if Button = mbLeft then
+          begin
+          iZoom := Min(iZoom + 1,High(Magnification));
+          end
+       else
+          begin
+          iZoom := Max(iZoom - 1,0);
+          end;
+
+       NewWidth := Round(BitMap[0].Width*(MagnificationOld/Magnification[iZoom])) ;
+       NewHeight := Round(BitMap[0].Height*(MagnificationOld/Magnification[iZoom])) ;
+
+       XLeft := Max(XLeft + Round((CursorPos.X-(NewWidth div 2))/XScaleToBM),0);
+       XLeft := Min(XLeft,FrameWidth - Round(NewWidth/XScaleToBM)) ;
+       YTop := Max(YTop + Round((CursorPos.Y-(NewHeight div 2))/YScaleToBM),0);
+       YTop := Min(YTop,FrameHeight - Round(NewHeight/YScaleToBM)) ;
+
+       Resize ;
+       UpdateDisplay := True ;
+       end;
+
+     MouseDown := False ;
+     Image0.Cursor := MouseUpCursor ;
+     //Screen.Cursor :=crDefault ;
+     if rbZoomMode.Checked then Image0.Cursor := crSizeAll
+                           else Image0.Cursor :=crDefault ;
+
      ROIMode := False ;                   // Turn ROI mode off
      FixRectangle(SelectedRectBM);
-     FixRectangle(SelectedRect);
+     //FixRectangle(SelectedRect);
 
-     end;
+end;
 
 
 procedure TMainFrm.InitialiseImage ;
@@ -1096,11 +1144,11 @@ begin
 
      ImageGrp.ClientWidth :=  Max( ClientWidth - ImageGrp.Left - 5, 2) ;
      ImageGrp.ClientHeight :=  Max( ClientHeight - ImageGrp.Top - 5, 2) ;
-     ZoomPanel.Top := ImageGrp.ClientHeight - ZoomPanel.Height - 1 ;
-     ZoomPanel.Left := 5 ;
-     ZSectionPanel.Top := ZoomPanel.Top ;
+     DisplayModeGrp.Top := ImageGrp.ClientHeight - DisplayModeGrp.Height - 1 ;
+     DisplayModeGrp.Left := 5 ;
+     ZSectionPanel.Top := DisplayModeGrp.Top ;
      lbReadout.Top := ZSectionPanel.Top ;
-     lbReadout.Left :=  ZoomPanel.Left + ZoomPanel.Width + 5 ;
+     lbReadout.Left :=  DisplayModeGrp.Left + DisplayModeGrp.Width + 5 ;
 
      ImagePage.Width := ImageGrp.ClientWidth - ImagePage.Left - 5 ;
      ImagePage.Height := ZSectionPanel.Top - ImagePage.Top - 2 ;
@@ -1118,7 +1166,7 @@ begin
 
          // Scale bitmap to fit into window
          BitMap[ch].Width := DisplayMaxWidth ;
-         HeightWidthRatio := (FrameHeight*FrameHeightScale)/FrameWidth ;
+         HeightWidthRatio := (FrameHeight{*FrameHeightScale})/FrameWidth ;
          BitMap[ch].Height := Round(BitMap[ch].Width*HeightWidthRatio) ;
          if BitMap[ch].Height > DisplayMaxHeight then
             begin
@@ -1127,12 +1175,12 @@ begin
             BitMap[ch].Width := Min(BitMap[ch].Width,DisplayMaxWidth) ;
             LinesAvailableForDisplay := 0;//FrameHeight ;
             // Add magnification and limit BitMap[ch] to window
-            BitMap[ch].Width := Min(BitMap[ch].Width*Magnification,DisplayMaxWidth) ;
-            BitMap[ch].Height := Min(BitMap[ch].Height*Magnification,DisplayMaxHeight) ;
+            BitMap[ch].Width := Min(BitMap[ch].Width*Magnification[iZoom],DisplayMaxWidth) ;
+            BitMap[ch].Height := Min(BitMap[ch].Height*Magnification[iZoom],DisplayMaxHeight) ;
             end;
 
-         XScaleToBM := (BitMap[ch].Width*Magnification) / FrameWidth ;
-         YScaleToBM := (BitMap[ch].Width*Magnification*FrameHeightScale) / FrameWidth ;
+         XScaleToBM := (BitMap[ch].Width*Magnification[iZoom]) / FrameWidth ;
+         YScaleToBM := (BitMap[ch].Width*Magnification[iZoom]{*FrameHeightScale}) / FrameWidth ;
 
          SetImageSize( Image[ch] ) ;
 
@@ -1174,8 +1222,9 @@ begin
 
      edDisplayIntensityRange.LoValue := LoValue  ;
      edDisplayIntensityRange.HiValue := HiValue  ;
-     sbBrightness.Position := (LoValue + HiValue) div 2 ;
-     sbContrast.Position := HiValue - LoValue ;
+
+     sbBrightness.Position := sbBrightness.Max - (LoValue + HiValue) div 2  ;
+     sbContrast.Position := sbContrast.Max - (HiValue - LoValue) ;
 
      end ;
 
@@ -1231,7 +1280,7 @@ const
 var
     HalfPi,ScanSpeed : Double ;
     XCentre,YCentre,XAmplitude,YHeight,PCDOne : Double ;
-    n,ch,iX,iY,iY1,i,j,iShift : Integer ;
+    n,ch,iX,iY,i,j,iShift : Integer ;
     NumBytes : NativeInt ;
     NumYEdgePixels : Cardinal ;
     NumPix : Cardinal ;
@@ -1568,6 +1617,62 @@ begin
      end ;
 
 
+procedure TMainFrm.DisplayCursorReadout ;
+// ----------------------------------------
+// Display X,Y,intensity at cursor position
+// ----------------------------------------
+Const
+    TickHeight = 10 ;
+begin
+
+     Bitmap[0].Canvas.Pen.Color := clwhite ;
+     Bitmap[0].Canvas.Brush.Style := bsClear ;
+     Bitmap[0].Canvas.Pen.Width := 2 ;
+     Bitmap[0].Canvas.Font.Color := clWhite ;
+     Bitmap[0].Canvas.Font.Size := 12 ;
+     if CursorReadoutText <> '' then Bitmap[0].Canvas.TextOut( 0,
+                                     Bitmap[0].Height - Bitmap[0].Canvas.TextHeight(CursorReadoutText),
+                                     CursorReadoutText );
+
+end ;
+
+
+procedure TMainFrm.DisplayCalibrationBar(
+          X : Integer ;
+          Y : Integer ) ;
+// --------------------------------
+// Display calibration bar on image
+// --------------------------------
+Const
+    TickHeight = 10 ;
+var
+    PixelsToMicrons : double ;
+    X1,BarWidth : Integer ;
+begin
+
+     PixelsToMicrons := HRPIxelSize ;
+//     ScaleToBM := (BitMap[0].Width*Magnification[iZoom]) / Max(FrameWidth,1) ;
+     BarWidth := Round( (CalibrationBarSize/PixelsToMicrons)*XScaleToBM ) ;
+
+     Bitmap[0].Canvas.Pen.Color := clwhite ;
+     Bitmap[0].Canvas.Brush.Style := bsClear ;
+     Bitmap[0].Canvas.Pen.Width := 2 ;
+     Bitmap[0].Canvas.MoveTo( X, Y - TickHeight ) ;
+     Bitmap[0].Canvas.LineTo(X, Y + TickHeight ) ;
+     Bitmap[0].Canvas.MoveTo( X, Y ) ;
+     X1 := X + BarWidth ;
+     Bitmap[0].Canvas.LineTo( X1, Y  ) ;
+     Bitmap[0].Canvas.MoveTo( X1, Y - TickHeight ) ;
+     Bitmap[0].Canvas.LineTo( X1, Y + TickHeight ) ;
+
+     Bitmap[0].Canvas.Font.Color := clWhite ;
+     Bitmap[0].Canvas.Font.Size := 10 ;
+     Bitmap[0].Canvas.TextOut( X, Y + TickHeight + 1, format('%.3g um',[CalibrationBarSize]));
+
+end ;
+
+
+
 procedure TMainFrm.UpdateImage ;
 // --------------
 // Display image
@@ -1639,6 +1744,9 @@ begin
        if (cbImageMode.ItemIndex <> XZMode) and
           (cbImageMode.ItemIndex <> XTMode) then DisplayROI(BitMap[ch]) ;
 
+       // Display cursor readout text at top,left of image
+       DisplayCursorReadout ;
+
        Image[ch].Picture.Assign(BitMap[ch]) ;
        Image[ch].Width := BitMap[ch].Width ;
        Image[ch].Height := BitMap[ch].Height ;
@@ -1648,7 +1756,6 @@ begin
 
        end ;
 
-    lbZoom.Caption := format('Zoom (X%d)',[Magnification]) ;
 
     if (NumZSectionsAvailable > 1) and (not bStopScan.Enabled)  then
        begin
@@ -1822,9 +1929,28 @@ procedure TMainFrm.bScanFullFieldClick(Sender: TObject);
 // ---------------
 // Scan full field
 // ----------------
+var
+    RestartScan : Boolean ;
 begin
-    if bStopScan.Enabled then bStopScan.Click ;
-    StartNewScan( srScanFullField, True ) ;
+
+    // Stop any scan in progress
+    if bStopScan.Enabled then
+       begin
+       bStopScan.Click ;
+       RestartScan := True ;
+       end
+    else RestartScan := False ;
+
+    // Set scanning area to full microscope field
+    ScanArea.Left := 0.0 ;
+    ScanArea.Right := FullFieldWidthMicrons ;
+    ScanArea.Top := 0.0 ;
+    ScanArea.Bottom := FullFieldWidthMicrons ;
+    ScanArea.Width := ScanArea.Right - ScanArea.Left ;
+    ScanArea.Height := ScanArea.Bottom - ScanArea.Top ;
+
+    if RestartScan then StartNewScan( srNoChange, True ) ;
+
     end ;
 
 
@@ -1839,12 +1965,36 @@ begin
 
 
 procedure TMainFrm.bScanROIClick(Sender: TObject);
-// --------------------------------------------
-// Scan selected region of interest (fast scan)
-// --------------------------------------------
+// ------------------------------------------------------
+// Set scan region to region of interest defined on image
+// ------------------------------------------------------
+var
+    RestartScan : Boolean ;
 begin
-    if bStopScan.Enabled then bStopScan.Click ;
-    StartNewScan( srScanROI, True ) ;
+
+    // Stop any scan in progress
+    if bStopScan.Enabled then
+       begin
+       bStopScan.Click ;
+       RestartScan := True ;
+       end
+    else RestartScan := False ;
+
+    if (SelectedRect.Left > 0) or (SelectedRect.Top > 0) or
+       (SelectedRect.Right < (FrameWidth-1)) or
+       (SelectedRect.Bottom < (FrameHeight-1)) then
+       begin
+       // Use ROI as scanning area
+       ScanArea.Left := ScanArea.Left + (SelectedRect.Left*PixelsToMicronsX) ;
+       ScanArea.Right := ScanArea.Left + (SelectedRect.Right*PixelsToMicronsX) ;
+       ScanArea.Top := ScanArea.Top + (SelectedRect.Top*PixelsToMicronsY) ;
+       ScanArea.Bottom := ScanArea.Top + (SelectedRect.Bottom*PixelsToMicronsY) ;
+       ScanArea.Width := ScanArea.Right - ScanArea.Left ;
+       ScanArea.Height := ScanArea.Bottom - ScanArea.Top ;
+       end;
+
+    if RestartScan then StartNewScan( srNoChange, True ) ;
+
     end ;
 
 
@@ -1870,11 +2020,9 @@ begin
     //bStopScan.Enabled := True ;
     bCaptureImage.Enabled := False ;
 
-    PMTGrp.Enabled := False ;    // Disable changes to PMT settings
+//    PMTGrp.Enabled := False ;    // Disable changes to PMT settings
 
-    if cbImageMode.ItemIndex = XYZMode then ckRepeat.Checked := False  ;
-
-    FixRectangle( SelectedRect ) ;
+//    FixRectangle( SelectedRect ) ;
     FixRectangle( SelectedRectBM ) ;
 
     case cbImageMode.ItemIndex of
@@ -1882,7 +2030,7 @@ begin
       // XY and XYZ imaging mode
       XYMode,XYZMode :
        begin
-       if iScanRegion = srScanFullField then
+{       if iScanRegion = srScanFullField then
           begin
           // Scan full area
           ScanArea.Left := 0.0 ;
@@ -1903,16 +2051,16 @@ begin
           ScanArea.Bottom := ScanArea.Top + (SelectedRect.Bottom*PixelsToMicronsY) ;
           ScanArea.Width := ScanArea.Right - ScanArea.Left ;
           ScanArea.Height := ScanArea.Bottom - ScanArea.Top ;
-          end ;
+          end ;}
 
-       if FastScan then
+    {   if FastScan then
           begin
           // Fast scan
           FrameWidth := FastFrameWidth ;
           FrameHeight := Max(Round(FrameWidth*(ScanArea.Height/ScanArea.Width)),1) ;
           if FrameHeight > FastFrameHeight then
              begin
-             FrameHeightScale := FrameHeight/FastFrameHeight ;
+             FrameHeightScale := 1.0 ; //FrameHeight/FastFrameHeight ;
              FrameHeight := FastFrameHeight ;
              end
           else FrameHeightScale := 1.0
@@ -1924,7 +2072,7 @@ begin
           FrameWidth := HRFrameWidth ;
           FrameHeight := 2*(Round( ScanArea.Height/HRPixelSize ) div 2);
           FrameHeightScale := 1.0 ;
-          end;
+          end;}
        end ;
 
       // XT line scan mode
@@ -1936,12 +2084,12 @@ begin
            end
         else
           begin
-          HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
-          FrameWidth := HRFrameWidth ;
-          FrameHeight := 2*(Round( ScanArea.Height/HRPixelSize ) div 2);
+//          HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
+//          FrameWidth := HRFrameWidth ;
+//          FrameHeight := 2*(Round( ScanArea.Height/HRPixelSize ) div 2);
           end ;
-        FrameHeightScale := 1.0 ;
-        FrameHeight := Round(edLineScanFrameHeight.Value) ;
+//        FrameHeightScale := 1.0 ;
+//        FrameHeight := Round(edLineScanFrameHeight.Value) ;
         end ;
 
       // XZ image mode
@@ -1953,24 +2101,22 @@ begin
            end
         else
            begin
-           HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
-           FrameWidth := HRFrameWidth ;
+//           HRFrameWidth := 2*(Round( ScanArea.Width/HRPixelSize ) div 2);
+//           FrameWidth := HRFrameWidth ;
            end ;
-        FrameHeightScale := 1.0 ;
+//        FrameHeightScale := 1.0 ;
         FrameHeight := Round(edNumZSections.Value) ;
         end ;
 
       end ;
 
-      Outputdebugstring(pchar(format('frameheightscale %.0f',[FrameHeightScale])));
+//      Outputdebugstring(pchar(format('frameheightscale %.0f',[FrameHeightScale])));
 
     // Image pixel to microns scaling factor
     PixelsToMicronsX := ScanArea.Width/FrameWidth ;
-    PixelsToMicronsY := FrameHeightScale*PixelsToMicronsX ;
+    PixelsToMicronsY := {FrameHeightScale*}PixelsToMicronsX ;
 
     meStatus.Clear ;
-
-    SetImagePanels ;
 
     SelectedRect.Left := 0 ;
     SelectedRect.Right := FrameWidth-1 ;
@@ -1980,7 +2126,7 @@ begin
     // Z sections
     ZSection := 0 ;
     NumZSectionsAvailable := 0 ;
-    ZStep := edNumPixelsPerZStep.Value*(ScanArea.Width/HRFrameWidth) ;
+    ZStep := edNumPixelsPerZStep.Value*HRPixelSize ;
     edMicronsPerZStep.Value := ZStep ;
     NumZSections := Round(edNumZSections.Value) ;
 
@@ -1989,6 +2135,8 @@ begin
 
     // Create scan waveform
     CreateScanWaveform(FastScan) ;
+
+    SetImagePanels ;
 
     ScanRequested := 1 ;
 
@@ -2079,8 +2227,28 @@ procedure TMainFrm.bCaptureImageClick(Sender: TObject);
 // Capture high resolution imageof currently selected area
 // -------------------------------------------------------
 begin
-    ckRepeat.Checked := False ;
     StartNewScan( srNoChange, False ) ;
+    end ;
+
+
+procedure TMainFrm.bEnterScanAreaClick(Sender: TObject);
+// -------------------------------------
+// Scan user-entered region of interest
+// -------------------------------------
+begin
+
+    // Stop any scan in progress
+    if bStopScan.Enabled then
+       begin
+       bStopScan.Click ;
+       SetScanAreaFrm.RestartScan := True ;
+       end
+    else SetScanAreaFrm.RestartScan := False ;
+
+    SetScanAreaFrm.Left := Left + 60 ;
+    SetScanAreaFrm.Top := Top + 60 ;
+    SetScanAreaFrm.Show ;
+
     end ;
 
 
@@ -2202,8 +2370,8 @@ procedure TMainFrm.bLiveSCanClick(Sender: TObject);
 // Start live fast scan of currently selected area
 // -----------------------------------------------
 begin
-    ckRepeat.Checked := True ;
     StartNewScan( srNoChange, True ) ;
+    bLiveScan.Enabled := False ;
     end ;
 
 
@@ -2500,7 +2668,7 @@ begin
        else
           begin
           ScanningInProgress := False ;
-          if ckRepeat.Checked and (not bCaptureImage.Enabled) then
+          if (not bCaptureImage.Enabled) then
              begin
              ScanRequested := 1 ;
              NumAverages := 1 ;
@@ -2569,8 +2737,9 @@ begin
 
     bStopScan.Enabled := False ;
     bCaptureImage.Enabled := True ;
+    bLiveScan.Enabled := True ;
     bEnterScanArea.Enabled := True ;
-    PMTGrp.Enabled := True ;    // Enable changes to PMT settings
+//    PMTGrp.Enabled := True ;    // Enable changes to PMT settings
 
     ScanRequested := 0 ;
     ScanningInProgress := False ;
@@ -2657,29 +2826,6 @@ begin
     end;
 
     end;
-
-
-procedure TMainFrm.bZoomInClick(Sender: TObject);
-// ---------------
-// Magnify display
-// ---------------
-begin
-    Inc(Magnification) ;
-    Resize ;
-    UpdateDisplay := True ;
-    end;
-
-procedure TMainFrm.bZoomOutClick(Sender: TObject);
-// -----------------
-// Demagnify display
-// -----------------
-begin
-
-     Magnification := Max(Magnification-1,1) ;
-
-     Resize ;
-     UpdateDisplay := True ;
-     end;
 
 
 procedure TMainFrm.cbImageModeChange(Sender: TObject);
@@ -2970,12 +3116,16 @@ procedure TMainFrm.sbContrastChange(Sender: TObject);
 // --------------------------------------------------------
 // Set display grey scale to new contrast slider setting
 // --------------------------------------------------------
+var
+     GreyLevelMidPoint,GreyLevelRange : Integer ;
 begin
 
      if ContrastPage.ActivePage <> SlidersTab then Exit ;
 
-     edDisplayIntensityRange.LoValue := sbBrightness.Position - (sbContrast.Position div 2) ;
-     edDisplayIntensityRange.HiValue := sbBrightness.Position + (sbContrast.Position div 2) ;
+     GreyLevelMidPoint := sbBrightness.Max - sbBrightness.Position ;
+     GreyLevelRange := sbContrast.Max - sbContrast.Position ;
+     edDisplayIntensityRange.LoValue := Max( GreyLevelMidPoint - (GreyLevelRange div 2),0) ;
+     edDisplayIntensityRange.HiValue := Min( GreyLevelMidPoint + (GreyLevelRange div 2), ADCMaxValue);
 
      if edDisplayIntensityRange.LoValue = edDisplayIntensityRange.HiValue then
         begin
@@ -3153,14 +3303,12 @@ begin
 
     AddElementInt( ProtNode, 'FASTFRAMEWIDTH', FastFrameWidth ) ;
     AddElementInt( ProtNode, 'FASTFRAMEHEIGHT', FastFrameHeight ) ;
-    AddElementInt( ProtNode, 'HRFRAMEWIDTH', HRFrameWidth ) ;
     AddElementDouble( ProtNode, 'HRPIXELSIZE', HRPixelSize ) ;
 
     AddElementInt( ProtNode, 'LINESCANFRAMEHEIGHT', Round(edLineScanFrameHeight.Value) ) ;
 
     AddElementInt( ProtNode, 'PALETTE', cbPalette.ItemIndex ) ;
 
-    AddElementBool( ProtNode, 'REPEATSCANS', ckRepeat.Checked ) ;
     AddElementBool( ProtNode, 'INVERTPMTSIGNAL', InvertPMTSignal ) ;
 
     AddElementInt( ProtNode, 'NUMAVERAGES', NumAverages ) ;
@@ -3297,9 +3445,6 @@ begin
     FastFrameHeight := GetElementInt( ProtNode, 'FASTFRAMEHEIGHT', FastFrameHeight ) ;
     FastFrameHeight := Min(Max(FastFrameHeight,MinFrameHeight),MaxFrameHeight) ;
 
-    HRFrameWidth := GetElementInt( ProtNode, 'HRFRAMEWIDTH', HRFrameWidth ) ;
-    HRFrameWidth := Min(Max(HRFrameWidth,MinFrameWidth),MaxFrameWidth) ;
-
     HRPixelSize := GetElementDouble( ProtNode, 'HRPIXELSIZE', HRPixelSize ) ;
 
     edLineScanFrameHeight.Value := GetElementInt( ProtNode, 'LINESCANFRAMEHEIGHT',
@@ -3309,8 +3454,6 @@ begin
     PaletteType := TPaletteType(cbPalette.Items.Objects[cbPalette.ItemIndex]) ;
     for ch  := 0 to High(Bitmap) do
        if BitMap[ch] <> Nil then SetPalette( BitMap[ch], PaletteType ) ;
-
-    ckRepeat.Checked := GetElementBool( ProtNode, 'REPEATSCANS', ckRepeat.Checked ) ;
 
     InvertPMTSignal := GetElementBool( ProtNode, 'INVERTPMTSIGNAL', InvertPMTSignal ) ;
 

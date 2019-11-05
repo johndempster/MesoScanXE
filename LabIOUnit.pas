@@ -33,6 +33,8 @@ unit LabIOUnit;
 // 15.01.15    .... Now uses FIFO A/D and D/A buffers
 // 26.02.15 JD .... ADCToMemoryExtScan() now supports multiple channels and channel voltage ranges
 // 08.03.16 JD .... FADCPointerMax now correctly set to FADCNumSamples*FADCNumChannels - 1
+// 21.10.19 JD .... ADCToMemoryExtScan() A/D samplings now set to maximum supported by device
+//                  for selected number of channels
 
 interface
 
@@ -1400,7 +1402,8 @@ var
    ClockSource : ANSIString ;
    ch : Integer ;
    SampleMode : Integer ;
-   SamplingRate : Double ;
+   SamplingRate,MaxSamplingRate : Double ;
+   IsSimultaneousSamplingADC : LongBool ;
 begin
 
      Result := False ;
@@ -1454,8 +1457,20 @@ begin
 
      // Set timing
      ClockSource := '/' + DeviceName[TimingDevice] + '/ao/sampleclock' ;
-     SamplingRate := {500.0 ;//} 1100000.0 ;// (nChannels+1) ;
-     SamplingRate := 250000.0 /(nChannels+1) ;
+
+
+     // Discover maximum sampling rate and whether ADC is simultaneous sampling
+     CheckError( DAQmxGetSampClkMaxRate( ADCTask[Device],MaxSamplingRate )) ;
+     CheckError( DAQmxGetDevAISimultaneousSamplingSupported( PANSIChar(DeviceName[Device]),
+                 IsSimultaneousSamplingADC )) ;
+     // Set A/D sampling to maximum rate possible for selected number of channnels.
+     SamplingRate :=  MaxSamplingRate ;
+     if not IsSimultaneousSamplingADC then SamplingRate := SamplingRate / (nChannels+1) ;
+
+//     SamplingRate := {500.0 ;//} 1100000.0 ;// (nChannels+1) ;
+//     SamplingRate := 250000.0 /(nChannels+1) ;
+//     SamplingRate :=  MaxSamplingRate /(nChannels+1) ;
+
      CheckError( DAQmxCfgSampClkTiming( ADCTask[Device],
                                         PANSIChar(ClockSource),
                                         SamplingRate,

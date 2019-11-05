@@ -3,6 +3,7 @@ unit nidaqmxlib;
 // National Instruments NIDAQ-MX library calls
 // -------------------------------------------
 // 28.05.05
+// 21.10.19 DAQmxGetSampClkMaxRate and DAQmxGetDevAISimultaneousSamplingSupported added
 
 interface
 
@@ -1636,6 +1637,16 @@ TDAQmxGetSampClkRate = function(
                        var Value : Double
                        ) : Integer ; stdcall  ;
 
+TDAQmxGetSampClkMaxRate = function(
+                       TaskHandle : Integer ;
+                       var Value : Double
+                       ) : Integer ; stdcall  ;
+
+TDAQmxGetDevAISimultaneousSamplingSupported = function(
+                       const Device : PANSIChar  ;
+                       var Enabled : LongBool
+                       ) : Integer ; stdcall  ;
+
 TDAQmxGetSysDevNames = function(
                        var NameBuf : Array of ANSIChar ;
                        BufSize : Integer
@@ -1806,6 +1817,8 @@ var
 
     DAQmxGetDevProductType : TDAQmxGetDevProductType ;
     DAQmxGetSampClkRate : TDAQmxGetSampClkRate ;
+    DAQmxGetSampClkMaxRate : TDAQmxGetSampClkMaxRate ;
+    DAQmxGetDevAISimultaneousSamplingSupported : TDAQmxGetDevAISimultaneousSamplingSupported ;
 
     DAQmxGetSysDevNames : TDAQmxGetSysDevNames ;
     DAQmxGetWriteOffset : TDAQmxGetWriteOffset ;
@@ -1962,6 +1975,8 @@ begin
 
         @DAQmxGetDevProductType := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetDevProductType' ) ;
         @DAQmxGetSampClkRate := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetSampClkRate' ) ;
+        @DAQmxGetSampClkMaxRate := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetSampClkMaxRate' ) ;
+        @DAQmxGetDevAISimultaneousSamplingSupported := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetDevAISimultaneousSamplingSupported' ) ;
         @DAQmxGetSysDevNames := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetSysDevNames' ) ;
         @DAQmxGetDevProductType := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetDevProductType' ) ;
         @DAQmxGetWriteOffset := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetWriteOffset' ) ;

@@ -53,7 +53,7 @@ object SettingsFrm: TSettingsFrm
     Top = 6
     Width = 553
     Height = 467
-    ActivePage = MiscTab
+    ActivePage = ScanTab
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
@@ -63,10 +63,6 @@ object SettingsFrm: TSettingsFrm
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      ExplicitLeft = 0
-      ExplicitTop = 48
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object gpCaptureImage: TGroupBox
         Left = 8
         Top = 8
@@ -351,10 +347,6 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 1
       ParentFont = False
-      ExplicitLeft = 0
-      ExplicitTop = 20
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object gpPMTs: TGroupBox
         Left = 259
         Top = 8
@@ -779,10 +771,6 @@ object SettingsFrm: TSettingsFrm
     object LasersTab: TTabSheet
       Caption = 'Lasers '
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object grpLaserExternal: TGroupBox
         Left = 3
         Top = 134
@@ -1298,10 +1286,6 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 3
       ParentFont = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 8
         Top = 3
@@ -1442,10 +1426,6 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ImageIndex = 4
       ParentFont = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         Left = 8
         Top = 10
