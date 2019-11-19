@@ -53,6 +53,7 @@ type
 
     ADCGainIndex : Array[0..MaxPMT] of Integer ;
     IntegratorID : string ;
+    LPFilter3dBCutOff : Double ;          // Integrator low pass filter cut-off (Hz)
 
     FControlPort : DWord ;    // Control port number
     CommandList : TstringList ;  // Light Source command list
@@ -290,6 +291,8 @@ procedure TPMT.SetIntegrationTime( IntegrationTime : double ) ;
 // ------------------------
 begin
 
+    LPFilter3dBCutOff := 2.0 / (pi()*IntegrationTime) ;
+
     case FIntegratorType of
         itgSIM965 : SetSIM965( IntegrationTime ) ;
         end;
@@ -314,7 +317,7 @@ begin
     // DC coupling
     CommandList.Add( 'BRDT "COUP DC"');
     // Cutoff frequency
-    Freq3dBCutOff := 1.0 / (2.0*pi()*(IntegrationTime/3.0)) ;
+    Freq3dBCutOff := 2.0 / (pi()*IntegrationTime) ;
     CommandList.Add( format('BRDT "FREQ %.0f"',[Freq3dBCutOff]));
 
     end;

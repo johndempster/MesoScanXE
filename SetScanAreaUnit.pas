@@ -14,11 +14,6 @@ uses
 
 type
   TSetScanAreaFrm = class(TForm)
-    AreaGrp: TGroupBox;
-    edXRange: TRangeEdit;
-    Label1: TLabel;
-    Label2: TLabel;
-    edYRange: TRangeEdit;
     bOK: TButton;
     bCancel: TButton;
     procedure FormShow(Sender: TObject);
@@ -47,10 +42,6 @@ procedure TSetScanAreaFrm.FormShow(Sender: TObject);
 // --------------------------------------
 begin
 
-     edXRange.LoValue := MainFrm.ScanArea.Left ;
-     edXRange.HiValue := MainFrm.ScanArea.Right ;
-     edYRange.LoValue := MainFrm.ScanArea.Top ;
-     edYRange.HiValue := MainFrm.ScanArea.Bottom ;
 
      ClientWidth := AreaGrp.Left + AreaGrp.Width + 5 ;
      ClientHeight := bOK.Top + bOK.Height + 5 ;
@@ -63,10 +54,6 @@ procedure TSetScanAreaFrm.bOKClick(Sender: TObject);
 // -----------------
 begin
 
-    MainFrm.ScanArea.Left := edXRange.LoValue ;
-    MainFrm.ScanArea.Right := edXRange.HiValue ;
-    MainFrm.ScanArea.Top := edYRange.LoValue ;
-    MainFrm.ScanArea.Bottom := edYRange.HiValue ;
 
     if RestartScan then MainFrm.StartNewScan( srNoChange, true ) ;
 

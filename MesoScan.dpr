@@ -12,8 +12,7 @@ uses
   PMTUnit in 'PMTUnit.pas' {PMT: TDataModule},
   LaserComThreadUnit in 'LaserComThreadUnit.pas',
   ZStageComThreadUnit in 'ZStageComThreadUnit.pas',
-  PMTComThreadUnit in 'PMTComThreadUnit.pas',
-  SetScanAreaUnit in 'SetScanAreaUnit.pas' {SetScanAreaFrm};
+  PMTComThreadUnit in 'PMTComThreadUnit.pas';
 
 {$R *.res}
 
@@ -25,6 +24,5 @@ begin
   Application.CreateForm(TZStage, ZStage);
   Application.CreateForm(TLaser, Laser);
   Application.CreateForm(TPMT, PMT);
-  Application.CreateForm(TSetScanAreaFrm, SetScanAreaFrm);
   Application.Run;
 end.

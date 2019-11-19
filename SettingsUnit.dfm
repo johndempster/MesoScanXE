@@ -91,7 +91,7 @@ object SettingsFrm: TSettingsFrm
           Units = 'um'
           NumberFormat = '%.4g'
           LoLimit = -1.000000015047466E30
-          HiLimit = 1.000000000000000000
+          HiLimit = 100.000000000000000000
         end
       end
       object ScanGrp: TGroupBox

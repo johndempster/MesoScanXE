@@ -80,125 +80,140 @@ object MainFrm: TMainFrm
       TabOrder = 1
     end
     object ImagePage: TPageControl
-      Left = 3
+      Left = 0
       Top = 3
       Width = 294
       Height = 217
       ActivePage = TabImage1
       TabOrder = 2
+      OnChange = ImagePageChange
       object TabImage0: TTabSheet
         Caption = 'PMT0'
         object Image0: TImage
-          Left = 2
+          Left = 3
           Top = 1
           Width = 281
           Height = 178
           ParentShowHint = False
           ShowHint = False
           Stretch = True
-          OnDblClick = Image0DblClick
           OnMouseDown = Image0MouseDown
+          OnMouseLeave = Image0MouseLeave
           OnMouseMove = Image0MouseMove
           OnMouseUp = Image0MouseUp
         end
       end
       object TabImage1: TTabSheet
-        Caption = 'TabImage1'
+        Caption = 'PMT1'
         ImageIndex = 1
         object Image1: TImage
-          Left = 0
+          Left = 3
           Top = 0
           Width = 281
           Height = 185
           ParentShowHint = False
           ShowHint = False
           Stretch = True
-          OnDblClick = Image0DblClick
           OnMouseDown = Image0MouseDown
+          OnMouseLeave = Image0MouseLeave
           OnMouseMove = Image0MouseMove
           OnMouseUp = Image0MouseUp
         end
       end
       object TabImage2: TTabSheet
-        Caption = 'TabImage2'
+        Caption = 'PMT2'
         ImageIndex = 2
         object Image2: TImage
-          Left = 0
+          Left = 3
           Top = 0
           Width = 281
           Height = 185
           ParentShowHint = False
           ShowHint = False
           Stretch = True
-          OnDblClick = Image0DblClick
           OnMouseDown = Image0MouseDown
+          OnMouseLeave = Image0MouseLeave
           OnMouseMove = Image0MouseMove
           OnMouseUp = Image0MouseUp
         end
       end
       object TabImage3: TTabSheet
-        Caption = 'TabImage3'
+        Caption = 'PMT3'
         ImageIndex = 3
         object Image3: TImage
-          Left = 0
+          Left = 3
           Top = 0
           Width = 281
           Height = 185
           Stretch = True
-          OnDblClick = Image0DblClick
           OnMouseDown = Image0MouseDown
+          OnMouseLeave = Image0MouseLeave
           OnMouseMove = Image0MouseMove
           OnMouseUp = Image0MouseUp
         end
       end
     end
-    object DisplayModeGrp: TGroupBox
-      Left = 288
-      Top = 243
-      Width = 195
-      Height = 34
+    object ZoomPanel: TPanel
+      Left = 16
+      Top = 237
+      Width = 105
+      Height = 20
+      BevelOuter = bvNone
       TabOrder = 3
-      object rbZoomMode: TRadioButton
-        Left = 8
-        Top = 4
-        Width = 96
-        Height = 27
-        Hint = 'Select image zoom/position selection mode'
-        Caption = 'Zoom Mode'
-        Checked = True
+      object lbZoom: TLabel
+        Left = 1
+        Top = 0
+        Width = 56
+        Height = 14
+        Caption = 'Zoom (X1)'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -12
+        Font.Height = -11
         Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object bZoomIn: TButton
+        Left = 63
+        Top = 0
+        Width = 17
+        Height = 17
+        Hint = 'Magnify displayed imaged'
+        Caption = '+'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Courier New'
         Font.Style = [fsBold]
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        TabStop = True
+        OnClick = bZoomInClick
       end
-      object rbROIMode: TRadioButton
-        Left = 110
-        Top = 4
-        Width = 83
-        Height = 27
-        Hint = 'Display CCD region of interest selection rectangle'
-        Caption = 'ROI Mode'
+      object bZoomOut: TButton
+        Left = 82
+        Top = 0
+        Width = 17
+        Height = 17
+        Hint = 'Reduce image magnification'
+        Caption = '-'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Arial'
+        Font.Height = -13
+        Font.Name = 'Courier New'
         Font.Style = [fsBold]
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
+        OnClick = bZoomOutClick
       end
     end
   end
   object PMTGrp: TGroupBox
     Left = 8
-    Top = 421
+    Top = 435
     Width = 365
     Height = 356
     Caption = ' PMT Channels  '
@@ -722,8 +737,8 @@ object MainFrm: TMainFrm
   end
   object DisplayGrp: TGroupBox
     Left = 8
-    Top = 783
-    Width = 369
+    Top = 793
+    Width = 365
     Height = 138
     Caption = ' Display '
     TabOrder = 2
@@ -954,14 +969,14 @@ object MainFrm: TMainFrm
   end
   object StatusGrp: TGroupBox
     Left = 8
-    Top = 927
-    Width = 376
+    Top = 937
+    Width = 365
     Height = 81
     TabOrder = 3
     object meStatus: TMemo
       Left = 8
       Top = 10
-      Width = 356
+      Width = 345
       Height = 61
       Lines.Strings = (
         'meStatus')
@@ -973,12 +988,12 @@ object MainFrm: TMainFrm
     Left = 8
     Top = 8
     Width = 369
-    Height = 281
+    Height = 316
     Caption = ' Image Capture  '
     TabOrder = 4
     object Label4: TLabel
-      Left = 276
-      Top = 13
+      Left = 291
+      Top = 182
       Width = 66
       Height = 16
       Alignment = taRightJustify
@@ -1010,7 +1025,7 @@ object MainFrm: TMainFrm
     end
     object bStopScan: TButton
       Left = 8
-      Top = 112
+      Top = 111
       Width = 140
       Height = 28
       Hint = 'Stop scanning'
@@ -1024,7 +1039,7 @@ object MainFrm: TMainFrm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
-      OnClick = bStopImageClick
+      OnClick = bStopScanClick
     end
     object cbImageMode: TComboBox
       Left = 8
@@ -1038,56 +1053,46 @@ object MainFrm: TMainFrm
       TabOrder = 2
       OnChange = cbImageModeChange
     end
-    object bLiveSCan: TButton
-      Left = 8
-      Top = 20
-      Width = 140
-      Height = 30
-      Hint = 'Acquire repeated high speed low resolution image'
-      Caption = 'Live Image'
+    object CCDAreaGrp: TGroupBox
+      Left = 160
+      Top = 12
+      Width = 200
+      Height = 164
+      Caption = ' Scanning Area '
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
+      Font.Height = -12
       Font.Name = 'Arial'
-      Font.Style = [fsBold]
+      Font.Style = []
       ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
       TabOrder = 3
-      OnClick = bLiveSCanClick
-    end
-    object CCDAreaGrp: TGroupBox
-      Left = 154
-      Top = 15
-      Width = 116
-      Height = 114
-      Caption = ' Scanning Area '
-      TabOrder = 4
-      object bEnterScanArea: TButton
+      object rbFullField: TRadioButton
         Left = 8
-        Top = 70
-        Width = 97
-        Height = 25
-        Hint = 'Set scanning area to user-entered region of interest'
-        Caption = 'Set ROI Area'
+        Top = 18
+        Width = 145
+        Height = 24
+        Hint = 'Scan whole microscope image field'
+        Caption = 'Full Field'
+        Checked = True
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -12
+        Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        OnClick = bEnterScanAreaClick
+        TabStop = True
+        OnMouseUp = rbFullFieldMouseUp
       end
-      object bScanFullField: TButton
+      object rbScanROI: TRadioButton
         Left = 8
-        Top = 20
-        Width = 96
-        Height = 20
-        Hint = 'Set scanning area to full field'
-        Caption = 'Use Full Field'
+        Top = 36
+        Width = 145
+        Height = 24
+        Hint = 'Scan area defined by region of interest om image'
+        Caption = 'Scan Region '
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -1097,15 +1102,15 @@ object MainFrm: TMainFrm
         ParentShowHint = False
         ShowHint = True
         TabOrder = 1
-        OnClick = bScanFullFieldClick
+        OnMouseUp = rbScanROIMouseUp
       end
-      object bScanROI: TButton
+      object rbScanRange: TRadioButton
         Left = 8
-        Top = 44
-        Width = 96
-        Height = 20
-        Hint = 'Set scanning area to region of interest defined on image'
-        Caption = 'Use ROI'
+        Top = 55
+        Width = 145
+        Height = 25
+        Hint = 'Scan area defined by user-entered X and Y range'
+        Caption = 'Scan Range'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -1115,12 +1120,66 @@ object MainFrm: TMainFrm
         ParentShowHint = False
         ShowHint = True
         TabOrder = 2
-        OnClick = bScanROIClick
+        OnMouseUp = rbScanRangeMouseUp
+      end
+      object AreaGrp: TGroupBox
+        Left = 26
+        Top = 80
+        Width = 167
+        Height = 71
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        object Label25: TLabel
+          Left = 8
+          Top = 38
+          Width = 12
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Y:'
+        end
+        object Label24: TLabel
+          Left = 8
+          Top = 10
+          Width = 11
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'X:'
+        end
+        object edYRange: TRangeEdit
+          Left = 24
+          Top = 38
+          Width = 134
+          Height = 24
+          Text = ' 0.0 - 1.0 um'
+          HiValue = 1.000000000000000000
+          HiLimit = 5000.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'um'
+          NumberFormat = '%.1f - %.1f'
+        end
+        object edXRange: TRangeEdit
+          Left = 24
+          Top = 10
+          Width = 134
+          Height = 24
+          Text = ' 5000.0 - 5000.0 um'
+          LoValue = 5000.000000000000000000
+          HiValue = 5000.000000000000000000
+          HiLimit = 5000.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'um'
+          NumberFormat = '%.1f - %.1f'
+        end
       end
     end
     object edNumAverages: TValidatedEdit
-      Left = 276
-      Top = 35
+      Left = 291
+      Top = 204
       Width = 66
       Height = 24
       Hint = 'No. of images to be averaged'
@@ -1139,7 +1198,7 @@ object MainFrm: TMainFrm
     end
     object ZStackGrp: TGroupBox
       Left = 8
-      Top = 146
+      Top = 186
       Width = 262
       Height = 119
       Font.Charset = ANSI_CHARSET
@@ -1148,7 +1207,7 @@ object MainFrm: TMainFrm
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 6
+      TabOrder = 5
       object Label5: TLabel
         Left = 75
         Top = 10
@@ -1218,7 +1277,7 @@ object MainFrm: TMainFrm
     end
     object LineScanGrp: TGroupBox
       Left = 8
-      Top = 146
+      Top = 186
       Width = 262
       Height = 119
       Font.Charset = ANSI_CHARSET
@@ -1227,7 +1286,7 @@ object MainFrm: TMainFrm
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 6
       object Label2: TLabel
         Left = 97
         Top = 10
@@ -1251,12 +1310,30 @@ object MainFrm: TMainFrm
         HiLimit = 30000.000000000000000000
       end
     end
+    object bLiveSCan: TButton
+      Left = 8
+      Top = 20
+      Width = 140
+      Height = 30
+      Hint = 'Acquire repeated high speed low resolution image'
+      Caption = 'Live Image'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 7
+      OnClick = bLiveSCanClick
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 295
+    Top = 330
     Width = 369
-    Height = 120
+    Height = 118
     Caption = ' Stage Position '
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
