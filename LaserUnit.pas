@@ -51,7 +51,7 @@ type
     FDescription : Array[0..MaxLaser] of string ;                // Laser description
     FLaserNum : Array[0..MaxLaser] of Integer ;                  // Laser ID number
     LaserNum : Integer ;
-
+    FLaserCount : Integer ;                                       // No. of lasers detected
 
     ComThread : LaserComThread ;
 
@@ -272,7 +272,8 @@ begin
           ComThread := LaserComThread.Create ;
           InitState := 0 ;
           FInitialised := False ;
-          FNumLasers := 0 ;
+          FLaserCount := 0 ;
+//          FNumLasers := 0 ;
           end ;
         else FInitialised := True ;
         end;
@@ -427,6 +428,7 @@ begin
          begin
          if not FInitialised then FChanged := True ;
          FInitialised := True ;
+         FNumLasers := FLaserCount ;
          Exit ;
          end;
 
@@ -439,6 +441,7 @@ begin
             // Disable 5 second CDRH compliance delay on start of laser emission
             //CommandList.Add( 'syst1:cdrh off' ) ;
             // Request names of available lasers from controller
+            FLaserCount := 0 ;
             for i := 1 to 6 do CommandList.Add( format('*idn%d?',[i]));
             LaserNum := 1 ;
             InitState := InitWaitForLaserNames ;
@@ -456,12 +459,12 @@ begin
                   end
                else
                   begin
-                  Inc(FNumLasers) ;
-                  LaserID[FNumLasers] := ReplyList[0] ;
+                  Inc(FLaserCount) ;
+                  LaserID[FLaserCount] := ReplyList[0] ;
                   i0 := Pos('Inc - ',ReplyList[0]) + 6 ;
                   nc := Pos(' - V',ReplyList[0]) - i0 ;
-                  FName[FNumLasers] := MidStr(ReplyList[0],i0,nc);
-                  FLaserNum[FNumLasers] := LaserNum ;
+                  FName[FLaserCount] := MidStr(ReplyList[0],i0,nc);
+                  FLaserNum[FLaserCount] := LaserNum ;
                   end ;
                outputdebugstring(pchar('rx: ' + ReplyList[0]));
                ReplyList.Delete(0);
@@ -471,7 +474,7 @@ begin
           InitRequestLaserPowers :
             begin
             // Request laser max. powers from controller
-            for i := 1 to FNumLasers do
+            for i := 1 to FLaserCount do
                 CommandList.Add( format('syst%d:inf:pow?',[FLaserNum[i]]));
             LaserNum := 1 ;
             InitState := InitWaitForLaserPowers ;
@@ -484,7 +487,7 @@ begin
                if ContainsText(ReplyList[0],'OK') or ContainsText(ReplyList[0],'ERR') then
                   begin
                   Inc(LaserNum) ;
-                  if LaserNum > FNumLasers then InitState := InitDisableCDRH ;
+                  if LaserNum > FLaserCount then InitState := InitDisableCDRH ;
                   end
                else
                   begin
@@ -497,7 +500,7 @@ begin
           InitDisableCDRH :
             begin
             // Disable CDRH compliance delays for lasers
-            for i := 1 to FNumLasers do
+            for i := 1 to FLaserCount do
                 CommandList.Add( format('syst%d:cdrh off',[FLaserNum[i]]));
             LaserNum := 1 ;
             InitState := InitWaitForDisableCDRH ;
@@ -510,7 +513,7 @@ begin
                if ContainsText(ReplyList[0],'OK') or ContainsText(ReplyList[0],'ERR') then
                   begin
                   Inc(LaserNum) ;
-                  if LaserNum > FNumLasers then InitState := InitComplete ;
+                  if LaserNum > FLaserCount then InitState := InitComplete ;
                   end ;
                outputdebugstring(pchar('rx: ' + ReplyList[0]));
                ReplyList.Delete(0);

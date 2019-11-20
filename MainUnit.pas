@@ -421,6 +421,7 @@ type
 
     ScanRequested : Integer ;
     ScanningInProgress : Boolean ;
+    LiveImageMode : Boolean ;
 
     INIFileName : String ;           // Name of initialisation file
     ProgDirectory : String ;         // Path to program folder
@@ -601,6 +602,7 @@ begin
      CursorReadoutText := '' ;
 
      FormInitialized := False ;
+     LiveImageMode := False ;
 
      end;
 
@@ -2148,6 +2150,7 @@ procedure TMainFrm.bCaptureImageClick(Sender: TObject);
 // Capture high resolution imageof currently selected area
 // -------------------------------------------------------
 begin
+    LiveImageMode := False ;
     StartNewScan( False ) ;
     end ;
 
@@ -2270,8 +2273,10 @@ procedure TMainFrm.bLiveSCanClick(Sender: TObject);
 // Start live fast scan of currently selected area
 // -----------------------------------------------
 begin
+    LiveImageMode := True ;
     StartNewScan( True ) ;
     bLiveScan.Enabled := False ;
+
     end ;
 
 
@@ -2562,7 +2567,7 @@ begin
        else
           begin
           ScanningInProgress := False ;
-          if (not bCaptureImage.Enabled) then
+          if LiveImageMode then
              begin
              ScanRequested := 1 ;
              NumAverages := 1 ;
@@ -2618,6 +2623,9 @@ begin
 
     // Turn off voltage to PMTs
     PMT.Active := False ;
+
+    // Turn off lasers
+    Laser.Active := False ;
 
     if AvgBuf <> Nil then
       begin

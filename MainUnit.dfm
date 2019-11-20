@@ -338,11 +338,11 @@ object MainFrm: TMainFrm
         Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
         ShowHint = True
-        Text = ' 100 %'
+        Text = ' 100.0 %'
         Value = 1.000000000000000000
         Scale = 100.000000000000000000
         Units = '%'
-        NumberFormat = '%.0f'
+        NumberFormat = '%.1f'
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
@@ -467,11 +467,11 @@ object MainFrm: TMainFrm
         Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
         ShowHint = True
-        Text = ' 100 %'
+        Text = ' 100.0 %'
         Value = 1.000000000000000000
         Scale = 100.000000000000000000
         Units = '%'
-        NumberFormat = '%.0f'
+        NumberFormat = '%.1f'
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
@@ -596,11 +596,11 @@ object MainFrm: TMainFrm
         Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
         ShowHint = True
-        Text = ' 100 %'
+        Text = ' 100.0 %'
         Value = 1.000000000000000000
         Scale = 100.000000000000000000
         Units = '%'
-        NumberFormat = '%.0f'
+        NumberFormat = '%.1f'
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
@@ -725,11 +725,11 @@ object MainFrm: TMainFrm
         Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
         ShowHint = True
-        Text = ' 100 %'
+        Text = ' 100.0 %'
         Value = 1.000000000000000000
         Scale = 100.000000000000000000
         Units = '%'
-        NumberFormat = '%.0f'
+        NumberFormat = '%.1f'
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
