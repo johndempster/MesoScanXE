@@ -2678,12 +2678,14 @@ begin
      MagnificationOld := Magnification[iZoom] ;
      // Increase zoom index
      iZoom := Min(iZoom + 1,High(Magnification));
+
      // New image size (bitmap pixels)
      NewWidth := Round(BitMap[0].Width*(MagnificationOld/Magnification[iZoom])) ;
      NewHeight := Round(BitMap[0].Height*(MagnificationOld/Magnification[iZoom])) ;
+
      // New top,left (image pixels) centred on current image
-     XLeft := (XLeft + (FrameWidth div 2) - Round((NewWidth/XScaleToBM)*0.5)) ;
-     YTop := (YTop + (FrameHeight div 2) - Round((NewHeight/YScaleToBM)*0.5)) ;
+     XLeft := XLeft + Round((BitMap[0].Width - NewWidth)/(XScaleToBM*2.0)) ;
+     YTop := YTop   + Round((BitMap[0].Height - NewHeight)/(XScaleToBM*2.0)) ;
 
      Resize ;
      UpdateDisplay := True ;
@@ -2702,13 +2704,14 @@ begin
        MagnificationOld := Magnification[iZoom] ;
        // Increase zoom index
        iZoom := Max(iZoom - 1,0);
+
        // New image size (bitmap pixels)
        NewWidth := Round(BitMap[0].Width*(MagnificationOld/Magnification[iZoom])) ;
        NewHeight := Round(BitMap[0].Height*(MagnificationOld/Magnification[iZoom])) ;
 
        // New top,left (image pixels) centred on current image
-       XLeft := (XLeft + (FrameWidth div 2) - Round((NewWidth/XScaleToBM)*0.5)) ;
-       YTop := (YTop + (FrameHeight div 2) - Round((NewHeight/YScaleToBM)*0.5)) ;
+       XLeft := XLeft + Round((BitMap[0].Width - NewWidth)/(XScaleToBM*2.0)) ;
+       YTop := YTop   + Round((BitMap[0].Height - NewHeight)/(XScaleToBM*2.0)) ;
 
        Resize ;
        UpdateDisplay := True ;
