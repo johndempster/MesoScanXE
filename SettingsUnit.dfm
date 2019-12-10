@@ -53,7 +53,7 @@ object SettingsFrm: TSettingsFrm
     Top = 6
     Width = 553
     Height = 467
-    ActivePage = ScanTab
+    ActivePage = gpIntegrator
     TabOrder = 2
     object ScanTab: TTabSheet
       Caption = 'Scanning'
@@ -382,22 +382,8 @@ object SettingsFrm: TSettingsFrm
           Alignment = taRightJustify
           Caption = 'Black level'
         end
-        object Label23: TLabel
-          Left = 177
-          Top = 105
-          Width = 25
-          Height = 15
-          Alignment = taRightJustify
-          Caption = 'Gain'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Arial'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
         object Label19: TLabel
-          Left = 79
+          Left = 130
           Top = 105
           Width = 86
           Height = 15
@@ -471,7 +457,7 @@ object SettingsFrm: TSettingsFrm
           object Edit1: TEdit
             Left = 1
             Top = 0
-            Width = 57
+            Width = 100
             Height = 24
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
@@ -484,26 +470,12 @@ object SettingsFrm: TSettingsFrm
           end
           object ComboBox1: TComboBox
             Tag = 1
-            Left = 63
+            Left = 110
             Top = 0
             Width = 90
             Height = 24
             Style = csDropDownList
             TabOrder = 1
-          end
-          object ValidatedEdit1: TValidatedEdit
-            Tag = 2
-            Left = 159
-            Top = 0
-            Width = 50
-            Height = 24
-            Text = ' 100 %'
-            Value = 1.000000000000000000
-            Scale = 100.000000000000000000
-            Units = '%'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 1.000000000000000000
           end
         end
         object spNumPMTs: TSpinEdit
@@ -536,7 +508,7 @@ object SettingsFrm: TSettingsFrm
           object Edit2: TEdit
             Left = 0
             Top = 0
-            Width = 57
+            Width = 100
             Height = 24
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
@@ -549,26 +521,12 @@ object SettingsFrm: TSettingsFrm
           end
           object ComboBox2: TComboBox
             Tag = 1
-            Left = 63
+            Left = 110
             Top = 0
             Width = 90
             Height = 24
             Style = csDropDownList
             TabOrder = 1
-          end
-          object ValidatedEdit2: TValidatedEdit
-            Tag = 2
-            Left = 159
-            Top = 0
-            Width = 50
-            Height = 24
-            Text = ' 100 %'
-            Value = 1.000000000000000000
-            Scale = 100.000000000000000000
-            Units = '%'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 1.000000000000000000
           end
         end
         object pnPMT2: TPanel
@@ -581,7 +539,7 @@ object SettingsFrm: TSettingsFrm
           object Edit3: TEdit
             Left = 0
             Top = 0
-            Width = 57
+            Width = 100
             Height = 24
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
@@ -594,26 +552,12 @@ object SettingsFrm: TSettingsFrm
           end
           object ComboBox3: TComboBox
             Tag = 1
-            Left = 63
+            Left = 110
             Top = 0
             Width = 90
             Height = 24
             Style = csDropDownList
             TabOrder = 1
-          end
-          object ValidatedEdit3: TValidatedEdit
-            Tag = 2
-            Left = 159
-            Top = 0
-            Width = 50
-            Height = 24
-            Text = ' 100 %'
-            Value = 1.000000000000000000
-            Scale = 100.000000000000000000
-            Units = '%'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 1.000000000000000000
           end
         end
         object pnPMT3: TPanel
@@ -626,7 +570,7 @@ object SettingsFrm: TSettingsFrm
           object Edit4: TEdit
             Left = 0
             Top = 0
-            Width = 57
+            Width = 100
             Height = 24
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
@@ -639,26 +583,12 @@ object SettingsFrm: TSettingsFrm
           end
           object ComboBox4: TComboBox
             Tag = 1
-            Left = 63
+            Left = 110
             Top = 0
             Width = 90
             Height = 24
             Style = csDropDownList
             TabOrder = 1
-          end
-          object ValidatedEdit4: TValidatedEdit
-            Tag = 2
-            Left = 159
-            Top = 0
-            Width = 50
-            Height = 24
-            Text = ' 100 %'
-            Value = 1.000000000000000000
-            Scale = 100.000000000000000000
-            Units = '%'
-            NumberFormat = '%.4g'
-            LoLimit = -1.000000015047466E30
-            HiLimit = 1.000000000000000000
           end
         end
         object edPMTGainVMin: TValidatedEdit

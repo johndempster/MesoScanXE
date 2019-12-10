@@ -1,6 +1,6 @@
 object MainFrm: TMainFrm
-  Left = 794
-  Top = 350
+  Left = 8
+  Top = 50
   Caption = 'MesoScan V1.5.4 64 bit 24/06/19'
   ClientHeight = 1024
   ClientWidth = 1014
@@ -89,10 +89,6 @@ object MainFrm: TMainFrm
       OnChange = ImagePageChange
       object TabImage0: TTabSheet
         Caption = 'PMT0'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image0: TImage
           Left = 3
           Top = 1
@@ -127,10 +123,6 @@ object MainFrm: TMainFrm
       object TabImage2: TTabSheet
         Caption = 'PMT2'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image2: TImage
           Left = 3
           Top = 0
@@ -148,10 +140,6 @@ object MainFrm: TMainFrm
       object TabImage3: TTabSheet
         Caption = 'PMT3'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Image3: TImage
           Left = 3
           Top = 0
@@ -225,300 +213,37 @@ object MainFrm: TMainFrm
   end
   object PMTGrp: TGroupBox
     Left = 8
-    Top = 435
-    Width = 365
-    Height = 356
+    Top = 450
+    Width = 369
+    Height = 370
     Caption = ' PMT Channels  '
     TabOrder = 1
-    object gpPMT1: TGroupBox
-      Left = 8
-      Top = 104
-      Width = 350
-      Height = 76
-      TabOrder = 0
-      object Label8: TLabel
-        Left = 70
-        Top = 6
-        Width = 22
-        Height = 13
-        Caption = 'Gain'
-      end
-      object Label16: TLabel
-        Left = 125
-        Top = 6
-        Width = 26
-        Height = 13
-        Caption = 'Laser'
-      end
-      object Label17: TLabel
-        Left = 252
-        Top = 6
-        Width = 39
-        Height = 13
-        Caption = 'Intensity'
-      end
-      object CheckBox1: TCheckBox
-        Left = 7
-        Top = 22
-        Width = 65
-        Height = 17
-        Hint = 'Enable PMT Channel'
-        Caption = 'Ch.0'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Arial'
-        Font.Style = []
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 0
-        OnClick = ckEnablePMT0Click
-      end
-      object ComboBox1: TComboBox
-        Tag = 1
-        Left = 70
-        Top = 20
-        Width = 49
-        Height = 24
-        Hint = 'PMT amplifier gain'
-        Style = csDropDownList
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Arial'
-        Font.Style = []
-        ItemIndex = 0
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 1
-        Text = 'X1'
-        OnChange = cbPMTGain0Change
-        Items.Strings = (
-          'X1'
-          'X2'
-          'X5')
-      end
-      object ComboBox2: TComboBox
-        Tag = 2
-        Left = 125
-        Top = 20
-        Width = 116
-        Height = 24
-        Hint = 'Excitation laser selected for this PMT channel'
-        Style = csDropDownList
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Arial'
-        Font.Style = []
-        ItemIndex = 0
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 2
-        Text = 'X1'
-        OnChange = cbLaserChange
-        Items.Strings = (
-          'X1'
-          'X2'
-          'X5')
-      end
-      object TrackBar3: TTrackBar
-        Tag = 3
-        Left = 247
-        Top = 20
-        Width = 96
-        Height = 25
-        Hint = 'Excitation laser intensity (% of maximum)'
-        Max = 1000
-        ParentShowHint = False
-        Position = 100
-        ShowHint = True
-        TabOrder = 3
-        ThumbLength = 14
-        TickStyle = tsManual
-        OnChange = TrackBar2Change
-      end
-      object ValidatedEdit2: TValidatedEdit
-        Tag = 4
-        Left = 251
-        Top = 46
-        Width = 86
-        Height = 21
-        Hint = 'Excitation laser intensity (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
-        ShowHint = True
-        Text = ' 100.0 %'
-        Value = 1.000000000000000000
-        Scale = 100.000000000000000000
-        Units = '%'
-        NumberFormat = '%.1f'
-        LoLimit = 0.000000999999997475
-        HiLimit = 100.000000000000000000
-      end
-    end
-    object gpPMT2: TGroupBox
-      Left = 8
-      Top = 188
-      Width = 350
-      Height = 76
-      TabOrder = 1
-      object Label18: TLabel
-        Left = 70
-        Top = 6
-        Width = 22
-        Height = 13
-        Caption = 'Gain'
-      end
-      object Label19: TLabel
-        Left = 125
-        Top = 6
-        Width = 26
-        Height = 13
-        Caption = 'Laser'
-      end
-      object Label20: TLabel
-        Left = 252
-        Top = 6
-        Width = 39
-        Height = 13
-        Caption = 'Intensity'
-      end
-      object CheckBox2: TCheckBox
-        Left = 7
-        Top = 22
-        Width = 65
-        Height = 17
-        Hint = 'Enable PMT Channel'
-        Caption = 'Ch.0'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Arial'
-        Font.Style = []
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 0
-        OnClick = ckEnablePMT0Click
-      end
-      object ComboBox3: TComboBox
-        Tag = 1
-        Left = 70
-        Top = 20
-        Width = 49
-        Height = 24
-        Hint = 'PMT amplifier gain'
-        Style = csDropDownList
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Arial'
-        Font.Style = []
-        ItemIndex = 0
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 1
-        Text = 'X1'
-        OnChange = cbPMTGain0Change
-        Items.Strings = (
-          'X1'
-          'X2'
-          'X5')
-      end
-      object ComboBox4: TComboBox
-        Tag = 2
-        Left = 125
-        Top = 20
-        Width = 116
-        Height = 24
-        Hint = 'Excitation laser selected for this PMT channel'
-        Style = csDropDownList
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Arial'
-        Font.Style = []
-        ItemIndex = 0
-        ParentFont = False
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 2
-        Text = 'X1'
-        OnChange = cbLaserChange
-        Items.Strings = (
-          'X1'
-          'X2'
-          'X5')
-      end
-      object TrackBar4: TTrackBar
-        Tag = 3
-        Left = 247
-        Top = 20
-        Width = 96
-        Height = 25
-        Hint = 'Excitation laser intensity (% of maximum)'
-        Max = 1000
-        ParentShowHint = False
-        Position = 100
-        ShowHint = True
-        TabOrder = 3
-        ThumbLength = 14
-        TickStyle = tsManual
-        OnChange = TrackBar2Change
-      end
-      object ValidatedEdit3: TValidatedEdit
-        Tag = 4
-        Left = 251
-        Top = 46
-        Width = 86
-        Height = 21
-        Hint = 'Excitation laser intensity (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
-        ShowHint = True
-        Text = ' 100.0 %'
-        Value = 1.000000000000000000
-        Scale = 100.000000000000000000
-        Units = '%'
-        NumberFormat = '%.1f'
-        LoLimit = 0.000000999999997475
-        HiLimit = 100.000000000000000000
-      end
-    end
     object gpPMT0: TGroupBox
       Left = 8
-      Top = 20
+      Top = 22
       Width = 350
-      Height = 76
-      TabOrder = 2
+      Height = 80
+      TabOrder = 0
       object Label15: TLabel
-        Left = 70
+        Tag = 10
+        Left = 66
         Top = 6
-        Width = 22
+        Width = 48
         Height = 13
-        Caption = 'Gain'
+        Caption = 'PMT Gain'
       end
       object Label3: TLabel
-        Left = 125
+        Tag = 10
+        Left = 180
         Top = 6
         Width = 26
         Height = 13
         Caption = 'Laser'
-      end
-      object Label7: TLabel
-        Left = 252
-        Top = 6
-        Width = 39
-        Height = 13
-        Caption = 'Intensity'
       end
       object ckEnablePMT0: TCheckBox
         Left = 7
         Top = 22
-        Width = 65
+        Width = 50
         Height = 17
         Hint = 'Enable PMT Channel'
         Caption = 'Ch.0'
@@ -535,9 +260,9 @@ object MainFrm: TMainFrm
       end
       object cbPMTGain0: TComboBox
         Tag = 1
-        Left = 70
+        Left = 67
         Top = 20
-        Width = 49
+        Width = 107
         Height = 24
         Hint = 'PMT amplifier gain'
         Style = csDropDownList
@@ -560,9 +285,9 @@ object MainFrm: TMainFrm
       end
       object cbLaser: TComboBox
         Tag = 2
-        Left = 125
-        Top = 20
-        Width = 116
+        Left = 181
+        Top = 22
+        Width = 162
         Height = 24
         Hint = 'Excitation laser selected for this PMT channel'
         Style = csDropDownList
@@ -585,11 +310,11 @@ object MainFrm: TMainFrm
       end
       object TrackBar2: TTrackBar
         Tag = 3
-        Left = 247
-        Top = 20
-        Width = 96
-        Height = 25
-        Hint = 'Excitation laser intensity (% of maximum)'
+        Left = 62
+        Top = 50
+        Width = 60
+        Height = 22
+        Hint = 'PMT gain (% of maximum)'
         Max = 1000
         ParentShowHint = False
         Position = 100
@@ -600,10 +325,10 @@ object MainFrm: TMainFrm
         OnChange = TrackBar2Change
       end
       object ValidatedEdit1: TValidatedEdit
-        Tag = 4
-        Left = 251
-        Top = 46
-        Width = 86
+        Tag = 6
+        Left = 292
+        Top = 50
+        Width = 50
         Height = 21
         Hint = 'Excitation laser intensity (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
@@ -616,38 +341,66 @@ object MainFrm: TMainFrm
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
-    end
-    object gpPMT3: TGroupBox
-      Left = 8
-      Top = 272
-      Width = 350
-      Height = 76
-      TabOrder = 3
-      object Label21: TLabel
-        Left = 70
-        Top = 6
-        Width = 22
-        Height = 13
-        Caption = 'Gain'
+      object TrackBar1: TTrackBar
+        Tag = 5
+        Left = 175
+        Top = 50
+        Width = 118
+        Height = 22
+        Hint = 'Excitation laser intensity (% of maximum)'
+        Max = 1000
+        ParentShowHint = False
+        Position = 100
+        ShowHint = True
+        TabOrder = 5
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
       end
-      object Label22: TLabel
-        Left = 125
+      object ValidatedEdit5: TValidatedEdit
+        Tag = 4
+        Left = 123
+        Top = 50
+        Width = 50
+        Height = 21
+        Hint = 'PMT Gain (% of maximum)'
+        OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
+        Text = ' 100.0 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.1f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
+      end
+    end
+    object gpPMT1: TGroupBox
+      Left = 8
+      Top = 108
+      Width = 350
+      Height = 80
+      TabOrder = 1
+      object Label7: TLabel
+        Tag = 10
+        Left = 66
+        Top = 6
+        Width = 48
+        Height = 13
+        Caption = 'PMT Gain'
+      end
+      object Label8: TLabel
+        Tag = 10
+        Left = 180
         Top = 6
         Width = 26
         Height = 13
         Caption = 'Laser'
       end
-      object Label23: TLabel
-        Left = 252
-        Top = 6
-        Width = 39
-        Height = 13
-        Caption = 'Intensity'
-      end
-      object CheckBox3: TCheckBox
+      object CheckBox1: TCheckBox
         Left = 7
         Top = 22
-        Width = 65
+        Width = 50
         Height = 17
         Hint = 'Enable PMT Channel'
         Caption = 'Ch.0'
@@ -662,11 +415,11 @@ object MainFrm: TMainFrm
         TabOrder = 0
         OnClick = ckEnablePMT0Click
       end
-      object ComboBox5: TComboBox
+      object ComboBox1: TComboBox
         Tag = 1
-        Left = 70
-        Top = 20
-        Width = 49
+        Left = 66
+        Top = 22
+        Width = 107
         Height = 24
         Hint = 'PMT amplifier gain'
         Style = csDropDownList
@@ -687,11 +440,168 @@ object MainFrm: TMainFrm
           'X2'
           'X5')
       end
-      object ComboBox6: TComboBox
+      object ComboBox2: TComboBox
         Tag = 2
-        Left = 125
-        Top = 20
-        Width = 116
+        Left = 180
+        Top = 22
+        Width = 162
+        Height = 24
+        Hint = 'Excitation laser selected for this PMT channel'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+        Text = 'X1'
+        OnChange = cbLaserChange
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object TrackBar3: TTrackBar
+        Tag = 3
+        Left = 62
+        Top = 50
+        Width = 60
+        Height = 22
+        Hint = 'PMT gain (% of maximum)'
+        Max = 1000
+        ParentShowHint = False
+        Position = 100
+        ShowHint = True
+        TabOrder = 3
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit2: TValidatedEdit
+        Tag = 6
+        Left = 292
+        Top = 50
+        Width = 50
+        Height = 21
+        Hint = 'Excitation laser intensity (% of maximum)'
+        OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
+        Text = ' 100.0 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.1f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
+      end
+      object TrackBar4: TTrackBar
+        Tag = 5
+        Left = 175
+        Top = 50
+        Width = 118
+        Height = 22
+        Hint = 'Excitation laser intensity (% of maximum)'
+        Max = 1000
+        ParentShowHint = False
+        Position = 100
+        ShowHint = True
+        TabOrder = 5
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit3: TValidatedEdit
+        Tag = 4
+        Left = 123
+        Top = 50
+        Width = 50
+        Height = 21
+        Hint = 'PMT Gain (% of maximum)'
+        OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
+        Text = ' 100.0 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.1f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
+      end
+    end
+    object gpPMT2: TGroupBox
+      Left = 8
+      Top = 194
+      Width = 350
+      Height = 80
+      TabOrder = 2
+      object Label16: TLabel
+        Tag = 10
+        Left = 66
+        Top = 6
+        Width = 48
+        Height = 13
+        Caption = 'PMT Gain'
+      end
+      object Label17: TLabel
+        Tag = 10
+        Left = 180
+        Top = 6
+        Width = 26
+        Height = 13
+        Caption = 'Laser'
+      end
+      object CheckBox2: TCheckBox
+        Left = 7
+        Top = 22
+        Width = 50
+        Height = 17
+        Hint = 'Enable PMT Channel'
+        Caption = 'Ch.0'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        OnClick = ckEnablePMT0Click
+      end
+      object ComboBox3: TComboBox
+        Tag = 1
+        Left = 66
+        Top = 22
+        Width = 107
+        Height = 24
+        Hint = 'PMT amplifier gain'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+        Text = 'X1'
+        OnChange = cbPMTGain0Change
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object ComboBox4: TComboBox
+        Tag = 2
+        Left = 180
+        Top = 22
+        Width = 162
         Height = 24
         Hint = 'Excitation laser selected for this PMT channel'
         Style = csDropDownList
@@ -714,11 +624,11 @@ object MainFrm: TMainFrm
       end
       object TrackBar5: TTrackBar
         Tag = 3
-        Left = 247
-        Top = 20
-        Width = 96
-        Height = 25
-        Hint = 'Excitation laser intensity (% of maximum)'
+        Left = 62
+        Top = 50
+        Width = 60
+        Height = 22
+        Hint = 'PMT gain (% of maximum)'
         Max = 1000
         ParentShowHint = False
         Position = 100
@@ -729,12 +639,202 @@ object MainFrm: TMainFrm
         OnChange = TrackBar2Change
       end
       object ValidatedEdit4: TValidatedEdit
-        Tag = 4
-        Left = 251
-        Top = 46
-        Width = 86
+        Tag = 6
+        Left = 292
+        Top = 50
+        Width = 50
         Height = 21
         Hint = 'Excitation laser intensity (% of maximum)'
+        OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
+        Text = ' 100.0 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.1f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
+      end
+      object TrackBar6: TTrackBar
+        Tag = 5
+        Left = 175
+        Top = 50
+        Width = 118
+        Height = 22
+        Hint = 'Excitation laser intensity (% of maximum)'
+        Max = 1000
+        ParentShowHint = False
+        Position = 100
+        ShowHint = True
+        TabOrder = 5
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit6: TValidatedEdit
+        Tag = 4
+        Left = 123
+        Top = 50
+        Width = 50
+        Height = 21
+        Hint = 'PMT Gain (% of maximum)'
+        OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
+        Text = ' 100.0 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.1f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
+      end
+    end
+    object gpPMT3: TGroupBox
+      Left = 8
+      Top = 280
+      Width = 350
+      Height = 80
+      TabOrder = 3
+      object Label18: TLabel
+        Tag = 10
+        Left = 66
+        Top = 6
+        Width = 48
+        Height = 13
+        Caption = 'PMT Gain'
+      end
+      object Label19: TLabel
+        Tag = 10
+        Left = 180
+        Top = 6
+        Width = 26
+        Height = 13
+        Caption = 'Laser'
+      end
+      object CheckBox3: TCheckBox
+        Left = 7
+        Top = 22
+        Width = 50
+        Height = 17
+        Hint = 'Enable PMT Channel'
+        Caption = 'Ch.0'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+        OnClick = ckEnablePMT0Click
+      end
+      object ComboBox5: TComboBox
+        Tag = 1
+        Left = 66
+        Top = 22
+        Width = 107
+        Height = 24
+        Hint = 'PMT amplifier gain'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+        Text = 'X1'
+        OnChange = cbPMTGain0Change
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object ComboBox6: TComboBox
+        Tag = 2
+        Left = 180
+        Top = 22
+        Width = 162
+        Height = 24
+        Hint = 'Excitation laser selected for this PMT channel'
+        Style = csDropDownList
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ItemIndex = 0
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+        Text = 'X1'
+        OnChange = cbLaserChange
+        Items.Strings = (
+          'X1'
+          'X2'
+          'X5')
+      end
+      object TrackBar7: TTrackBar
+        Tag = 3
+        Left = 62
+        Top = 50
+        Width = 60
+        Height = 22
+        Hint = 'PMT gain (% of maximum)'
+        Max = 1000
+        ParentShowHint = False
+        Position = 100
+        ShowHint = True
+        TabOrder = 3
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit7: TValidatedEdit
+        Tag = 6
+        Left = 292
+        Top = 50
+        Width = 50
+        Height = 21
+        Hint = 'Excitation laser intensity (% of maximum)'
+        OnKeyPress = ValidatedEdit1KeyPress
+        ShowHint = True
+        Text = ' 100.0 %'
+        Value = 1.000000000000000000
+        Scale = 100.000000000000000000
+        Units = '%'
+        NumberFormat = '%.1f'
+        LoLimit = 0.000000999999997475
+        HiLimit = 100.000000000000000000
+      end
+      object TrackBar8: TTrackBar
+        Tag = 5
+        Left = 175
+        Top = 50
+        Width = 118
+        Height = 22
+        Hint = 'Excitation laser intensity (% of maximum)'
+        Max = 1000
+        ParentShowHint = False
+        Position = 100
+        ShowHint = True
+        TabOrder = 5
+        ThumbLength = 14
+        TickStyle = tsManual
+        OnChange = TrackBar2Change
+      end
+      object ValidatedEdit8: TValidatedEdit
+        Tag = 4
+        Left = 123
+        Top = 50
+        Width = 50
+        Height = 21
+        Hint = 'PMT Gain (% of maximum)'
         OnKeyPress = ValidatedEdit1KeyPress
         ShowHint = True
         Text = ' 100.0 %'
@@ -749,7 +849,7 @@ object MainFrm: TMainFrm
   end
   object DisplayGrp: TGroupBox
     Left = 8
-    Top = 793
+    Top = 810
     Width = 365
     Height = 138
     Caption = ' Display '
@@ -872,10 +972,6 @@ object MainFrm: TMainFrm
       object SlidersTab: TTabSheet
         Caption = 'Sliders'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Label9: TLabel
           Left = 14
           Top = 0
@@ -985,7 +1081,7 @@ object MainFrm: TMainFrm
   end
   object StatusGrp: TGroupBox
     Left = 8
-    Top = 937
+    Top = 954
     Width = 365
     Height = 81
     TabOrder = 3

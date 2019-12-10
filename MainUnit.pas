@@ -42,8 +42,8 @@ unit MainUnit;
 // V1.6.9 02.10.18 LaserUnit now uses LaserComThead for COM port message handling
 //        03.06.19 PMTUnit and ZStageUnit now use threads for COM port message handling (not tested)
 //        24.06.19 OBIS laser control working but still under test
-// V2.0.0 21.10.10 Now designated as V2.0.0
-
+// V2.0.0 21.10.19 Now designated as V2.0.0
+//        10.12.19 PMT Gain % now incorporated into PMT/LASER control group boxes
 interface
 
 
@@ -154,42 +154,14 @@ type
     bCaptureImage: TButton;
     bStopScan: TButton;
     cbImageMode: TComboBox;
-    gpPMT1: TGroupBox;
-    Label8: TLabel;
-    Label16: TLabel;
-    Label17: TLabel;
-    CheckBox1: TCheckBox;
-    ComboBox1: TComboBox;
-    ComboBox2: TComboBox;
-    TrackBar3: TTrackBar;
-    ValidatedEdit2: TValidatedEdit;
-    gpPMT2: TGroupBox;
-    Label18: TLabel;
-    Label19: TLabel;
-    Label20: TLabel;
-    CheckBox2: TCheckBox;
-    ComboBox3: TComboBox;
-    ComboBox4: TComboBox;
-    TrackBar4: TTrackBar;
-    ValidatedEdit3: TValidatedEdit;
     gpPMT0: TGroupBox;
     Label15: TLabel;
     Label3: TLabel;
-    Label7: TLabel;
     ckEnablePMT0: TCheckBox;
     cbPMTGain0: TComboBox;
     cbLaser: TComboBox;
     TrackBar2: TTrackBar;
     ValidatedEdit1: TValidatedEdit;
-    gpPMT3: TGroupBox;
-    Label21: TLabel;
-    Label22: TLabel;
-    Label23: TLabel;
-    CheckBox3: TCheckBox;
-    ComboBox5: TComboBox;
-    ComboBox6: TComboBox;
-    TrackBar5: TTrackBar;
-    ValidatedEdit4: TValidatedEdit;
     CCDAreaGrp: TGroupBox;
     GroupBox2: TGroupBox;
     edGotoXPosition: TValidatedEdit;
@@ -224,6 +196,38 @@ type
     Label24: TLabel;
     edYRange: TRangeEdit;
     edXRange: TRangeEdit;
+    TrackBar1: TTrackBar;
+    ValidatedEdit5: TValidatedEdit;
+    gpPMT1: TGroupBox;
+    Label7: TLabel;
+    Label8: TLabel;
+    CheckBox1: TCheckBox;
+    ComboBox1: TComboBox;
+    ComboBox2: TComboBox;
+    TrackBar3: TTrackBar;
+    ValidatedEdit2: TValidatedEdit;
+    TrackBar4: TTrackBar;
+    ValidatedEdit3: TValidatedEdit;
+    gpPMT2: TGroupBox;
+    Label16: TLabel;
+    Label17: TLabel;
+    CheckBox2: TCheckBox;
+    ComboBox3: TComboBox;
+    ComboBox4: TComboBox;
+    TrackBar5: TTrackBar;
+    ValidatedEdit4: TValidatedEdit;
+    TrackBar6: TTrackBar;
+    ValidatedEdit6: TValidatedEdit;
+    gpPMT3: TGroupBox;
+    Label18: TLabel;
+    Label19: TLabel;
+    CheckBox3: TCheckBox;
+    ComboBox5: TComboBox;
+    ComboBox6: TComboBox;
+    TrackBar7: TTrackBar;
+    ValidatedEdit7: TValidatedEdit;
+    TrackBar8: TTrackBar;
+    ValidatedEdit8: TValidatedEdit;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -3564,6 +3568,8 @@ var
     cbLaser : TComboBox ;
     tbLaserIntensity : TTrackBar ;
     edLaserIntensity : TValidatedEdit ;
+    tbPMTGain : TTrackBar ;
+    edPMTGain : TValidatedEdit ;
 begin
 
       // Display Group if PMT exists
@@ -3576,8 +3582,10 @@ begin
               0 : ckEnabled:= TCheckBox(Group.Controls[i]) ;
               1 : cbGain := TComboBox(Group.Controls[i]) ;
               2 : cbLaser := TComboBox(Group.Controls[i]) ;
-              3 : tbLaserIntensity := TTrackBar(Group.Controls[i]) ;
-              4 : edLaserIntensity := TValidatedEdit(Group.Controls[i]) ;
+              3 : tbPMTGain := TTrackBar(Group.Controls[i]) ;
+              4 : edPMTGain := TValidatedEdit(Group.Controls[i]) ;
+              5 : tbLaserIntensity := TTrackBar(Group.Controls[i]) ;
+              6 : edLaserIntensity := TValidatedEdit(Group.Controls[i]) ;
               end ;
           end ;
 
@@ -3590,6 +3598,8 @@ begin
          cbGain.ItemIndex := PMT.ADCGainIndex[Num] ;
          Laser.GetLaserList( cbLaser.Items ) ;
          cbLaser.ItemIndex := Max(PMT.LaserNum[Num],0) ;
+         tbPMTGain.Position := Round(PMT.PMTGain[Num]*tbPMTGain.Max);
+         edPMTGain.Value :=  PMT.PMTGain[Num] ;
          tbLaserIntensity.Position := Round(Laser.Intensity[PMT.LaserNum[Num]]*tbLaserIntensity.Max);
          edLaserIntensity.Value :=  Laser.Intensity[PMT.LaserNum[Num]] ;
          end
@@ -3601,15 +3611,19 @@ begin
          Laser.LaserEnabled[PMT.LaserNum[Num]] := PMT.PMTEnabled[Num] ;
          if ANSIContainsText( RW, 'RT') then
             begin
-            // Read intensity track bar
+            // Read intensity track bars
             Laser.Intensity[PMT.LaserNum[Num]] := tbLaserIntensity.Position / tbLaserIntensity.Max ;
             edLaserIntensity.Value :=  Laser.Intensity[PMT.LaserNum[Num]] ;
+            PMT.PMTGain[Num] := tbPMTGain.Position / tbPMTGain.Max ;
+            edPMTGain.Value := PMT.PMTGain[Num] ;
             end
          else
             begin
-            // Read intensity edit box
+            // Read intensity edit boxes
             Laser.Intensity[PMT.LaserNum[Num]] := edLaserIntensity.Value ;
             tbLaserIntensity.Position := Round(Laser.Intensity[PMT.LaserNum[Num]]*tbLaserIntensity.Max);
+            PMT.PMTGain[Num] := edPMTGain.Value ;
+            tbPMTGain.Position := Round(PMT.PMTGain[Num]*tbPMTGain.Max);
             end;
          end ;
 
