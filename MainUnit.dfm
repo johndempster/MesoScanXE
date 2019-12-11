@@ -1460,6 +1460,7 @@ object MainFrm: TMainFrm
       Width = 90
       Height = 28
       Hint = 'Z axis position to move to'
+      OnKeyPress = edGotoXPositionKeyPress
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -1497,6 +1498,7 @@ object MainFrm: TMainFrm
       Width = 90
       Height = 28
       Hint = 'Z axis position to move to'
+      OnKeyPress = edGotoYPositionKeyPress
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -16

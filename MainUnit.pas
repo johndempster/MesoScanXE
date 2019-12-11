@@ -282,6 +282,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure rbScanRangeMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure edGotoXPositionKeyPress(Sender: TObject; var Key: Char);
+    procedure edGotoYPositionKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
         FormInitialized : Boolean ;
@@ -2210,7 +2212,34 @@ begin
      end;
 
 
+procedure TMainFrm.edGotoXPositionKeyPress(Sender: TObject; var Key: Char);
+// ---------------------------------------------------------
+// Key pressed - Go to position entered by user if key is CR
+// ---------------------------------------------------------
+begin
+    if Key = #13 then
+        begin
+        ZStage.MoveTo( edGoToXPosition.Value, ZStage.YPosition,ZStage.ZPosition ) ;
+        end;
+    end;
+
+
+procedure TMainFrm.edGotoYPositionKeyPress(Sender: TObject; var Key: Char);
+// ---------------------------------------------------------
+// Key pressed - Go to position entered by user if key is CR
+// ---------------------------------------------------------
+begin
+    if Key = #13 then
+        begin
+        ZStage.MoveTo( ZStage.XPosition, edGoToYPosition.Value, ZStage.ZPosition ) ;
+        end;
+    end;
+
+
 procedure TMainFrm.edGotoZPositionKeyPress(Sender: TObject; var Key: Char);
+// ---------------------------------------------------------
+// Key pressed - Go to position entered by user if key is CR
+// ---------------------------------------------------------
 begin
     if Key = #13 then
         begin
