@@ -8,6 +8,7 @@ unit LaserUnit;
 // 02.10.18 Now uses LaserComThead for COM port message handling
 // 24.06.19 OBIS laser control working but not completely tested
 //          .Changed and .Initialised properties added
+// 18.12.19 .Active flag now set correctly when .Active set to TRUE
 
 interface
 
@@ -698,6 +699,8 @@ procedure TLaser.SetActive( Value : Boolean ) ;
 // Activate/inactivate enabled lasers and set intensity
 // -----------------------------------------------------
 begin
+
+    FActive := Value ;
 
     case FLaserType of
         lsOBIS : OBISSetActive(Value) ;

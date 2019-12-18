@@ -116,7 +116,6 @@ type
     Panel1: TPanel;
     scZSection: TScrollBar;
     lbZSection: TLabel;
-    lbReadout: TLabel;
     PMTGrp: TGroupBox;
     DisplayGrp: TGroupBox;
     Splitter1: TSplitter;
@@ -159,9 +158,9 @@ type
     Label3: TLabel;
     ckEnablePMT0: TCheckBox;
     cbPMTGain0: TComboBox;
-    cbLaser: TComboBox;
+    cbPMTLaser0: TComboBox;
     TrackBar2: TTrackBar;
-    ValidatedEdit1: TValidatedEdit;
+    edPMTLaserIntensity0: TValidatedEdit;
     CCDAreaGrp: TGroupBox;
     GroupBox2: TGroupBox;
     edGotoXPosition: TValidatedEdit;
@@ -196,37 +195,37 @@ type
     Label24: TLabel;
     edYRange: TRangeEdit;
     edXRange: TRangeEdit;
-    TrackBar1: TTrackBar;
+    tbPMTLaserIntensity0: TTrackBar;
     ValidatedEdit5: TValidatedEdit;
     gpPMT1: TGroupBox;
     Label7: TLabel;
     Label8: TLabel;
     CheckBox1: TCheckBox;
     ComboBox1: TComboBox;
-    ComboBox2: TComboBox;
+    cbPMTLaser1: TComboBox;
     TrackBar3: TTrackBar;
-    ValidatedEdit2: TValidatedEdit;
-    TrackBar4: TTrackBar;
+    edPMTLaserIntensity1: TValidatedEdit;
+    tbPMTLaserIntensity1: TTrackBar;
     ValidatedEdit3: TValidatedEdit;
     gpPMT2: TGroupBox;
     Label16: TLabel;
     Label17: TLabel;
     CheckBox2: TCheckBox;
     ComboBox3: TComboBox;
-    ComboBox4: TComboBox;
+    cbPMTLaser2: TComboBox;
     TrackBar5: TTrackBar;
-    ValidatedEdit4: TValidatedEdit;
-    TrackBar6: TTrackBar;
+    edPMTLaserIntensity2: TValidatedEdit;
+    tbPMTLaserIntensity2: TTrackBar;
     ValidatedEdit6: TValidatedEdit;
     gpPMT3: TGroupBox;
     Label18: TLabel;
     Label19: TLabel;
     CheckBox3: TCheckBox;
     ComboBox5: TComboBox;
-    ComboBox6: TComboBox;
+    cbPMTLaser3: TComboBox;
     TrackBar7: TTrackBar;
-    ValidatedEdit7: TValidatedEdit;
-    TrackBar8: TTrackBar;
+    edPMTLaserIntensity3: TValidatedEdit;
+    tbPMTLaserIntensity3: TTrackBar;
     ValidatedEdit8: TValidatedEdit;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -267,8 +266,8 @@ type
     procedure bLiveSCanClick(Sender: TObject);
     procedure bCaptureImageClick(Sender: TObject);
     procedure TrackBar2Change(Sender: TObject);
-    procedure ValidatedEdit1KeyPress(Sender: TObject; var Key: Char);
-    procedure cbLaserChange(Sender: TObject);
+    procedure edPMTLaserIntensity0KeyPress(Sender: TObject; var Key: Char);
+    procedure cbPMTLaser0Change(Sender: TObject);
     procedure cbPMTGain0Change(Sender: TObject);
     procedure bGoToXPositionClick(Sender: TObject);
     procedure bGoToYPositionClick(Sender: TObject);
@@ -284,6 +283,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure edGotoXPositionKeyPress(Sender: TObject; var Key: Char);
     procedure edGotoYPositionKeyPress(Sender: TObject; var Key: Char);
+    procedure tbPMTLaserIntensity0Change(Sender: TObject);
   private
     { Private declarations }
         FormInitialized : Boolean ;
@@ -811,7 +811,6 @@ begin
      image2.ControlStyle := image2.ControlStyle + [csOpaque] ;
      image3.ControlStyle := image3.ControlStyle + [csOpaque] ;
      imagegrp.ControlStyle := imagegrp.ControlStyle + [csOpaque] ;
-     lbreadout.ControlStyle := lbreadout.ControlStyle + [csOpaque] ;
      ImagePage.ActivePageIndex := 0 ;
 
     // Initialise display
@@ -1104,8 +1103,6 @@ begin
      lbZoom.Caption := format('Zoom (X%d)',[Magnification[iZoom]]);
 
      ZSectionPanel.Top := ZoomPanel.Top ;
-     lbReadout.Top := ZSectionPanel.Top ;
-     lbReadout.Left :=  ZoomPanel.Left + ZoomPanel.Width + 5 ;
 
      ImagePage.Width := ImageGrp.ClientWidth - ImagePage.Left - 5 ;
      ImagePage.Height := ZSectionPanel.Top - ImagePage.Top - 2 ;
@@ -2151,6 +2148,21 @@ begin
     end;
 
 
+procedure TMainFrm.tbPMTLaserIntensity0Change(Sender: TObject);
+// --------------------------------
+// Laser intensity trackbar changed
+// --------------------------------
+begin
+    if not FormInitialized then Exit ;
+    // Read PMT controls, updating laser intensity edit box with trackbar value
+    ReadWritePMTGroup( 0, gpPMT0, 'RT' ) ;
+    ReadWritePMTGroup( 1, gpPMT1, 'RT' ) ;
+    ReadWritePMTGroup( 2, gpPMT2, 'RT' ) ;
+    ReadWritePMTGroup( 3, gpPMT3, 'RT' ) ;
+    if Laser.Active then Laser.Active := True ;
+    end;
+
+
 procedure TMainFrm.bCaptureImageClick(Sender: TObject);
 // -------------------------------------------------------
 // Capture high resolution imageof currently selected area
@@ -2767,7 +2779,7 @@ begin
     end;
 
 
-procedure TMainFrm.cbLaserChange(Sender: TObject);
+procedure TMainFrm.cbPMTLaser0Change(Sender: TObject);
 // -----------------
 // PMT Laser changed
 // -----------------
@@ -2778,6 +2790,7 @@ begin
     ReadWritePMTGroup( 1, gpPMT1, 'R' ) ;
     ReadWritePMTGroup( 2, gpPMT2, 'R' ) ;
     ReadWritePMTGroup( 3, gpPMT3, 'R' ) ;
+    if Laser.Active then Laser.Active := True ;
     end;
 
 
@@ -3565,7 +3578,7 @@ begin
 
   end;
 
-procedure TMainFrm.ValidatedEdit1KeyPress(Sender: TObject; var Key: Char);
+procedure TMainFrm.edPMTLaserIntensity0KeyPress(Sender: TObject; var Key: Char);
 // --------------------------------
 // Laser intensity edit box changed
 // --------------------------------
@@ -3578,6 +3591,7 @@ begin
        ReadWritePMTGroup( 1, gpPMT1,'RE' ) ;
        ReadWritePMTGroup( 2, gpPMT2,'RE' ) ;
        ReadWritePMTGroup( 3, gpPMT3,'RE' ) ;
+       if Laser.Active then Laser.Active := True ;
        end;
 
     end;

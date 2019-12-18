@@ -4,6 +4,8 @@ unit PMTUnit;
 // --------------------------------------------------
 // 19.02.18
 // 05.06.19 Coms work wirh SIM900 (not fully tested)
+// 18.12.19 low pass filter limited to 500 kHz max.
+//          Tested and working with SRS 500
 
 interface
 
@@ -318,6 +320,7 @@ begin
     CommandList.Add( 'BRDT "COUP DC"');
     // Cutoff frequency
     Freq3dBCutOff := 2.0 / (pi()*IntegrationTime) ;
+    Freq3dBCutOff := Min(Freq3dBCutOff,500000.0) ;
     CommandList.Add( format('BRDT "FREQ %.0f"',[Freq3dBCutOff]));
 
     end;

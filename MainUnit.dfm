@@ -34,19 +34,6 @@ object MainFrm: TMainFrm
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    object lbReadout: TLabel
-      Left = 8
-      Top = 217
-      Width = 55
-      Height = 14
-      Caption = 'lbReadout'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clBlue
-      Font.Height = -11
-      Font.Name = 'Arial'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
     object ZSectionPanel: TPanel
       Left = 159
       Top = 243
@@ -283,7 +270,7 @@ object MainFrm: TMainFrm
           'X2'
           'X5')
       end
-      object cbLaser: TComboBox
+      object cbPMTLaser0: TComboBox
         Tag = 2
         Left = 181
         Top = 22
@@ -302,7 +289,7 @@ object MainFrm: TMainFrm
         ShowHint = True
         TabOrder = 2
         Text = 'X1'
-        OnChange = cbLaserChange
+        OnChange = cbPMTLaser0Change
         Items.Strings = (
           'X1'
           'X2'
@@ -324,14 +311,14 @@ object MainFrm: TMainFrm
         TickStyle = tsManual
         OnChange = TrackBar2Change
       end
-      object ValidatedEdit1: TValidatedEdit
+      object edPMTLaserIntensity0: TValidatedEdit
         Tag = 6
         Left = 292
         Top = 50
         Width = 50
         Height = 21
         Hint = 'Excitation laser intensity (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
+        OnKeyPress = edPMTLaserIntensity0KeyPress
         ShowHint = True
         Text = ' 100.0 %'
         Value = 1.000000000000000000
@@ -341,7 +328,7 @@ object MainFrm: TMainFrm
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
-      object TrackBar1: TTrackBar
+      object tbPMTLaserIntensity0: TTrackBar
         Tag = 5
         Left = 175
         Top = 50
@@ -355,7 +342,7 @@ object MainFrm: TMainFrm
         TabOrder = 5
         ThumbLength = 14
         TickStyle = tsManual
-        OnChange = TrackBar2Change
+        OnChange = tbPMTLaserIntensity0Change
       end
       object ValidatedEdit5: TValidatedEdit
         Tag = 4
@@ -364,7 +351,7 @@ object MainFrm: TMainFrm
         Width = 50
         Height = 21
         Hint = 'PMT Gain (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
+        OnKeyPress = edPMTLaserIntensity0KeyPress
         ShowHint = True
         Text = ' 100.0 %'
         Value = 1.000000000000000000
@@ -440,9 +427,9 @@ object MainFrm: TMainFrm
           'X2'
           'X5')
       end
-      object ComboBox2: TComboBox
+      object cbPMTLaser1: TComboBox
         Tag = 2
-        Left = 180
+        Left = 179
         Top = 22
         Width = 162
         Height = 24
@@ -459,7 +446,7 @@ object MainFrm: TMainFrm
         ShowHint = True
         TabOrder = 2
         Text = 'X1'
-        OnChange = cbLaserChange
+        OnChange = cbPMTLaser0Change
         Items.Strings = (
           'X1'
           'X2'
@@ -481,14 +468,14 @@ object MainFrm: TMainFrm
         TickStyle = tsManual
         OnChange = TrackBar2Change
       end
-      object ValidatedEdit2: TValidatedEdit
+      object edPMTLaserIntensity1: TValidatedEdit
         Tag = 6
         Left = 292
         Top = 50
         Width = 50
         Height = 21
         Hint = 'Excitation laser intensity (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
+        OnKeyPress = edPMTLaserIntensity0KeyPress
         ShowHint = True
         Text = ' 100.0 %'
         Value = 1.000000000000000000
@@ -498,7 +485,7 @@ object MainFrm: TMainFrm
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
-      object TrackBar4: TTrackBar
+      object tbPMTLaserIntensity1: TTrackBar
         Tag = 5
         Left = 175
         Top = 50
@@ -512,7 +499,7 @@ object MainFrm: TMainFrm
         TabOrder = 5
         ThumbLength = 14
         TickStyle = tsManual
-        OnChange = TrackBar2Change
+        OnChange = tbPMTLaserIntensity0Change
       end
       object ValidatedEdit3: TValidatedEdit
         Tag = 4
@@ -521,7 +508,7 @@ object MainFrm: TMainFrm
         Width = 50
         Height = 21
         Hint = 'PMT Gain (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
+        OnKeyPress = edPMTLaserIntensity0KeyPress
         ShowHint = True
         Text = ' 100.0 %'
         Value = 1.000000000000000000
@@ -597,7 +584,7 @@ object MainFrm: TMainFrm
           'X2'
           'X5')
       end
-      object ComboBox4: TComboBox
+      object cbPMTLaser2: TComboBox
         Tag = 2
         Left = 180
         Top = 22
@@ -616,7 +603,7 @@ object MainFrm: TMainFrm
         ShowHint = True
         TabOrder = 2
         Text = 'X1'
-        OnChange = cbLaserChange
+        OnChange = cbPMTLaser0Change
         Items.Strings = (
           'X1'
           'X2'
@@ -638,14 +625,14 @@ object MainFrm: TMainFrm
         TickStyle = tsManual
         OnChange = TrackBar2Change
       end
-      object ValidatedEdit4: TValidatedEdit
+      object edPMTLaserIntensity2: TValidatedEdit
         Tag = 6
         Left = 292
         Top = 50
         Width = 50
         Height = 21
         Hint = 'Excitation laser intensity (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
+        OnKeyPress = edPMTLaserIntensity0KeyPress
         ShowHint = True
         Text = ' 100.0 %'
         Value = 1.000000000000000000
@@ -655,7 +642,7 @@ object MainFrm: TMainFrm
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
-      object TrackBar6: TTrackBar
+      object tbPMTLaserIntensity2: TTrackBar
         Tag = 5
         Left = 175
         Top = 50
@@ -669,7 +656,7 @@ object MainFrm: TMainFrm
         TabOrder = 5
         ThumbLength = 14
         TickStyle = tsManual
-        OnChange = TrackBar2Change
+        OnChange = tbPMTLaserIntensity0Change
       end
       object ValidatedEdit6: TValidatedEdit
         Tag = 4
@@ -678,7 +665,7 @@ object MainFrm: TMainFrm
         Width = 50
         Height = 21
         Hint = 'PMT Gain (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
+        OnKeyPress = edPMTLaserIntensity0KeyPress
         ShowHint = True
         Text = ' 100.0 %'
         Value = 1.000000000000000000
@@ -754,7 +741,7 @@ object MainFrm: TMainFrm
           'X2'
           'X5')
       end
-      object ComboBox6: TComboBox
+      object cbPMTLaser3: TComboBox
         Tag = 2
         Left = 180
         Top = 22
@@ -773,7 +760,7 @@ object MainFrm: TMainFrm
         ShowHint = True
         TabOrder = 2
         Text = 'X1'
-        OnChange = cbLaserChange
+        OnChange = cbPMTLaser0Change
         Items.Strings = (
           'X1'
           'X2'
@@ -795,14 +782,14 @@ object MainFrm: TMainFrm
         TickStyle = tsManual
         OnChange = TrackBar2Change
       end
-      object ValidatedEdit7: TValidatedEdit
+      object edPMTLaserIntensity3: TValidatedEdit
         Tag = 6
         Left = 292
         Top = 50
         Width = 50
         Height = 21
         Hint = 'Excitation laser intensity (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
+        OnKeyPress = edPMTLaserIntensity0KeyPress
         ShowHint = True
         Text = ' 100.0 %'
         Value = 1.000000000000000000
@@ -812,7 +799,7 @@ object MainFrm: TMainFrm
         LoLimit = 0.000000999999997475
         HiLimit = 100.000000000000000000
       end
-      object TrackBar8: TTrackBar
+      object tbPMTLaserIntensity3: TTrackBar
         Tag = 5
         Left = 175
         Top = 50
@@ -826,7 +813,7 @@ object MainFrm: TMainFrm
         TabOrder = 5
         ThumbLength = 14
         TickStyle = tsManual
-        OnChange = TrackBar2Change
+        OnChange = tbPMTLaserIntensity0Change
       end
       object ValidatedEdit8: TValidatedEdit
         Tag = 4
@@ -835,7 +822,7 @@ object MainFrm: TMainFrm
         Width = 50
         Height = 21
         Hint = 'PMT Gain (% of maximum)'
-        OnKeyPress = ValidatedEdit1KeyPress
+        OnKeyPress = edPMTLaserIntensity0KeyPress
         ShowHint = True
         Text = ' 100.0 %'
         Value = 1.000000000000000000
