@@ -1283,7 +1283,7 @@ begin
        NumXPixels := FastFrameWidth ;
        PixelSize := XWidth / NumXPixels ;
        YLineSpacingMicrons := YHeight / FastFrameHeight ;
-       ScanCycle.NumLineRepeats := Round( YLineSpacingMicrons/PixelSize ) ;
+       ScanCycle.NumLineRepeats := Max(Round( YLineSpacingMicrons/PixelSize ),1) ;
        end
     else
        begin
@@ -1387,8 +1387,14 @@ begin
         else YScanWaveform^[i] := 0 ;
         end ;
 
-
-    ScanCycle.NumLines := Round( YHeight/YLineSpacingMicrons ) + 2*NumEdgeLines ;
+    if cbImageMode.ItemIndex = XTMode then
+       begin
+       ScanCycle.NumLines := Round( edLineScanFrameHeight.Value ) + 2*NumEdgeLines ;
+       end
+    else
+       begin
+       ScanCycle.NumLines := Round( YHeight/YLineSpacingMicrons ) + 2*NumEdgeLines ;
+       end;
     ScanCycle.StartLine := NumEdgeLines ;
     ScanCycle.EndLine := ScanCycle.NumLines - NumEdgeLines - 1 ;
 
