@@ -4,7 +4,6 @@ uses
   Forms,
   MainUnit in 'MainUnit.pas' {MainFrm},
   nidaqmxlib in 'nidaqmxlib.pas',
-  nidaqlib in 'nidaqlib.pas',
   LabIOUnit in 'LabIOUnit.pas' {LabIO: TDataModule},
   SettingsUnit in 'SettingsUnit.pas' {SettingsFrm},
   ZStageUnit in 'ZStageUnit.pas' {ZStage: TDataModule},

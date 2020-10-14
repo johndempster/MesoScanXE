@@ -2,7 +2,7 @@ object SettingsFrm: TSettingsFrm
   Left = 176
   Top = 0
   BorderStyle = bsDialog
-  Caption = ' Scan Settings '
+  Caption = ' Instrument Settings '
   ClientHeight = 512
   ClientWidth = 594
   Color = clBtnFace
@@ -56,7 +56,7 @@ object SettingsFrm: TSettingsFrm
     ActivePage = gpIntegrator
     TabOrder = 2
     object ScanTab: TTabSheet
-      Caption = 'Scanning'
+      Caption = 'Image && Galvo Control'
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -12
@@ -64,19 +64,27 @@ object SettingsFrm: TSettingsFrm
       Font.Style = []
       ParentFont = False
       object gpCaptureImage: TGroupBox
-        Left = 8
-        Top = 8
+        Left = 9
+        Top = 3
         Width = 253
-        Height = 52
+        Height = 101
         Caption = 'Capture Image '
         TabOrder = 0
         object Label37: TLabel
-          Left = 99
+          Left = 96
           Top = 18
-          Width = 51
+          Width = 52
           Height = 15
           Alignment = taRightJustify
-          Caption = 'Pixel size'
+          Caption = 'Pixel Size'
+        end
+        object Label1: TLabel
+          Left = 66
+          Top = 47
+          Width = 82
+          Height = 15
+          Alignment = taRightJustify
+          Caption = 'Calibration Bar'
         end
         object edHRPixelSize: TValidatedEdit
           Left = 156
@@ -93,21 +101,36 @@ object SettingsFrm: TSettingsFrm
           LoLimit = -1.000000015047466E30
           HiLimit = 100.000000000000000000
         end
+        object edCalibrationBarSize: TValidatedEdit
+          Left = 156
+          Top = 47
+          Width = 90
+          Height = 23
+          Hint = 'Size of display calibration bar (um)'
+          ShowHint = True
+          Text = ' 10 um'
+          Value = 10.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'um'
+          NumberFormat = '%.4g'
+          LoLimit = -1.000000015047466E30
+          HiLimit = 1000.000000000000000000
+        end
       end
       object ScanGrp: TGroupBox
         Left = 268
         Top = 8
         Width = 235
-        Height = 309
+        Height = 153
         Caption = ' Scan Settings'
         TabOrder = 1
         object Label3: TLabel
-          Left = 63
+          Left = 61
           Top = 99
-          Width = 68
+          Width = 70
           Height = 15
           Alignment = taRightJustify
-          Caption = 'Phase delay'
+          Caption = 'Phase Delay'
         end
         object Label6: TLabel
           Left = 37
@@ -118,12 +141,12 @@ object SettingsFrm: TSettingsFrm
           Caption = 'Min. Cycle Period'
         end
         object Label9: TLabel
-          Left = 22
+          Left = 15
           Top = 72
-          Width = 109
+          Width = 116
           Height = 15
           Alignment = taRightJustify
-          Caption = 'Min. pixel dwell time'
+          Caption = 'Min. Pixel Dwell Time'
         end
         object Label11: TLabel
           Left = 70
@@ -194,14 +217,14 @@ object SettingsFrm: TSettingsFrm
         end
       end
       object GroupBox1: TGroupBox
-        Left = 8
-        Top = 167
-        Width = 253
+        Left = 268
+        Top = 165
+        Width = 235
         Height = 150
         Caption = ' Scanning Galvanometer Control '
         TabOrder = 2
         object Label40: TLabel
-          Left = 68
+          Left = 44
           Top = 20
           Width = 84
           Height = 15
@@ -209,7 +232,7 @@ object SettingsFrm: TSettingsFrm
           Caption = 'X Mirror Control'
         end
         object Label41: TLabel
-          Left = 68
+          Left = 44
           Top = 79
           Width = 84
           Height = 15
@@ -217,7 +240,7 @@ object SettingsFrm: TSettingsFrm
           Caption = 'Y Mirror Control'
         end
         object xscalelab: TLabel
-          Left = 74
+          Left = 50
           Top = 48
           Width = 78
           Height = 15
@@ -225,7 +248,7 @@ object SettingsFrm: TSettingsFrm
           Caption = 'X Scale Factor'
         end
         object Label5: TLabel
-          Left = 74
+          Left = 50
           Top = 108
           Width = 78
           Height = 15
@@ -233,7 +256,7 @@ object SettingsFrm: TSettingsFrm
           Caption = 'Y Scale Factor'
         end
         object cbXGalvo: TComboBox
-          Left = 156
+          Left = 132
           Top = 20
           Width = 90
           Height = 23
@@ -244,7 +267,7 @@ object SettingsFrm: TSettingsFrm
           TabOrder = 0
         end
         object cbYGalvo: TComboBox
-          Left = 156
+          Left = 132
           Top = 79
           Width = 90
           Height = 23
@@ -255,7 +278,7 @@ object SettingsFrm: TSettingsFrm
           TabOrder = 1
         end
         object edXVoltsPerMicron: TValidatedEdit
-          Left = 156
+          Left = 132
           Top = 48
           Width = 90
           Height = 23
@@ -270,7 +293,7 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 1.000000000000000000
         end
         object edYVoltsPerMicron: TValidatedEdit
-          Left = 156
+          Left = 132
           Top = 106
           Width = 90
           Height = 23
@@ -286,19 +309,19 @@ object SettingsFrm: TSettingsFrm
         end
       end
       object gpLiveImage: TGroupBox
-        Left = 8
-        Top = 71
+        Left = 9
+        Top = 110
         Width = 253
         Height = 90
         Caption = ' Live Image '
         TabOrder = 3
         object Label4: TLabel
-          Left = 96
+          Left = 83
           Top = 20
-          Width = 56
+          Width = 69
           Height = 15
           Alignment = taRightJustify
-          Caption = 'Pixels/line'
+          Caption = 'Pixels / Lline'
         end
         object Label12: TLabel
           Left = 77
@@ -335,6 +358,23 @@ object SettingsFrm: TSettingsFrm
           NumberFormat = '%.0f'
           LoLimit = 10.000000000000000000
           HiLimit = 30000.000000000000000000
+        end
+      end
+      object GroupBox7: TGroupBox
+        Left = 9
+        Top = 208
+        Width = 253
+        Height = 105
+        Caption = ' National Instruments Devices'
+        TabOrder = 4
+        object meStatus: TMemo
+          Left = 8
+          Top = 20
+          Width = 233
+          Height = 73
+          Lines.Strings = (
+            'meStatus')
+          TabOrder = 0
         end
       end
     end
@@ -1217,72 +1257,65 @@ object SettingsFrm: TSettingsFrm
       ImageIndex = 3
       ParentFont = False
       object GroupBox2: TGroupBox
-        Left = 8
+        Left = 3
         Top = 3
-        Width = 281
-        Height = 191
-        Caption = ' Z position Control'
+        Width = 250
+        Height = 256
+        Caption = ' Stage Position Control'
         TabOrder = 0
-        object Label8: TLabel
-          Left = 103
-          Top = 43
-          Width = 65
-          Height = 15
-          Alignment = taRightJustify
-          Caption = 'Control Port'
-        end
         object Label10: TLabel
-          Left = 95
-          Top = 68
-          Width = 73
+          Left = 65
+          Top = 134
+          Width = 78
           Height = 15
           Alignment = taRightJustify
-          Caption = 'Z scale factor'
+          Caption = 'Z Scale Factor'
         end
         object Label13: TLabel
-          Left = 107
-          Top = 95
-          Width = 61
+          Left = 79
+          Top = 162
+          Width = 64
           Height = 15
           Alignment = taRightJustify
-          Caption = 'Z step time'
+          Caption = 'Z Step Rate'
+        end
+        object Label8: TLabel
+          Left = 65
+          Top = 78
+          Width = 78
+          Height = 15
+          Alignment = taRightJustify
+          Caption = 'X Scale Factor'
         end
         object Label14: TLabel
-          Left = 46
-          Top = 122
+          Left = 65
+          Top = 106
+          Width = 78
+          Height = 15
+          Alignment = taRightJustify
+          Caption = 'Y Scale Factor'
+        end
+        object Label16: TLabel
+          Left = 21
+          Top = 190
           Width = 122
           Height = 15
           Alignment = taRightJustify
           Caption = 'Z Position Lower Limit'
         end
-        object Label16: TLabel
-          Left = 46
-          Top = 149
+        object Label23: TLabel
+          Left = 21
+          Top = 218
           Width = 122
           Height = 15
           Alignment = taRightJustify
           Caption = 'Z Position Upper Limit'
         end
-        object cbZStagePort: TComboBox
-          Left = 176
-          Top = 43
-          Width = 97
-          Height = 23
-          Hint = 
-            'Z stage control port (COM or analogue depending on type of stage' +
-            ')'
-          Style = csDropDownList
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 0
-        end
         object edZScaleFactor: TValidatedEdit
-          Left = 176
-          Top = 68
-          Width = 97
+          Left = 150
+          Top = 134
+          Width = 87
           Height = 23
-          Hint = 'Z step scaling factor'
-          ShowHint = True
           Text = ' 1 steps/um'
           Value = 1.000000000000000000
           Scale = 1.000000000000000000
@@ -1293,35 +1326,57 @@ object SettingsFrm: TSettingsFrm
         end
         object cbZStageType: TComboBox
           Left = 8
-          Top = 16
-          Width = 265
+          Top = 22
+          Width = 230
           Height = 23
-          TabOrder = 2
+          TabOrder = 1
           Text = 'cbZStageType'
           OnChange = cbZStageTypeChange
         end
         object edZStepTime: TValidatedEdit
-          Left = 176
-          Top = 95
-          Width = 97
+          Left = 150
+          Top = 162
+          Width = 87
           Height = 23
-          Hint = 'Time allocated for completion of Z step '
-          ShowHint = True
-          Text = ' 100 ms'
+          Text = ' 100 ms/um'
           Value = 0.100000001490116100
           Scale = 1000.000000000000000000
-          Units = 'ms'
+          Units = 'ms/um'
+          NumberFormat = '%.4g'
+          LoLimit = -1.000000015047466E30
+          HiLimit = 1000000.000000000000000000
+        end
+        object edXScalefactor: TValidatedEdit
+          Left = 150
+          Top = 78
+          Width = 87
+          Height = 23
+          Text = ' 1 steps/um'
+          Value = 1.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'steps/um'
+          NumberFormat = '%.4g'
+          LoLimit = -1.000000015047466E30
+          HiLimit = 1000000.000000000000000000
+        end
+        object edYScaleFactor: TValidatedEdit
+          Left = 150
+          Top = 106
+          Width = 87
+          Height = 23
+          Text = ' 1 steps/um'
+          Value = 1.000000000000000000
+          Scale = 1.000000000000000000
+          Units = 'steps/um'
           NumberFormat = '%.4g'
           LoLimit = -1.000000015047466E30
           HiLimit = 1000000.000000000000000000
         end
         object edZpositionMin: TValidatedEdit
-          Left = 176
-          Top = 122
-          Width = 97
+          Left = 150
+          Top = 190
+          Width = 87
           Height = 23
-          Hint = 'Upper limit of Z stage movement'
-          ShowHint = True
           Text = ' -10000 um'
           Value = -10000.000000000000000000
           Scale = 1.000000000000000000
@@ -1331,12 +1386,10 @@ object SettingsFrm: TSettingsFrm
           HiLimit = 1000000.000000000000000000
         end
         object edZPositionMax: TValidatedEdit
-          Left = 176
-          Top = 149
-          Width = 97
+          Left = 150
+          Top = 218
+          Width = 87
           Height = 23
-          Hint = 'Upper limit of Z stage movement'
-          ShowHint = True
           Text = ' 10000 um'
           Value = 10000.000000000000000000
           Scale = 1.000000000000000000
@@ -1344,6 +1397,54 @@ object SettingsFrm: TSettingsFrm
           NumberFormat = '%.0f'
           LoLimit = -1.000000015047466E30
           HiLimit = 1000000.000000000000000000
+        end
+        object ControlPortPanel: TPanel
+          Left = 8
+          Top = 50
+          Width = 235
+          Height = 24
+          BevelOuter = bvNone
+          TabOrder = 7
+          object Label24: TLabel
+            Left = 70
+            Top = 1
+            Width = 65
+            Height = 15
+            Alignment = taRightJustify
+            Caption = 'Control Port'
+          end
+          object cbZStagePort: TComboBox
+            Left = 141
+            Top = 1
+            Width = 88
+            Height = 23
+            Style = csDropDownList
+            TabOrder = 0
+          end
+        end
+        object SerialNumberPanel: TPanel
+          Left = 8
+          Top = 50
+          Width = 235
+          Height = 24
+          BevelOuter = bvNone
+          TabOrder = 8
+          object Label32: TLabel
+            Left = 82
+            Top = 0
+            Width = 54
+            Height = 15
+            Alignment = taRightJustify
+            Caption = 'Serial No.'
+          end
+          object edSerialNumber: TEdit
+            Left = 142
+            Top = 0
+            Width = 87
+            Height = 23
+            TabOrder = 0
+            Text = 'edSerialNumber'
+          end
         end
       end
     end

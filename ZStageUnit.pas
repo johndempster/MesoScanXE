@@ -310,8 +310,8 @@ begin
     if CommonLibraryHnd <> 0 then FreeLibrary(CommonLibraryHnd) ;
     CommonLibraryHnd := 0 ;
 
-
     end;
+
 
 procedure TZStage.StopComThread ;
 // ------------------------
@@ -707,21 +707,21 @@ procedure TZStage.TDC001_Open ;
 // --------------------
 begin
 
-    FStageIsOpen := False ;
-
     // Load DLL library
     TDC001_LoadLibrary ;
 
-    // Open selected device
-    if CC_Open(PANSIChar(FSerialNumber)) <> 0 then Exit ;
+    if FStageIsOpen then
+       begin
+       // Open selected device
+       if CC_Open(PANSIChar(FSerialNumber)) <> 0 then Exit ;
 
-    CC_StartPolling(PANSIChar(FSerialNumber), 200);
-    CC_ClearMessageQueue(PANSIChar(FSerialNumber));
+       CC_StartPolling(PANSIChar(FSerialNumber), 200);
+       CC_ClearMessageQueue(PANSIChar(FSerialNumber));
 
-    // Move to home position
-    CC_Home(PANSIChar(FSerialNumber)) ;
+       // Move to home position
+       CC_Home(PANSIChar(FSerialNumber)) ;
 
-    FStageIsOpen := True ;
+       end;
 
     end;
 
@@ -738,7 +738,6 @@ begin
      // Exit if library already loaded
      if LibraryHnd <> 0 then Exit ;
 
-     
      // Get system drive
      GetSystemDirectory( Path, High(Path) ) ;
      SYSDrive := ExtractFileDrive(String(Path)) ;
@@ -747,6 +746,7 @@ begin
     CommonLibraryHnd := LoadLibrary( PChar(LibFileName ) );
     if CommonLibraryHnd = 0 then begin
        ShowMessage( 'Unable to open' + LibFileName ) ;
+       FStageIsOpen := False ;
        Exit ;
        end ;
 
@@ -754,6 +754,7 @@ begin
     LibraryHnd := LoadLibrary( PChar(LibFileName));
     if LibraryHnd = 0 then begin
        ShowMessage( 'Unable to open' + LibFileName ) ;
+       FStageIsOpen := False ;
        Exit ;
        end ;
 
@@ -777,6 +778,8 @@ begin
     @CC_GetDeviceUnitFromRealValue := GetDLLAddress( LibraryHnd, 'CC_GetDeviceUnitFromRealValue' ) ;
     @CC_SetMotorTravelLimits := GetDLLAddress( LibraryHnd, 'CC_SetMotorTravelLimits' ) ;
     @CC_GetMotorTravelLimits := GetDLLAddress( LibraryHnd, 'CC_GetMotorTravelLimits' ) ;
+
+    FStageIsOpen := True ;
 
 end;
 

@@ -9,6 +9,8 @@ unit SettingsUnit;
 // 10.05.17 ZPositionMin, ZPositionMax limits added
 // 03.11.17 raw images folder can be changed by user
 // 04.12.17 HRPixelSize added
+// 23.01.20 CalibrationBarSize added
+// 05.03.20 X and Y scale factor fields added
 
 interface
 
@@ -130,18 +132,6 @@ type
     cbLaserControlPort: TComboBox;
     edLaserControllerID: TEdit;
     TabSheet1: TTabSheet;
-    GroupBox2: TGroupBox;
-    Label8: TLabel;
-    Label10: TLabel;
-    Label13: TLabel;
-    Label14: TLabel;
-    Label16: TLabel;
-    cbZStagePort: TComboBox;
-    edZScaleFactor: TValidatedEdit;
-    cbZStageType: TComboBox;
-    edZStepTime: TValidatedEdit;
-    edZpositionMin: TValidatedEdit;
-    edZPositionMax: TValidatedEdit;
     MiscTab: TTabSheet;
     GroupBox3: TGroupBox;
     Label25: TLabel;
@@ -149,6 +139,30 @@ type
     edImageJPath: TEdit;
     ckSaveAsMultipageTIFF: TCheckBox;
     edRawFileFolder: TEdit;
+    edCalibrationBarSize: TValidatedEdit;
+    Label1: TLabel;
+    GroupBox2: TGroupBox;
+    Label10: TLabel;
+    Label13: TLabel;
+    Label8: TLabel;
+    Label14: TLabel;
+    Label16: TLabel;
+    Label23: TLabel;
+    edZScaleFactor: TValidatedEdit;
+    cbZStageType: TComboBox;
+    edZStepTime: TValidatedEdit;
+    edXScalefactor: TValidatedEdit;
+    edYScaleFactor: TValidatedEdit;
+    edZpositionMin: TValidatedEdit;
+    edZPositionMax: TValidatedEdit;
+    ControlPortPanel: TPanel;
+    Label24: TLabel;
+    cbZStagePort: TComboBox;
+    SerialNumberPanel: TPanel;
+    Label32: TLabel;
+    edSerialNumber: TEdit;
+    GroupBox7: TGroupBox;
+    meStatus: TMemo;
     procedure FormShow(Sender: TObject);
     procedure bOKClick(Sender: TObject);
     procedure bCancelClick(Sender: TObject);
@@ -203,6 +217,7 @@ procedure TSettingsFrm.bOKClick(Sender: TObject);
 var
     i : Integer ;
 begin
+
     MainFrm.HRPixelSize := edHRPixelSize.Value ;
     MainFrm.FastFRameWidth := Round(edFastFRameWidth.Value) ;
     MainFrm.FastFRameHeight := Round(edFastFRameHeight.Value) ;
@@ -212,8 +227,10 @@ begin
     MainFrm.YVoltsPerMicron := edYVoltsPerMicron.Value ;
     MainFrm.PhaseShift := Abs(edPhaseShift.Value) ;
     MainFrm.BlackLevel := Round(edBlackLevel.Value) ;
+    MainFrm.CalibrationBarSize := edCalibrationBarSize.Value ;
 
     // PMTs & Integrator
+    PMT.ADCDevice := cbPMTADCPort.ItemIndex ;
     PMT.IntegratorType := cbIntegratorType.ItemIndex ;
     PMT.ControlPort := cbIntegratorPort.ItemIndex ;
     PMT.NumPMTs := spNumPMTs.Value ;
@@ -252,10 +269,14 @@ begin
     MainFrm.YGalvoControl := Integer(cbYGalvo.Items.Objects[cbYGalvo.ItemIndex]);
 
     ZStage.ControlPort := cbZStagePort.ItemIndex ;
+    ZStage.XScaleFactor := edXScaleFactor.Value ;
+    ZStage.YScaleFactor := edYScaleFactor.Value ;
     ZStage.ZScaleFactor := edZScaleFactor.Value ;
     ZStage.ZStepTime := edZStepTime.Value ;
     ZStage.ZPositionMin := edZPositionMin.Value ;
     ZStage.ZPositionMax := edZPositionMax.Value ;
+
+    ZStage.SerialNumber := edSerialNumber.Text ;
 
     MainFrm.ImageJPath := edImageJPath.Text ;
     MainFrm.SaveAsMultipageTIFF := ckSaveAsMultipageTIFF.Checked ;
@@ -318,15 +339,26 @@ begin
     ZStage.GetControlPorts(cbZStagePort.Items);
     cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
 
+    edXScaleFactor.Units := ZStage.ScaleFactorUnits ;
+    edXScaleFactor.Value := ZStage.XScaleFactor ;
+    edYScaleFactor.Units := ZStage.ScaleFactorUnits ;
+    edYScaleFactor.Value := ZStage.YScaleFactor ;
     edZScaleFactor.Units := ZStage.ScaleFactorUnits ;
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
 
+    // Show optional controls
+    ControlPortPanel.Visible :=  ZStage.IsControlPortRequired ;
+    SerialNumberPanel.Visible :=  ZStage.IsSerialNumberRequired ;
+
     end;
+
 
 procedure TSettingsFrm.FormShow(Sender: TObject);
 // --------------------------
 // Initialise form on display
 // --------------------------
+var
+    i : Integer ;
 begin
 
     edFastFrameWidth.Value := MainFrm.FastFrameWidth ;
@@ -341,6 +373,7 @@ begin
     edFullFieldWidthMicrons.Value := MainFrm.FullFieldWidthMicrons ;
     ckInvertPMTSignal.Checked := MainFrm.InvertPMTSignal ;
     edHRPixelSize.Value := MainFrm.HRPixelSize ;
+    edCalibrationBarSize.Value := MainFrm.CalibrationBarSize ;
 
     // Integrator type
     PMT.GetIntegratorTypes( cbIntegratorType.Items ) ;
@@ -352,9 +385,9 @@ begin
 
     // PMT A/D input port
     LabIO.GetAIPorts( cbPMTADCPort.Items ) ;
-    cbPMTADCPort.ItemIndex := PMT.ADCDevice ;
+    cbPMTADCPort.ItemIndex := Max(PMT.ADCDevice,0) ;
 
-    spNumPMTs.MaxValue := MaxPMT ;
+    spNumPMTs.MaxValue := MaxPMT + 1 ;
     spNumPMTs.Value := PMT.NumPMTs ;
 
     edPMTGainVMin.Value := PMT.GainVMin ;
@@ -391,7 +424,6 @@ begin
     LabIO.GetAOPorts(cbYGalvo.Items);
     cbYGalvo.ItemIndex := cbYGalvo.Items.IndexOfObject(Tobject(MainFrm.YGalvoControl));
 
-
     // Z stage control
     ZStage.GetZStageTypes(cbZStageType.Items);
     cbZStageType.ItemIndex := Min(Max(ZStage.StageType,0),cbZStageType.Items.Count-1) ;
@@ -399,16 +431,32 @@ begin
     ZStage.GetControlPorts(cbZStagePort.Items);
     cbZStagePort.ItemIndex := Min(Max(ZStage.ControlPort,0),cbZStagePort.Items.Count-1) ;
 
+    edXScaleFactor.Units := ZStage.ScaleFactorUnits ;
+    edXScaleFactor.Value := ZStage.XScaleFactor ;
+    edYScaleFactor.Units := ZStage.ScaleFactorUnits ;
+    edYScaleFactor.Value := ZStage.YScaleFactor ;
     edZScaleFactor.Units := ZStage.ScaleFactorUnits ;
     edZScaleFactor.Value := ZStage.ZScaleFactor ;
+
     edZStepTime.Value := ZStage.ZStepTime ;
     edZPositionMin.Value := ZStage.ZPositionMin ;
     edZPositionMax.Value := ZStage.ZPositionMax ;
+
+    edSerialNumber.Text := ZStage.SerialNumber ;
 
     edImageJPath.Text := MainFrm.ImageJPath ;
     ckSaveAsMultipageTIFF.Checked := MainFrm.SaveAsMultipageTIFF ;
 
     edRawFileFolder.Text := ExtractFilePath(MainFrm.RawImagesFileName) ;
+
+    // Show optional controls
+    ControlPortPanel.Visible :=  ZStage.IsControlPortRequired ;
+    SerialNumberPanel.Visible :=  ZStage.IsSerialNumberRequired ;
+
+    // Display available device list
+    meStatus.Clear ;
+    for i := 1 to LabIO.NumDevices do
+        meStatus.Lines.Add(LabIO.DeviceName[i] + ': ' + LabIO.DeviceBoardName[i] ) ;
 
     end;
 

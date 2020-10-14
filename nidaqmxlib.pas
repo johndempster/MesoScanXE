@@ -1648,6 +1648,16 @@ TDAQmxGetDevAISimultaneousSamplingSupported = function(
                        var Enabled : LongBool
                        ) : Integer ; stdcall  ;
 
+TDAQmxGetDevAIMaxMultiChanRate = function(
+                       const Device : PANSIChar  ;
+                       var Value : Double
+                       ) : Integer ; stdcall  ;
+
+TDAQmxGetDevAOMaxRate = function(
+                        const Device : PANSIChar  ;
+                        var Value : Double
+                        ) : Integer ; stdcall  ;
+
 TDAQmxGetSysDevNames = function(
                        var NameBuf : Array of ANSIChar ;
                        BufSize : Integer
@@ -1842,6 +1852,8 @@ var
     DAQmxGetSampClkRate : TDAQmxGetSampClkRate ;
     DAQmxGetSampClkMaxRate : TDAQmxGetSampClkMaxRate ;
     DAQmxGetDevAISimultaneousSamplingSupported : TDAQmxGetDevAISimultaneousSamplingSupported ;
+    DAQmxGetDevAIMaxMultiChanRate : TDAQmxGetDevAIMaxMultiChanRate ;
+    DAQmxGetDevAOMaxRate : TDAQmxGetDevAOMaxRate ;
 
     DAQmxGetSysDevNames : TDAQmxGetSysDevNames ;
     DAQmxGetWriteOffset : TDAQmxGetWriteOffset ;
@@ -2006,6 +2018,8 @@ begin
         @DAQmxGetSampClkRate := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetSampClkRate' ) ;
         @DAQmxGetSampClkMaxRate := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetSampClkMaxRate' ) ;
         @DAQmxGetDevAISimultaneousSamplingSupported := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetDevAISimultaneousSamplingSupported' ) ;
+        @DAQmxGetDevAIMaxMultiChanRate := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetDevAIMaxMultiChanRate' ) ;
+        @DAQmxGetDevAOMaxRate := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetDevAOMaxRate' ) ;
         @DAQmxGetSysDevNames := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetSysDevNames' ) ;
         @DAQmxGetDevProductType := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetDevProductType' ) ;
         @DAQmxGetWriteOffset := NIDAQMX_LoadProcedure( LibraryHnd, 'DAQmxGetWriteOffset' ) ;
